@@ -72,8 +72,8 @@ class PRODUCTOR(models.Model):
     PR_CCORREO = models.CharField(("DESCRIPCION"),max_length=128)
     PR_NCONTACTO = models.CharField(("CONTACTO"),max_length=128)
     PR_NHABILITADO = models.BooleanField(("Habilitado"),default=True,null=True,blank=True)
-    US_NID = models.OneToOneField(User, related_name='USUARIO_PRODUCTOR', on_delete=models.PROTECT)
-    CT_NID = models.OneToOneField(CONTRATO, related_name='CONTRATO', on_delete=models.PROTECT,null=True,blank=True)
+    US_NID = models.ForeignKey(User, related_name='USUARIO_PRODUCTOR', on_delete=models.PROTECT)
+    CT_NID = models.ForeignKey(CONTRATO, related_name='CONTRATO', on_delete=models.PROTECT,null=True,blank=True)
     class Meta:
         db_table = 'PRODUCTOR'
 
@@ -102,7 +102,7 @@ class CLIENTE_EXTERNO(models.Model):
     CLE_CCORREO = models.CharField(("Correo"),max_length=128)
     CLE_NCONTACTO = models.CharField(("CONTACTO"),max_length=128)
     CLE_NHABILITADO = models.BooleanField(("Habilitado"),default=True,null=True,blank=True)
-    US_NID = models.OneToOneField(User, related_name='USUARIO_CLI_EXTERNO', on_delete=models.PROTECT)
+    US_NID = models.ForeignKey(User, related_name='USUARIO_CLI_EXTERNO', on_delete=models.PROTECT)
     class Meta:
         db_table = 'CLIENTE_EXTERNO'
 
@@ -114,7 +114,7 @@ class CLIENTE_INTERNO(models.Model):
     CLI_CCORREO = models.CharField(("Correo"),max_length=128)
     CLI_NCONTACTO = models.CharField(("CONTACTO"),max_length=128)
     CLI_NHABILITADO = models.BooleanField(("Habilitado"),default=True,null=True,blank=True)
-    US_NID = models.OneToOneField(User, related_name='USUARIO_CLI_INTERNO', on_delete=models.PROTECT)
+    US_NID = models.ForeignKey(User, related_name='USUARIO_CLI_INTERNO', on_delete=models.PROTECT)
     class Meta:
         db_table = 'CLIENTE_INTERNO'
 
@@ -126,7 +126,7 @@ class CONSULTOR(models.Model):
     CON_CCORREO = models.CharField(("Correo"),max_length=128)
     CON_NCONTACTO = models.CharField(("CONTACTO"),max_length=128)
     CON_NHABILITADO = models.BooleanField(("Habilitado"),default=True,null=True,blank=True)
-    US_NID = models.OneToOneField(User, related_name='USUARIO_CONSULTOR', on_delete=models.PROTECT)
+    US_NID = models.ForeignKey(User, related_name='USUARIO_CONSULTOR', on_delete=models.PROTECT)
     class Meta:
         db_table = 'CONSULTOR'
 
@@ -138,7 +138,7 @@ class TRANSPORTISTA(models.Model):
     TR_CCORREO = models.CharField(("Correo"),max_length=128)
     TR_NCONTACTO = models.CharField(("CONTACTO"),max_length=128)
     TR_NHABILITADO = models.BooleanField(("Habilitado"),default=True,null=True,blank=True)
-    US_NID = models.OneToOneField(User, related_name='USUARIO_TRANSPORTISTA', on_delete=models.PROTECT)
+    US_NID = models.ForeignKey(User, related_name='USUARIO_TRANSPORTISTA', on_delete=models.PROTECT)
     class Meta:
         db_table = 'TRANSPORTISTA'
 

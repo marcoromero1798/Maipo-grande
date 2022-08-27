@@ -144,14 +144,7 @@ class formCONSULTOR(forms.ModelForm):
         }
 class formTRANSPORTISTA(forms.ModelForm):
     class Meta:
-        model = TRANSPORTISTA     
-        # TR_CDESCRIPCION
-        # TR_CCORREO
-        # TR_NCONTACTO
-        # TR_NHABILITADO
-        # US_NID
-        # CT_NID
-	
+        model = TRANSPORTISTA     	
         fields = [
         'TR_CDESCRIPCION',
         'TR_CCORREO',

@@ -679,7 +679,7 @@ def consultor_deshabilitar(request,pk):
     historial_acciones.save() 
     return redirect("sy-cli_list") 
 #TRANSPORTISTA
-class transportista_create(ListView):
+class transportista_create(CreateView):
     model = TRANSPORTISTA      # Modelo a utilizar
     form_class = formTRANSPORTISTA  # Formulario definido en forms.py
     template_name = 'home/sy-tr_create.html'  # html template en core

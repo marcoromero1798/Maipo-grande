@@ -1,0 +1,110 @@
+{% extends "layouts/base.html" %}
+{% block title %} Visualizar Producto{% endblock %}
+{% include 'includes/scripts.html' %}
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% block content %}
+{% for objeto in object_list %}
+<section class="pcoded-main-container">
+    <div class="pcoded-content">
+        <div class="page-header">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <div class="col-md-12">
+                        <div class="page-header-title">
+                            <h5 class="m-b-10">Producto</h5>
+                        </div>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/dashboard-sugerido"><i class="feather
+										icon-home"></i></a></li>
+                            <li class="breadcrumb-item"><a href="/dm-it_listar">Producto</a></li>
+                            <li class="breadcrumb-item"><a href="#!">Listar Producto</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        <div class="btn-toolbar mb-2 mb-md-0 float-right">
+            <a href="{% url 'dm-it_agregar' %}" class="btn btn-secondary ">
+                <i class="feather icon-plus"></i>
+                Nuevo
+            </a>
+        </div>
+        
+        <!--DATOS DE LA TABLA-->
+
+        <div class="card card-body border-0 shadow table-wrapper table-responsive">
+            <table class="table table-hover">
+                <h2 class="h4">MOSTRANDO: {{objeto.PC_CCODIGO_PROD}}</h2>
+                <tbody>
+                    <tr>
+                        <th style="width: 10%;"><span class="fw-bold">Descripcion</span></th>
+                        <td><span class="fw-bold">{{ objeto.PC_CDESCRIPCION }}</span></td>
+                    </tr>
+                    <tr>
+                        <th style="width: 10%;"><span class="fw-bold">PRECIO</span></th>
+                        <td><span class="fw-normal">{{ objeto.PC_NPRECIO|floatformat:2 }}</span></td>
+                    </tr>
+                    <tr>
+                        <th style="width: 10%;"><span class="fw-bold">PESO</span></th>
+                        <td><span class="fw-normal">{{ objeto.PC_NPESO|floatformat:2  }}</span></td>
+                    </tr>
+                    <tr>
+                        <th style="width: 10%;"><span class="fw-bold">Unidad Peso</span></th>
+                        <td><span class="fw-normal">{{ objeto.PC_CUNIDAD_PESO }}</span></td>
+                    </tr>
+                    <tr>
+                        <th style="width: 10%;"><span class="fw-bold">Calidad</span></th>
+                        <td><span class="fw-normal">{{ objeto.PC_NCALIDAD  }}</span></td>
+                    </tr>
+                    <tr>
+                        <th style="width: 10%;"><span class="fw-bold">Origen</span></th>
+                        <td><span class="fw-normal">{{ objeto.PC_CORIGEN }}</span></td>
+                    </tr>
+                    <tr>
+                        <th style="width: 10%;"><span class="fw-bold">Productor</span></th>
+                        <td><span class="fw-normal">{{ objeto.PR_NID }}</span></td>
+                    </tr>
+                    <tr>
+                        <th style="width: 10%;"><span class="fw-bold">Categoria</span></th>
+                        <td><span class="fw-normal">{{ objeto.CP_NID }}</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card card-body border-0 shadow table-wrapper table-responsive">
+            <table class="table table-hover">
+                <h2 class="h4">Stock</h2>
+                
+                <tbody>
+                    {% if  object_list_kardex %}
+                        {% for object_list in object_list_kardex %}
+                        <tr>
+                            <th style="width: 10%;"><span class="fw-bold">Cantidad</span></th>
+                            <td><span class="fw-bold">{{ object_list.KX_NQTYACUM }}</span></td>
+                        </tr>
+                        <tr>
+                            <th style="width: 10%;"><span class="fw-bold">Fecha ultimo registro</span></th>
+                            <td><span class="fw-bold">{{ object_list.KX_FFECHA_REGISTRO }}</span></td>
+                        </tr>
+
+                        {% endfor %}
+                    {% else %}    
+                        <H2>Stock no cargado</H2>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+</section>
+
+
+
+{% endfor %}
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}

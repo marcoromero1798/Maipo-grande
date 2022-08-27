@@ -1,0 +1,119 @@
+{% extends "layouts/base.html" %}
+{% block title %} Lista de Consultor {% endblock %} 
+{% include 'includes/scripts.html' %}
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<link rel="stylesheet" href="/static/assets/css/plugins/dataTables.bootstrap4.min.css">
+{% endblock stylesheets %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% block content %}
+
+<section class="pcoded-main-container">
+    <div class="pcoded-content">
+        <div class="page-header">
+			<div class="page-block">
+				<div class="row align-items-center">
+					<div class="col-md-12">
+						<div class="page-header-title">
+							<h5 class="m-b-10">Consultor</h5>
+						</div>
+						<ul class="breadcrumb">
+							<li class="breadcrumb-item"><a href="/dashboard-sugerido"><i class="feather
+										icon-home"></i></a></li>
+							<li class="breadcrumb-item"><a href="#!">Consultor</a></li>
+							<li class="breadcrumb-item"><a href="#!">Listar Consultor</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+        <div class="btn-toolbar mb-2 mb-md-0 float-right">
+            <a href="{% url 'sy-cli_create' %}" class="btn btn-secondary ">
+                <i class="feather icon-plus"></i> 
+                Nuevo
+            </a>
+        </div>
+        <!--DATOS DE LA TABLA-->
+        <div class="card card-body border-0 shadow table-wrapper table-responsive">
+            <table class="table table-hover" id="basic-btn">
+                <thead>
+                    <tr>
+                        <!-- PV_CNOMBRE_PROVEEDOR                  
+							# PV_CCOD_PROV                        
+							# PV_CPLANTAORIGEN                      
+							# PV_CLEADTIME                        
+							# PV_NCAPACIDAD_TOTAL_M3_CONTENEDOR_20 
+							# PV_NCAPACIDAD_TOTAL_M3_CONTENEDOR_40 
+							# PV_NCAPACIDAD_TOTAL_UNIDAD_CONTENEDOR_20
+							# PV_NCAPACIDAD_TOTAL_UNIDAD_CONTENEDOR_40-->
+                        <th class="border-gray-200" scope="col">#</th>
+                        <th class="border-gray-200" scope="col">DESCRIPCION</th>
+                        <th class="border-gray-200" scope="col">CCORREO</th>
+                        <th class="border-gray-200" scope="col">CONTACTO</th>
+                        <th class="border-gray-200" scope="col">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for objeto in object_list %}
+                    {% if objeto.CON_NHABILITADO %}
+                    <tr>
+                        <th><span class="fw-normal">{{ objeto.CON_NID }}</span></th>
+                        <td><span class="fw-bold">{{ objeto.CON_CDESCRIPCION }}</span></td>
+                        <td><span class="fw-bold">{{ objeto.CON_CCORREO }}</span></td>
+                        <td><span class="fw-bold">{{ objeto.CON_NCONTACTO }}</span></td>
+                        <td>
+                            <a class="btn btn-secondary" href="{% url 'sy-con_update' objeto.CON_NID|unlocalize %}"><i class="feather icon-edit"></i> </a>
+                            <a class="btn btn-danger" data-toggle="modal" data-target="#modal-default{{ objeto.CON_NID|unlocalize }}"><i class="feather icon-x-square"></i></a>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+                {% for objeto in object_list %}
+                <div class="modal fade" id="modal-default{{ objeto.CON_NID|unlocalize }}" tabindex="-1" role="dialog" aria-labelledby="modal-default{{ objeto.CON_NID|unlocalize }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Confirmar</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                
+                            </div>
+                            <div class="modal-body">
+                                <p>
+                                    Esta Seguro que desea eliminar {{ objeto.CON_NID|unlocalize }}?
+                                </p>
+                            </div>
+                            <div class="modal-footer">
+                                <a href="{% url 'dm-pv_eliminar' objeto.CON_NID|unlocalize %}"
+                                   class="btn btn-danger"
+                                   type="button">Eliminar</a>
+                                <button type="button" class="btn  btn-secondary" data-dismiss="modal">Cerrar</button>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </table>
+    </div>
+</section>
+{% endblock content %}
+
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+    <!-- datatable Js -->
+    <script src="/static/assets/js/plugins/jquery.dataTables.min.js"></script>
+    <script src="/static/assets/js/plugins/dataTables.bootstrap4.min.js"></script>
+    <script src="/static/assets/js/plugins/buttons.colVis.min.js"></script>
+    <script src="/static/assets/js/plugins/buttons.print.min.js"></script>
+    <script src="/static/assets/js/plugins/pdfmake.min.js"></script>
+    <script src="/static/assets/js/plugins/jszip.min.js"></script>
+    <script src="/static/assets/js/plugins/dataTables.buttons.min.js"></script>
+    <script src="/static/assets/js/plugins/buttons.html5.min.js"></script>
+    <script src="/static/assets/js/plugins/buttons.bootstrap4.min.js"></script>
+    <script src="/static/assets/js/pages/data-export-custom.js"></script>
+    {% endblock javascripts %}
+

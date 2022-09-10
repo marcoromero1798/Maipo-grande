@@ -30,7 +30,7 @@
 			</div>
 		</div>
         <div class="btn-toolbar mb-2 mb-md-0 float-right">
-            <a href="{% url 'sy-cli_create' %}" class="btn btn-secondary ">
+            <a href="{% url 'sy-con_create' %}" class="btn btn-secondary ">
                 <i class="feather icon-plus"></i> 
                 Nuevo
             </a>
@@ -86,7 +86,7 @@
                                 </p>
                             </div>
                             <div class="modal-footer">
-                                <a href="{% url 'dm-pv_eliminar' objeto.CON_NID|unlocalize %}"
+                                <a href="{% url 'sy-con_deshabilitar' objeto.CON_NID|unlocalize %}"
                                    class="btn btn-danger"
                                    type="button">Eliminar</a>
                                 <button type="button" class="btn  btn-secondary" data-dismiss="modal">Cerrar</button>

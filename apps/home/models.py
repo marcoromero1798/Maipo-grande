@@ -28,16 +28,7 @@ class PARAMETRO(models.Model):
     def __str__(self):
         return self.PM_CCODIGO
 
-class CONTRATO(models.Model):
-    CT_NID = models.BigAutoField(("ID Bodega"),primary_key=True)
-    CT_FFECHA_INICIO = models.DateTimeField(("Fecha creacion"))
-    CT_FFECHA_TERMINO = models.DateTimeField(("Fecha creacion"))
-    CT_NHABILITADO = models.BooleanField(("Habilitado"),default=True,null=True,blank=True)
-    class Meta:
-        db_table = 'CONTRATO'
 
-    def __str__(self):
-        return str(self.CT_NID)
 class CATEGARIAPRODUCTO(models.Model):
     CP_NID = models.BigAutoField(("ID CATEGORIA"),primary_key=True)
     CP_CDESCRIPCION = models.CharField(("DESCRIPCION "),max_length=128)
@@ -73,21 +64,32 @@ class PRODUCTOR(models.Model):
     PR_NCONTACTO = models.CharField(("CONTACTO"),max_length=128)
     PR_NHABILITADO = models.BooleanField(("Habilitado"),default=True,null=True,blank=True)
     US_NID = models.ForeignKey(User, related_name='USUARIO_PRODUCTOR', on_delete=models.PROTECT)
-    CT_NID = models.ForeignKey(CONTRATO, related_name='CONTRATO', on_delete=models.PROTECT,null=True,blank=True)
     class Meta:
         db_table = 'PRODUCTOR'
 
     def __str__(self):
         return self.PR_CDESCRIPCION
+
+class CONTRATO(models.Model):
+    CT_NID = models.BigAutoField(("ID Bodega"),primary_key=True)
+    CT_FFECHA_INICIO = models.DateTimeField(("Fecha creacion"))
+    CT_FFECHA_TERMINO = models.DateTimeField(("Fecha creacion"))
+    CT_NHABILITADO = models.BooleanField(("Habilitado"),default=True,null=True,blank=True)
+    PR_NID = models.ForeignKey(PRODUCTOR, related_name='USUARIO_PRODUCTOR', on_delete=models.PROTECT)
+    class Meta:
+        db_table = 'CONTRATO'
+
+    def __str__(self):
+        return str(self.CT_NID)
 class PRODUCTO(models.Model):
     PC_NID = models.BigAutoField(("ID PRODUCTO"),primary_key=True)
     PC_CCODIGO_PROD = models.CharField(("COD PRODUCTO"),max_length=128)
     PC_CDESCRIPCION = models.CharField(("DESCRIPCION"),max_length=128)
-    PC_NPRECIO = models.DateTimeField(("Precio"))
+    PC_NPRECIO = models.IntegerField(("Precio"))
     PC_NPESO = models.DecimalField(("Cantidad unidad de venta"),max_digits=18,decimal_places=5)
     PC_CUNIDAD_PESO = models.CharField(("UNIDAD PESO"),max_length=128)
-    PC_NCALIDAD = models.DateTimeField(("Calidad"))
-    PC_CORIGEN = models.DateTimeField(("Origen"))
+    PC_NCALIDAD = models.IntegerField(('Dias Credito'))
+    PC_CORIGEN = models.CharField(("Origen"),max_length=128)
     PC_NHABILITADO = models.BooleanField(("Habilitado"),default=True,null=True,blank=True)
     PR_NID = models.ForeignKey(PRODUCTOR, related_name='FK_PRODUCTOR', on_delete=models.PROTECT,null=True,blank=True)
     CP_NID = models.ForeignKey(CATEGARIAPRODUCTO, related_name='CATEGORIAPRODUCTO', on_delete=models.PROTECT,null=True,blank=True)

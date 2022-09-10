@@ -91,8 +91,8 @@ class PRODUCTO(models.Model):
     PC_NCALIDAD = models.IntegerField(('Dias Credito'))
     PC_CORIGEN = models.CharField(("Origen"),max_length=128)
     PC_NHABILITADO = models.BooleanField(("Habilitado"),default=True,null=True,blank=True)
-    PR_NID = models.ForeignKey(PRODUCTOR, related_name='FK_PRODUCTOR', on_delete=models.PROTECT,null=True,blank=True)
-    CP_NID = models.ForeignKey(CATEGARIAPRODUCTO, related_name='CATEGORIAPRODUCTO', on_delete=models.PROTECT,null=True,blank=True)
+    PR_NID = models.ForeignKey(PRODUCTOR, related_name='FK_PRODUCTOR', on_delete=models.PROTECT)
+    CP_NID = models.ForeignKey(CATEGARIAPRODUCTO, related_name='CATEGORIAPRODUCTO', on_delete=models.PROTECT)
     class Meta:
         db_table = 'PRODUCTO'
 
@@ -171,7 +171,3 @@ class LOG_PRO(models.Model):
 
     def __str__(self):
         return self.LGP_NID
-
-
-
-

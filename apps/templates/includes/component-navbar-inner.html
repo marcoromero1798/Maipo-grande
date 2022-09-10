@@ -13,18 +13,40 @@
         <li class="nav-item pcoded-hasmenu">
             <a href="#!" class="nav-link "><span class="pcoded-micon"><i class="feather icon-layout"></i></span><span class="pcoded-mtext">Mantenedores</span></a>
             <ul class="pcoded-submenu">
-                <li class="pcoded-hasmenu"><a href="#!">Sistema</a>
-                    <ul class="pcoded-submenu">
-                        <li><a href="/sy-pr_list">Productores</a></li>
-                        <li><a href="/sy-cle_list">Cliente Externo</a></li>
-                        <li><a href="/sy-cli_list">Cliente Interno</a></li>
-                        <li><a href="/sy-tr_list">Transportista</a></li>
-                        <li><a href="/sy-con_list">Consultor</a></li>
-                    </ul>
-                </li>
-                <li><a href="/sy-pc_list">Productos</a></li>
-                <li><a href="/sy-cp_list">Categoria</a></li>
-                <li><a href="/sy-ct_list">Contratos</a></li>
+                    {% if request.user.is_superuser == 1 or request.user.USER.UX_IS_ADMINISTRADOR == 1 %}
+                    <li class="pcoded-hasmenu"><a href="#!">Sistema</a>
+                        <ul class="pcoded-submenu">
+                            {% comment %} 
+                            UX_IS_ADMINISTRADOR 
+                            UX_IS_TRANSPORTISTA 
+                            UX_IS_CLIENTEEXTERNO 
+                            UX_IS_CLIENTEINTERNO
+                            UX_IS_CONSULTOR 
+                            UX_IS_PRODUCTOR  
+                            {% endcomment %}
+                            
+                            <li><a href="/sy-pr_list">Productores</a></li>
+
+                            <li><a href="/sy-cle_list">Cliente Externo</a></li>
+
+                            <li><a href="/sy-cli_list">Cliente Interno</a></li>
+                            
+                            <li><a href="/sy-tr_list">Transportista</a></li>
+                            
+                            <li><a href="/sy-con_list">Consultor</a></li>
+                            
+                        </ul>
+                    </li>
+                    {% endif %}
+                    {% if request.user.is_superuser == 1 or request.user.USER.UX_IS_ADMINISTRADOR == 1 or request.user.USER.UX_IS_PRODUCTOR == 1 or request.user.USER.UX_IS_CLIENTEINTERNO  == 1  or request.user.USER.UX_IS_CLIENTEEXTERNO == 1%}
+                    <li><a href="/sy-pc_list">Productos</a></li>
+                    {% endif %}
+                    {% if request.user.is_superuser == 1 or request.user.USER.UX_IS_ADMINISTRADOR == 1 or request.user.USER.UX_IS_PRODUCTOR == 1 %}
+                    <li><a href="/sy-cp_list">Categoria</a></li>
+                    {% endif %}
+                    {% if request.user.is_superuser == 1 or request.user.USER.UX_IS_ADMINISTRADOR == 1 or request.user.USER.UX_IS_PRODUCTOR == 1 %}
+                    <li><a href="/sy-ct_list">Contratos</a></li>
+                    {% endif %}
             </ul>
         </li>
         {% comment %} <li class="nav-item pcoded-hasmenu">

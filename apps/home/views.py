@@ -111,15 +111,23 @@ def contrato_list(request):
         context={}
         user=[]
         contrato=[]
+        productor = []
+        #request.user.id = USUARIO CONECTADO
+        #user = queryset -> lista con sub listas
         user = USERS_EXTENSION.objects.get(US_NID = request.user.id)
         if user.UX_NHABILITADO == False:
-            messages.info(request,'Usuario no habiltado, contactese con un administrador')
+            messages.info(request,'Usuario no habilitado, contactese con un administrador')
             return render(request,'home/sy-ct_list.html',context)
         else:
             if user.UX_IS_ADMINISTRADOR == True or user.UX_IS_CONSULTOR== True:
                 contrato = CONTRATO.objects.all()
-            elif user.UX_IS_CONSULTOR == True:
-                contrato = CONTRATO.objects.get(US_NID_ID = request.user.id)
+            elif user.UX_IS_PRODUCTOR == True:
+                try:
+                    productor = PRODUCTOR.objects.get(US_NID_id = request.user.id)
+                    contrato = CONTRATO.objects.filter(PR_NID_id = productor.PR_NID)
+                except Exception as e:
+                    print("error al obtener datos del productor",e)
+                
             else:
                 messages.warning(request,'El usuario no tiene permiso para acceder, contactese con un administrador')
                 return render(request,'home/sy-ct_list.html',context)
@@ -331,12 +339,12 @@ class producto_create(CreateView):
         user = USERS_EXTENSION.objects.get(US_NID = self.request.user.id)
         productor = []
         if user.UX_IS_PRODUCTOR == True:
-            productor = PRODUCTOR.objects.get(US_NID_ID = self.request.user.id)
+            productor = PRODUCTOR.objects.get(US_NID_id = self.request.user.id)
             form.instance.PC_NID_id = productor.PR_NID
         elif user.UX_IS_ADMINISTRADOR == True:
             form.instance.PC_NID_id = self.request.user.id
         form.instance.PC_NHABILITADO = True
-        retorno = super(PRODUCTO, self).form_valid(form)
+        retorno = super(producto_create, self).form_valid(form)
         return retorno
     def get_success_url(self, **kwargs):
         # if you are passing 'pk' from 'urls' to 'DeleteView' for company
@@ -346,9 +354,9 @@ class producto_create(CreateView):
         historial_acciones = LOG_ACCIONES(
                 US_NID_id = self.request.user.id,
                 LG_FFECHA_ACCION = date.datetime.now(), 
-                HA_CSECCION = 'SISTEMA' ,
-                HA_CMODULO='PRODUCTO',
-                HA_CACCION ='CREACION'
+                LG_CSECCION = 'SISTEMA' ,
+                LG_CMODULO='PRODUCTO',
+                LG_CACCION ='CREACION'
                 )   
         historial_acciones.save() 
         return reverse_lazy('sy-pc_list')
@@ -453,7 +461,7 @@ class clienteexterno_create(CreateView):
                 LG_CACCION ='CREACION'
                 )   
         historial_acciones.save() 
-        return reverse_lazy('sy-ct_list')
+        return reverse_lazy('sy-cle_list')
 class clienteexterno_update(UpdateView):
     model = CLIENTE_EXTERNO      # Modelo a utilizar
     form_class = formCLIENTEEXTERNO  # Formulario definido en forms.py

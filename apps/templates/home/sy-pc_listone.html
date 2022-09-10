@@ -20,8 +20,8 @@
                         <ul class="breadcrumb">
                             <li class="breadcrumb-item"><a href="/dashboard-sugerido"><i class="feather
 										icon-home"></i></a></li>
-                            <li class="breadcrumb-item"><a href="/dm-it_listar">Producto</a></li>
-                            <li class="breadcrumb-item"><a href="#!">Listar Producto</a></li>
+                            <li class="breadcrumb-item"><a href="/sy-pc_listone">Lista de Productos</a></li>
+                            <li class="breadcrumb-item"><a href="#!">Producto</a></li>
                         </ul>
                     </div>
                 </div>
@@ -29,7 +29,7 @@
             
         </div>
         <div class="btn-toolbar mb-2 mb-md-0 float-right">
-            <a href="{% url 'dm-it_agregar' %}" class="btn btn-secondary ">
+            <a href="{% url 'sy-pc_create' %}" class="btn btn-secondary ">
                 <i class="feather icon-plus"></i>
                 Nuevo
             </a>
@@ -76,7 +76,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="card card-body border-0 shadow table-wrapper table-responsive">
+        {% comment %} <div class="card card-body border-0 shadow table-wrapper table-responsive">
             <table class="table table-hover">
                 <h2 class="h4">Stock</h2>
                 
@@ -98,7 +98,7 @@
                     {% endif %}
                 </tbody>
             </table>
-        </div>
+        </div> {% endcomment %}
 </section>
 
 

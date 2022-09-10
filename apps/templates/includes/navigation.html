@@ -1,14 +1,13 @@
 
 
 	<!-- [ Header ] start -->
-	<header class="navbar pcoded-header navbar-expand-lg navbar-light headerpos-fixed header-blue">
+	<header class="navbar pcoded-header navbar-expand-lg navbar-light headerpos-fixed header-green">
 			
         <div class="m-header">
             <a class="mobile-menu" id="mobile-collapse" href="#!"><span></span></a>
             <a href="#!" class="b-brand">
                 <!-- ========   change your logo hear   ============ -->
-                <img src="/static/assets/images/logo.png" alt="" class="logo">
-                <img src="/static/assets/images/logo-icon.png" alt="" class="logo-thumb">
+                <strong >Maipo Grande</strong>
             </a>
             <a href="#!" class="mob-toggler">
                 <i class="feather icon-more-vertical"></i>
@@ -29,7 +28,7 @@
                     <a href="#!" class="full-screen" onclick="javascript:toggleFullScreen()"><i class="feather icon-maximize"></i></a>
                 </li>
             </ul>
-            <ul class="navbar-nav ml-auto">
+            {% comment %} <ul class="navbar-nav ml-auto">
                 <li>
                     <div class="dropdown">
                         <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="icon feather icon-bell"></i><span class="badge bg-danger"><span class="sr-only"></span></span></a>
@@ -100,7 +99,7 @@
                     <!-- Topbar user links -->
                     {% include 'includes/component-dropdown-user.html' %}
                 </li>
-            </ul>
+            </ul> {% endcomment %}
         </div>
         
     

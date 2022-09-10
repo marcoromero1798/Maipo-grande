@@ -26,6 +26,7 @@ urlpatterns = [
     #PRODUCTO
     path('sy-pc_create', login_required(views.producto_create.as_view()), name='sy-pc_create'),
     path('sy-pc_list', login_required(views.producto_list), name='sy-pc_list'),
+    path('sy-pc_listone/<int:pk>', login_required(views.producto_listone), name='sy-pc_listone'),
     path('sy-pc_update/<int:pk>', login_required(views.producto_update.as_view()), name='sy-pc_update'),
     path('sy-pc_deshabilitar/<int:pk>', login_required(views.producto_deshabilitar), name='sy-pc_deshabilitar'),
     #PRODUCTOR

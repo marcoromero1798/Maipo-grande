@@ -68,7 +68,7 @@
                         
                         <td>
                             <a class="btn btn-secondary" href="{% url 'sy-pc_update' objeto.PC_NID|unlocalize %}"><i class="feather icon-edit"></i> </a>
-                            <a class="btn btn-info" href="{% url 'sy-pc_listone' objeto.PC_NID|unlocalize %}"><i class="feather icon-edit"></i> </a> 
+                            <a class="btn btn-info" href="{% url 'sy-pc_listone' objeto.PC_NID|unlocalize %}"><i class="feather feather icon-eye"></i> </a> 
                             {% comment %} <a class="btn btn-danger" data-toggle="modal" data-target="#modal-default{{ objeto.PC_NID|unlocalize }}"><i class="feather icon-x-square"></i></a> {% endcomment %}
                         </td>
                     </tr>
@@ -90,7 +90,7 @@
                                 </p>
                             </div>
                             <div class="modal-footer">
-                                <a href="{% url 'dm-pv_eliminar' objeto.PC_NID|unlocalize %}"
+                                <a href="{% url 'sy-pc_deshabilitar' objeto.PC_NID|unlocalize %}"
                                    class="btn btn-danger"
                                    type="button">Eliminar</a>
                                 <button type="button" class="btn  btn-secondary" data-dismiss="modal">Cerrar</button>

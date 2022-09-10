@@ -60,11 +60,10 @@ def listarOpciones(grupo, retValue, retDisplay):
 
 def listarParametros(grupo, retValue, retDisplay):
     with connection.cursor() as cursor:
-        cursor.execute(
-            f'SELECT "{retValue}","{retDisplay}" FROM "PARAMETRO" WHERE "PM_CGRUPO" = {sqlStr(grupo)}')
-
+        cquery = f'SELECT "{retValue}","{retDisplay}" FROM "PARAMETRO" WHERE "PM_CGRUPO" = {sqlStr(grupo)}'
+        print(cquery)
+        cursor.execute(cquery)
         resultado = cursor.fetchall()
-
         if resultado == None:
             return None
         return resultado

@@ -16,12 +16,15 @@ class formCONTRATO(forms.ModelForm):
 	
         fields = [
         'CT_FFECHA_INICIO',
-        'CT_FFECHA_TERMINO'
+        'CT_FFECHA_TERMINO',
+        'PR_NID'
         ]
         labels = '__all__'
         widgets = {        
             'CT_FFECHA_INICIO': forms.DateTimeInput(format='%Y-%m-%d %H:%M:%S',attrs={'class': 'form-control','type':'datetime-local'}),
             'CT_FFECHA_TERMINO' : forms.DateTimeInput(format='%Y-%m-%d %H:%M:%S',attrs={'class': 'form-control','type':'datetime-local'}),
+            'PR_NID': forms.Select(attrs={'class': 'form-control','type':'number'}),
+
         }
 class formCATEGORIA(forms.ModelForm):
     class Meta:
@@ -55,7 +58,7 @@ class formPRODUCTOR(forms.ModelForm):
         'PR_CCORREO',
         'PR_NCONTACTO',
         'US_NID',
-        'CT_NID'
+
 
         ]
         labels = '__all__'
@@ -64,7 +67,6 @@ class formPRODUCTOR(forms.ModelForm):
             'PR_CCORREO': forms.TextInput(attrs={'class': 'form-control','type':'text'}),
             'PR_NCONTACTO': forms.TextInput(attrs={'class': 'form-control','type':'number'}),
             'US_NID': forms.Select(attrs={'class': 'form-control','type':'number'}),
-            'CT_NID': forms.Select(attrs={'class': 'form-control','type':'number'}),
            
         }
 class formCLIENTEEXTERNO(forms.ModelForm):

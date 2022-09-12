@@ -51,6 +51,7 @@
                         <th class="border-gray-200" scope="col">#</th>
                         <th class="border-gray-200" scope="col">Fecha inicio</th>
                         <th class="border-gray-200" scope="col">Fecha Termino</th>
+                        <th class="border-gray-200" scope="col">Productor Asociado</th>
 
                         <th class="border-gray-200" scope="col">Acciones</th>
                     </tr>
@@ -63,6 +64,7 @@
                             <th><span class="fw-normal">{{ objeto.CT_NID }}</span></th>
                             <td><span class="fw-bold">{{ objeto.CT_FFECHA_INICIO }}</span></td>
                             <td><span class="fw-bold">{{ objeto.CT_FFECHA_TERMINO }}</span></td>
+                            <td><span class="fw-bold">{{ objeto.PR_NID }}</span></td>
                             
                             <td>
                                 <a class="btn btn-secondary" href="{% url 'sy-ct_update' objeto.CT_NID|unlocalize %}"><i class="feather icon-edit"></i> </a>

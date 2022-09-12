@@ -341,6 +341,7 @@ class producto_create(CreateView):
         user = USERS_EXTENSION.objects.get(US_NID = self.request.user.id)
         productor = []
         if user.UX_IS_PRODUCTOR == True:
+            print(self.request.user.id)
             productor = PRODUCTOR.objects.get(US_NID_id = self.request.user.id)
             form.instance.PR_NID_id = productor.PR_NID
         elif user.UX_IS_ADMINISTRADOR == True and user.UX_IS_PRODUCTOR == False:
@@ -676,7 +677,7 @@ def consultor_deshabilitar(request,pk):
     except  Exception as e:
         print("error al deshabilitar :",e)
         messages.warning(request,"Hubo un error al deshabilitar,contactese con un administrador")
-        return redirect("sy-cli_list")  
+        return redirect("sy-con_list")  
     messages.success(request,"CONSULTOR Deshabilitado correctamente")
     historial_acciones = []        
     historial_acciones = LOG_ACCIONES(
@@ -687,7 +688,7 @@ def consultor_deshabilitar(request,pk):
                 LG_CACCION ='DESHABILITADO'
                 )   
     historial_acciones.save() 
-    return redirect("sy-cli_list") 
+    return redirect("sy-con_list") 
 #TRANSPORTISTA
 class transportista_create(CreateView):
     model = TRANSPORTISTA      # Modelo a utilizar

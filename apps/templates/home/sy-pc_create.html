@@ -21,7 +21,7 @@
 							<h5 class="m-b-10">Crear Producto</h5>
 						</div>
 						<ul class="breadcrumb">
-							<li class="breadcrumb-item"><a href="/dashboard-sugerido"><i class="feather
+							<li class="breadcrumb-item"><a href="{% url 'home' %}"><i class="feather
 										icon-home"></i></a></li>
 							<li class="breadcrumb-item"><a href="#!">Producto</a></li>
 							<li class="breadcrumb-item"><a href="#!">Crear Producto</a></li>
@@ -82,6 +82,11 @@
 										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Peso:</label>
 										{{form.visible_fields.6}}
 									</div>
+									<!--<div class="col-md-6">
+										{{ form.subject.errors }}
+										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Un Peso:</label>
+										{{form.visible_fields.7}}
+									</div>-->
 									<div class="col-md-6">
 										{{ form.subject.errors }}
 										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Un Peso:</label>

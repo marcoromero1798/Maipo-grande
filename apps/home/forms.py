@@ -179,7 +179,7 @@ class formPRODUCTO(forms.ModelForm):
         'PC_NCALIDAD',
         'PC_CORIGEN',
         'CP_NID',
-        'PR_NID',
+
         'PC_NPESO',
         'PC_CUNIDAD_PESO',
         'PC_NREFRIGERACION'
@@ -197,5 +197,4 @@ class formPRODUCTO(forms.ModelForm):
             'PC_NCALIDAD' : forms.Select(choices=[(1,'Pesima'),(2,'Mala'),(3,"Calidad"),(4,"Buena"),(5,"Excelente")],attrs={'class': 'form-control','type':'text'}),
             'PC_CORIGEN': forms.TextInput(attrs={'class': 'form-control','type':'text'}),
             'CP_NID': forms.Select(attrs={'class': 'form-control','type':'number'}),
-            'PR_NID': forms.Select(attrs={'class': 'form-control','type':'number'}),
         }

@@ -7,6 +7,7 @@ from email import message
 from modulefinder import IMPORT_NAME
 from pickle import TRUE
 from pydoc import cli
+from webbrowser import get
 from django import template
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
@@ -335,13 +336,14 @@ class producto_create(CreateView):
     form_class = formPRODUCTO  # Formulario definido en forms.py
     template_name = 'home/sy-pc_create.html'  # html template en core
     success_url = reverse_lazy("sy-pc_list")
+    
     def form_valid(self, form, **kwargs):
         user = USERS_EXTENSION.objects.get(US_NID = self.request.user.id)
         productor = []
         if user.UX_IS_PRODUCTOR == True:
             productor = PRODUCTOR.objects.get(US_NID_id = self.request.user.id)
-            form.instance.PC_NID_id = productor.PR_NID
-        elif user.UX_IS_ADMINISTRADOR == True:
+            form.instance.PR_NID_id = productor.PR_NID
+        elif user.UX_IS_ADMINISTRADOR == True and user.UX_IS_PRODUCTOR == False:
             form.instance.PC_NID_id = self.request.user.id
         form.instance.PC_NHABILITADO = True
         retorno = super(producto_create, self).form_valid(form)

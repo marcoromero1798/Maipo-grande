@@ -1,6 +1,7 @@
 {% extends "layouts/base.html" %}
-{% block title %} Lista de Productos {% endblock %} 
+{% block title %} Lista de Productos {% endblock %}
 {% include 'includes/scripts.html' %}
+{% load crispy_forms_tags %}
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
 <link rel="stylesheet" href="/static/assets/css/plugins/dataTables.bootstrap4.min.css">
@@ -13,94 +14,85 @@
 <section class="pcoded-main-container">
     <div class="pcoded-content">
         <div class="page-header">
-			<div class="page-block">
-				<div class="row align-items-center">
-					<div class="col-md-12">
-						<div class="page-header-title">
-							<h5 class="m-b-10">Productos</h5>
-						</div>
-						<ul class="breadcrumb">
-							<li class="breadcrumb-item"><a href="{% url 'home' %}"><i class="feather
-										icon-home"></i></a></li>
-							<li class="breadcrumb-item"><a href="#!">Productos</a></li>
-							<li class="breadcrumb-item"><a href="#!">Listar Productos</a></li>
-						</ul>
-					</div>
-				</div>
-			</div>
-		</div>
-        <div class="btn-toolbar mb-2 mb-md-0 float-right">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <div class="col-md-12">
+                        <div class="page-header-title">
+                            <h5 class="m-b-10">Productos</h5>
+                        </div>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'home' %}"><i class="feather icon-home"></i></a>
+                            </li>
+                            <li class="breadcrumb-item"><a href="#!">Productos</a></li>
+                            <li class="breadcrumb-item"><a href="#!">Listar Productos</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="btn-toolbar mb-1 mb-md-0 float-left">
             <a href="{% url 'sy-pc_create' %}" class="btn btn-secondary ">
-                <i class="feather icon-plus"></i> 
+                <i class="feather icon-plus"></i>
                 Nuevo
             </a>
         </div>
-        <!--DATOS DE LA TABLA-->
-        <div class="card card-body border-0 shadow table-wrapper table-responsive">
-            <table class="table table-hover" id="basic-btn">
-                <thead>
-                    <tr>
-                        <!-- PV_CNOMBRE_PROVEEDOR                  
-							# PV_CCOD_PROV                        
-							# PV_CPLANTAORIGEN                      
-							# PV_CLEADTIME                        
-							# PV_NCAPACIDAD_TOTAL_M3_CONTENEDOR_20 
-							# PV_NCAPACIDAD_TOTAL_M3_CONTENEDOR_40 
-							# PV_NCAPACIDAD_TOTAL_UNIDAD_CONTENEDOR_20
-							# PV_NCAPACIDAD_TOTAL_UNIDAD_CONTENEDOR_40-->
-                        <th class="border-gray-200" scope="col">#</th>
-                        <th class="border-gray-200" scope="col">Codigo proveedor</th>
-                        <th class="border-gray-200" scope="col">Descripcion</th>
-                        <th class="border-gray-200" scope="col">Proveedor</th>
-                        <th class="border-gray-200" scope="col">Categoria</th>
-                        <th class="border-gray-200" scope="col">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for objeto in object_list %}
-                    {% if objeto.PC_NHABILITADO %}
-                    <tr>
-                        <th><span class="fw-normal">{{ objeto.PC_NID }}</span></th>
-                        <td><span class="fw-bold">{{ objeto.PC_CCODIGO_PROD }}</span></td>
-                        <td><span class="fw-bold">{{ objeto.PC_CDESCRIPCION }}</span></td>
-                        <td><span class="fw-bold">{{ objeto.PR_NID }}</span></td>
-                        <td><span class="fw-bold">{{ objeto.CP_NID }}</span></td>
-                        
-                        <td>
-                            <a class="btn btn-secondary" href="{% url 'sy-pc_update' objeto.PC_NID|unlocalize %}"><i class="feather icon-edit"></i> </a>
-                            <a class="btn btn-info" href="{% url 'sy-pc_listone' objeto.PC_NID|unlocalize %}"><i class="feather feather icon-eye"></i> </a> 
-                            <a class="btn btn-danger" data-toggle="modal" data-target="#modal-default{{ objeto.PC_NID|unlocalize }}"><i class="feather icon-x-square"></i></a>
-                        </td>
-                    </tr>
-                    {% endif %}
-                    {% endfor %}
-                </tbody>
-                {% for objeto in object_list %}
-                <div class="modal fade" id="modal-default{{ objeto.PC_NID|unlocalize }}" tabindex="-1" role="dialog" aria-labelledby="modal-default{{ objeto.PC_NID|unlocalize }}" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Confirmar</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-                                
-                            </div>
-                            <div class="modal-body">
-                                <p>
-                                    Esta Seguro que desea eliminar {{ objeto.PC_NID|unlocalize }}?
-                                </p>
-                            </div>
-                            <div class="modal-footer">
-                                <a href="{% url 'sy-pc_deshabilitar' objeto.PC_NID|unlocalize %}"
-                                   class="btn btn-danger"
-                                   type="button">Eliminar</a>
-                                <button type="button" class="btn  btn-secondary" data-dismiss="modal">Cerrar</button>
+        <br><br><br>
 
-                            </div>
-                        </div>
+        <!--LISTA DE PRODUCTOS ECOMERCE-->
+        <div class="row">
+            {% for objeto in object_list %}
+            {% if objeto.PC_NHABILITADO %}
+            <div class="col-md-6 col-xl-4">
+                <div class="card">
+                    <div class="card-body">
+                        <td class="card-img">{% if objeto.PC_FOTO %} {{ vino.VIN_FOTO }} {% endif %} </td>
+                        <h5 class="card-title">{{ objeto.PC_CDESCRIPCION }}</h5>
+                        <h4 class="card-text">{{ objeto.PC_NPRECIO|floatformat:2 }}</h4>
+                        <p class="card-text"> Categoria: {{ objeto.CP_NID }}</p>
+                        <p class="card-text"> Origen: {{ objeto.PC_CORIGEN }}</p>
+                        <p class="card-text"> Calidad: {{ objeto.PC_NCALIDAD }}</p>
+                        <td>
+                            <a class="btn btn-secondary" href="{% url 'sy-pc_update' objeto.PC_NID|unlocalize %}"><i
+                                    class="feather icon-edit"></i> </a>
+                            <a class="btn btn-info" href="{% url 'sy-pc_listone' objeto.PC_NID|unlocalize %}"><i
+                                    class="feather feather icon-eye"></i> </a>
+                            <a class="btn btn-danger" data-toggle="modal"
+                                data-target="#modal-default{{ objeto.PC_NID|unlocalize }}"><i
+                                    class="feather icon-x-square"></i></a>
+                        </td>
                     </div>
                 </div>
-                {% endfor %}
-            </table>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+
+        {% for objeto in object_list %}
+        <div class="modal fade" id="modal-default{{ objeto.PC_NID|unlocalize }}" tabindex="-1" role="dialog"
+            aria-labelledby="modal-default{{ objeto.PC_NID|unlocalize }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmar</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">×</span></button>
+
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            Esta Seguro que desea eliminar {{ objeto.PC_NID|unlocalize }}?
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="{% url 'sy-pc_deshabilitar' objeto.PC_NID|unlocalize %}" class="btn btn-danger"
+                            type="button">Eliminar</a>
+                        <button type="button" class="btn  btn-secondary" data-dismiss="modal">Cerrar</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
     </div>
 </section>
 {% endblock content %}
@@ -108,16 +100,15 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
-    <!-- datatable Js -->
-    <script src="/static/assets/js/plugins/jquery.dataTables.min.js"></script>
-    <script src="/static/assets/js/plugins/dataTables.bootstrap4.min.js"></script>
-    <script src="/static/assets/js/plugins/buttons.colVis.min.js"></script>
-    <script src="/static/assets/js/plugins/buttons.print.min.js"></script>
-    <script src="/static/assets/js/plugins/pdfmake.min.js"></script>
-    <script src="/static/assets/js/plugins/jszip.min.js"></script>
-    <script src="/static/assets/js/plugins/dataTables.buttons.min.js"></script>
-    <script src="/static/assets/js/plugins/buttons.html5.min.js"></script>
-    <script src="/static/assets/js/plugins/buttons.bootstrap4.min.js"></script>
-    <script src="/static/assets/js/pages/data-export-custom.js"></script>
-    {% endblock javascripts %}
-
+<!-- datatable Js -->
+<script src="/static/assets/js/plugins/jquery.dataTables.min.js"></script>
+<script src="/static/assets/js/plugins/dataTables.bootstrap4.min.js"></script>
+<script src="/static/assets/js/plugins/buttons.colVis.min.js"></script>
+<script src="/static/assets/js/plugins/buttons.print.min.js"></script>
+<script src="/static/assets/js/plugins/pdfmake.min.js"></script>
+<script src="/static/assets/js/plugins/jszip.min.js"></script>
+<script src="/static/assets/js/plugins/dataTables.buttons.min.js"></script>
+<script src="/static/assets/js/plugins/buttons.html5.min.js"></script>
+<script src="/static/assets/js/plugins/buttons.bootstrap4.min.js"></script>
+<script src="/static/assets/js/pages/data-export-custom.js"></script>
+{% endblock javascripts %}

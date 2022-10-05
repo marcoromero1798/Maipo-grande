@@ -178,6 +178,7 @@ class formPRODUCTO(forms.ModelForm):
         'PC_NPRECIO',
         'PC_NCALIDAD',
         'PC_CORIGEN',
+        'PC_FOTO',
         'CP_NID',
 
         'PC_NPESO',

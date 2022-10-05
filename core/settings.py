@@ -32,7 +32,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.humanize',
     'django.contrib.staticfiles',
-    'apps.home'  # Enable the inner home (home)
+    'apps.home',  # Enable the inner home (home)
+    'django_filters',
+    'crispy_forms',
+
 ]
 
 MIDDLEWARE = [

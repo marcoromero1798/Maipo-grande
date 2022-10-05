@@ -26,6 +26,7 @@ from django.contrib import messages
 from apps.home.models import CATEGARIAPRODUCTO, CONTRATO, USERS_EXTENSION
 from .models import * 
 import datetime as date
+from .filters import ListingFilter
 
 @login_required(login_url="/login/")
 def index(request):
@@ -392,9 +393,13 @@ def producto_list(request):
             messages.info(request,'Usuario no habiltado, contactese con un administrador')
             return render(request,'home/sy-pc_list.html',context)
         else:
+            form = formPRODUCTO(request.POST, request.FILES)
             producto = PRODUCTO.objects.all()
+            listing_filter = ListingFilter(request.GET, queryset=producto)
+            producto = listing_filter.qs
         context ={
-            'object_list':producto
+            'object_list':producto, 
+            'listing_filter': listing_filter
         }
         return render(request,'home/sy-pc_list.html',context)
 

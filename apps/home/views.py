@@ -7,6 +7,7 @@ from email import message
 from modulefinder import IMPORT_NAME
 from pickle import TRUE
 from pydoc import cli
+from webbrowser import get
 from django import template
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
@@ -335,13 +336,15 @@ class producto_create(CreateView):
     form_class = formPRODUCTO  # Formulario definido en forms.py
     template_name = 'home/sy-pc_create.html'  # html template en core
     success_url = reverse_lazy("sy-pc_list")
+    
     def form_valid(self, form, **kwargs):
         user = USERS_EXTENSION.objects.get(US_NID = self.request.user.id)
         productor = []
         if user.UX_IS_PRODUCTOR == True:
+            print(self.request.user.id)
             productor = PRODUCTOR.objects.get(US_NID_id = self.request.user.id)
-            form.instance.PC_NID_id = productor.PR_NID
-        elif user.UX_IS_ADMINISTRADOR == True:
+            form.instance.PR_NID_id = productor.PR_NID
+        elif user.UX_IS_ADMINISTRADOR == True and user.UX_IS_PRODUCTOR == False:
             form.instance.PC_NID_id = self.request.user.id
         form.instance.PC_NHABILITADO = True
         retorno = super(producto_create, self).form_valid(form)
@@ -674,7 +677,7 @@ def consultor_deshabilitar(request,pk):
     except  Exception as e:
         print("error al deshabilitar :",e)
         messages.warning(request,"Hubo un error al deshabilitar,contactese con un administrador")
-        return redirect("sy-cli_list")  
+        return redirect("sy-con_list")  
     messages.success(request,"CONSULTOR Deshabilitado correctamente")
     historial_acciones = []        
     historial_acciones = LOG_ACCIONES(
@@ -685,7 +688,7 @@ def consultor_deshabilitar(request,pk):
                 LG_CACCION ='DESHABILITADO'
                 )   
     historial_acciones.save() 
-    return redirect("sy-cli_list") 
+    return redirect("sy-con_list") 
 #TRANSPORTISTA
 class transportista_create(CreateView):
     model = TRANSPORTISTA      # Modelo a utilizar

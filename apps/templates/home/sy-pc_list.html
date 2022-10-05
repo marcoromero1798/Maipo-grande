@@ -20,7 +20,7 @@
 							<h5 class="m-b-10">Productos</h5>
 						</div>
 						<ul class="breadcrumb">
-							<li class="breadcrumb-item"><a href="/dashboard-sugerido"><i class="feather
+							<li class="breadcrumb-item"><a href="{% url 'home' %}"><i class="feather
 										icon-home"></i></a></li>
 							<li class="breadcrumb-item"><a href="#!">Productos</a></li>
 							<li class="breadcrumb-item"><a href="#!">Listar Productos</a></li>
@@ -69,8 +69,7 @@
                         <td>
                             <a class="btn btn-secondary" href="{% url 'sy-pc_update' objeto.PC_NID|unlocalize %}"><i class="feather icon-edit"></i> </a>
                             <a class="btn btn-info" href="{% url 'sy-pc_listone' objeto.PC_NID|unlocalize %}"><i class="feather feather icon-eye"></i> </a> 
-                            <a class="btn btn-info" href=""><i class="feather feather icon-shopping-cart"></i> </a>
-                            {% comment %} <a class="btn btn-danger" data-toggle="modal" data-target="#modal-default{{ objeto.PC_NID|unlocalize }}"><i class="feather icon-x-square"></i></a> {% endcomment %}
+                            <a class="btn btn-danger" data-toggle="modal" data-target="#modal-default{{ objeto.PC_NID|unlocalize }}"><i class="feather icon-x-square"></i></a>
                         </td>
                     </tr>
                     {% endif %}

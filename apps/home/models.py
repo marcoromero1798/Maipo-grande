@@ -36,7 +36,27 @@ class PARAMETRO(models.Model):
 
     def __str__(self):
         return self.PM_CCODIGO
+class TIPO_CAMBIO(models.Model):
+    TC_NID = models.BigAutoField(("ID ORDEN DE VENTA"),primary_key=True)
+    TC_CMONEDA = models.CharField(("Numero"),max_length=32,null=True,blank=True)
+    TC_NCONVERSION = models.DecimalField(("CONVERSION"),max_digits=18,decimal_places=5)
 
+    class Meta:
+        db_table = 'TIPO_CAMBIO'
+
+
+class DIRECCION(models.Model):
+    DR_NID = models.BigAutoField(("Id Direccion"),primary_key=True)
+    US_NID = models.ForeignKey(User,verbose_name="Id Socio Negocio",on_delete=models.PROTECT)
+    DR_CNOMBRE = models.CharField(("Nombre"),max_length=1024)
+    DR_CCALLE = models.CharField(("Calle"),max_length=1024,null=True,blank=True)
+    DR_CNUMERO = models.CharField(("Numero"),max_length=32,null=True,blank=True)
+    DR_CTELEFONO1 = models.CharField(("Telefono 1 "),max_length=32)
+    DR_CTELEFONO2 = models.CharField(("Telefono 2 "),max_length=32)
+    DR_NHABILITADO = models.BooleanField(("Habilitado"),default=True)
+
+    class Meta:
+        db_table = 'DIRECCION'
 
 class CATEGARIAPRODUCTO(models.Model):
     CP_NID = models.BigAutoField(("ID CATEGORIA"),primary_key=True)
@@ -102,7 +122,8 @@ class PRODUCTO(models.Model):
     PC_NCALIDAD = models.IntegerField(('Dias Credito'))
     PC_CORIGEN = models.CharField(("Origen"),max_length=128)
     PC_NHABILITADO = models.BooleanField(("Habilitado"),default=True,null=True,blank=True)
-    PR_NID = models.ForeignKey(PRODUCTOR, related_name='FK_PRODUCTOR', on_delete=models.PROTECT)
+    PC_NREFRIGERACION = models.BooleanField(("REFRIGERACION"),default=False)
+    PR_NID = models.ForeignKey(PRODUCTOR, related_name='FK_PRODUCTOR', on_delete=models.PROTECT,null=True,blank=True)
     CP_NID = models.ForeignKey(CATEGARIAPRODUCTO, related_name='CATEGORIAPRODUCTO', on_delete=models.PROTECT)
     class Meta:
         db_table = 'PRODUCTO'
@@ -157,6 +178,20 @@ class TRANSPORTISTA(models.Model):
 
     def __str__(self):
         return self.TR_CDESCRIPCION
+class TRANSPORTE(models.Model):
+    TRA_NID = models.ForeignKey(TRANSPORTISTA, verbose_name='USUARIO_TRANSPORTISTA', on_delete=models.PROTECT)
+    TRA_NCARGA = models.DecimalField(("CARGA TOTAL"),max_digits=18,decimal_places=5)
+    TRA_NREFRIGERACION = models.BooleanField(("Habilitado"),default=True,null=True,blank=True)
+    TRA_CMARCA = models.CharField(("MARCA"),max_length=128)  
+    TRA_CMODELO = models.CharField(("MODELO"),max_length=128)  
+    TRA_CPATENTE = models.CharField(("PATENTE"),max_length=128) 
+
+    class Meta:
+        db_table = 'TRANSPORTE'
+
+    def __str__(self):
+        DESCRIPCION = self.TRA_CMARCA +' '+self.TRA_CMODELO+' '+self.TRA_CMODELO 
+        return str(DESCRIPCION)
 class LOG_ACCIONES(models.Model):
     LG_NID = models.BigAutoField(("ID"),primary_key=True)
     US_NID = models.ForeignKey(User, related_name='USUARIO_LOG', on_delete=models.PROTECT)
@@ -168,7 +203,7 @@ class LOG_ACCIONES(models.Model):
         db_table = 'LOG_ACCIONES'
 
     def __str__(self):
-        return self.LG_NID
+        return str(self.LG_NID)
 class LOG_PRO(models.Model):
     LGP_NID = models.BigAutoField(("ID"),primary_key=True)
     US_NID = models.ForeignKey(User, related_name='USUARIO_PROCESO', on_delete=models.PROTECT)
@@ -181,10 +216,166 @@ class LOG_PRO(models.Model):
         db_table = 'LOG_PROCESO'
 
     def __str__(self):
-        return self.LGP_NID
+        return str(self.LGP_NID)
 
-class CARRITO(models.Model):
-    ID_CARRITO = models.BigAutoField(("ID"),primary_key=True)
-    ID_USUARIO = models.OneToOneField(User,on_delete=models.CASCADE)
+
+
+class DESPACHO(models.Model):
+    DE_NID = models.BigAutoField(("ID DESPACHO"),primary_key=True)
+    US_NID = models.ForeignKey(User, verbose_name='ID USUARIO DESPACHO', on_delete=models.PROTECT,null = True,blank =True)
+    DR_NID = models.ForeignKey(DIRECCION, verbose_name='ID DIRECCION DESPACHO', on_delete=models.PROTECT,null = True,blank =True)
+    TC_NID = models.ForeignKey(TIPO_CAMBIO, verbose_name='ID TIPO CAMBIO DESPACHO', on_delete=models.PROTECT,null = True,blank =True)
+    DE_CESTADO = models.CharField(("ESTADO"),max_length=32,null=True,blank=True)
+    DE_FFECHA_CREACION = models.DateTimeField(("FECHA CREACION"))
+    DE_FFECHA_ENTREGA = models.DateTimeField(("FECHA ENTREGA"))
+    DE_NPROCESADO = models.BooleanField(("HABILITADO"),default=False,null=True,blank=True)    
+    
     class Meta:
-        db_table = 'CARRITO'
+        db_table = 'DESPACHO'
+
+    def __str__(self):
+        return str(self.DE_NID)
+
+class DESPACHO_DETALLE(models.Model):
+    DE_NID = models.ForeignKey(DESPACHO, verbose_name='ID SOLICITUD DED', on_delete=models.PROTECT)
+    PC_NID = models.ForeignKey(PRODUCTO, verbose_name='ID PRODUCTO DED ', on_delete=models.PROTECT)
+    DED_NQTY = models.IntegerField(("CANTIDAD"))
+    DED_NLINEA = models.IntegerField(("Numero De Linea"))
+    DED_NPRECIO = models.DecimalField(("PRECIO"),max_digits=18,decimal_places=5)
+    DED_NMONTO = models.DecimalField(("MONTO TOTAL"),max_digits=18,decimal_places=5)   
+
+    class Meta:
+        db_table = 'DESPACHO_DETALLE'
+
+    def __str__(self):
+        return str(self.DE_NID)
+
+class CARRO_COMPRA(models.Model):
+    CC_NID = models.BigAutoField(("ID CARRO COMPRA"),primary_key=True)
+    US_NID = models.ForeignKey(User, verbose_name='ID USUARIO CARRO COMPRA', on_delete=models.PROTECT,null = True,blank =True)
+    PC_NID = models.ForeignKey(PRODUCTO, verbose_name='ID PRODUCTO CARRO COMPRA', on_delete=models.PROTECT,null = True,blank =True)
+    CC_NQTY = models.IntegerField(("CANTIDAD"))
+    CC_NPRECIO = models.DecimalField(("PRECIO"),max_digits=18,decimal_places=5)   
+    CC_NMONTO_TOTAL = models.DecimalField(("MONTO TOTAL"),max_digits=18,decimal_places=5)   
+
+    class Meta:
+        db_table = 'CARRO_COMPRA'
+
+    def __str__(self):
+        return str(self.CC_NID)
+
+class SUBASTA(models.Model):
+    SU_NID =  models.BigAutoField(("ID ORDEN DE VENTA SUBASTA"),primary_key=True)
+    US_NID = models.ForeignKey(User, verbose_name='ID DIRECCION SUBASTA', on_delete=models.PROTECT,null = True,blank =True)
+    DR_NID = models.ForeignKey(DIRECCION, verbose_name='ID DIRECCION SUBASTA', on_delete=models.PROTECT,null = True,blank =True)
+    SU_FFECHA_INICIO = models.DateTimeField(("FECHA INICIO")) 
+    SU_FFECHA_TERMINO = models.DateTimeField(("FECHA TERMINO"))
+    SU_PESO_TOTAL = models.DecimalField(("PRECIO"),max_digits=18,decimal_places=5) 
+    SU_NREFRIGERACION = models.BooleanField(("REFRIGERACION"),default=False,null=True,blank=True)
+    class Meta:
+        db_table = 'SUBASTA'
+
+    def __str__(self):
+        return str(self.SU_NID)
+class SUBASTA_DETALLE(models.Model):
+    TRA_NID = models.ForeignKey(TRANSPORTE, verbose_name='ID TRANSPORTE', on_delete=models.PROTECT,null = True,blank =True)
+    TR_NID = models.ForeignKey(TRANSPORTISTA, verbose_name='ID DIRECCION SUBASTA', on_delete=models.PROTECT,null = True,blank =True)
+    SUD_NCOBRO = models.DecimalField(("PRECIO"),max_digits=18,decimal_places=5) 
+    
+    class Meta:
+        db_table = 'SUBASTA_DETALLE'
+
+class KARDEX(models.Model):
+    KX_NID = models.BigAutoField(("ID"), primary_key=True)
+    PC_NID = models.ForeignKey(PRODUCTO,verbose_name="ID Item",on_delete=models.PROTECT)
+    KX_FFECHA_REGISTRO = models.DateTimeField(("Fecha Registro"),auto_now_add=True)
+    KX_CTIPODOC  = models.CharField(("Tipo Documento"),max_length=50)
+    KX_NNUMERDOC = models.BigIntegerField(("Número Documento"))
+    KX_FFECHADOC = models.DateTimeField(("Fecha Documento"),auto_now_add=True)
+    KX_CES  = models.CharField(("E/S"),max_length=50)
+    KX_NQTYTRANS = models.DecimalField(("Cantidad Transacción"),max_digits=18,decimal_places=5)
+    KX_NCOSTOTRANS = models.DecimalField(("Costo Transacción"),max_digits=18,decimal_places=5)
+    KX_NVALORTRANS = models.DecimalField(("Valor Transacción"),max_digits=18,decimal_places=5)
+    KX_NQTYACUM = models.DecimalField(("Cantidad Acumulada"),max_digits=18,decimal_places=5)
+    KX_NVALORACUM = models.DecimalField(("Valor Acumulado"),max_digits=18,decimal_places=5)
+    KX_NPRECIOPROMEDIO = models.DecimalField(("Precio Promedio"),max_digits=18,decimal_places=5)
+    KX_NDIA = models.BigIntegerField(("DIA Documento"))
+    KX_NMES = models.BigIntegerField(("MES Documento"))
+    KX_NAÑO = models.BigIntegerField(("AÑO Documento"))
+    
+
+    class Meta:
+        db_table = "KARDEX"
+    
+    def __str__(self):
+        return str(self.KX_NID)
+
+class STOCK(models.Model):
+    STK_NID = models.BigAutoField(("ID"), primary_key=True) 
+    PC_NID = models.ForeignKey(PRODUCTO,verbose_name="ID Item",on_delete=models.PROTECT)
+    STK_NQTY = models.IntegerField(("Valor Transacción"))
+
+    class Meta:
+        db_table = "STOCK"
+    
+    def __str__(self):
+        return str(self.STK_NQTY)
+
+####################
+# TRANSACCIONALES  #
+####################
+class SOLICITUD_COMPRA(models.Model):
+    SC_NID = models.BigAutoField(("ID SOLICITUD"),primary_key=True)
+    US_NID = models.ForeignKey(User, verbose_name='ID USUARIO SOLICITUD', on_delete=models.PROTECT,null = True,blank =True)
+    DR_NID = models.ForeignKey(DIRECCION, verbose_name='ID DIRECCION SOLICITUD', on_delete=models.PROTECT,null = True,blank =True)
+    TC_NID = models.ForeignKey(TIPO_CAMBIO, verbose_name='ID TIPO CAMBIO SOLICITUD', on_delete=models.PROTECT,null = True,blank =True)
+    SC_FFECHA_CREACION = models.DateTimeField(("FECHA CREACION"))
+    SC_FFECHA_PROCESAMIENTO = models.DateTimeField(("FECHA PROCESAMIENTO"))
+    SC_NPROCESADO = models.BooleanField(("Habilitado"),default=False,null=True,blank=True)
+    SCD_NMONTO_TOTAL = models.DecimalField(("MONTO TOTAL"),max_digits=18,decimal_places=5)   
+
+    class Meta:
+        db_table = 'SOLICITUD_COMPRA'
+    def __str__(self):
+        return str(self.SC_NID)
+class SOLICITUD_COMPRA_DETALLE(models.Model):
+    SC_NID = models.ForeignKey(SOLICITUD_COMPRA, verbose_name='ID SOLICITUD DETALLE', on_delete=models.PROTECT)
+    SC_NLINEA = models.IntegerField(("Numero De Linea"))
+    PC_NID = models.ForeignKey(PRODUCTO, verbose_name='ID PRODUCTO SCD', on_delete=models.PROTECT)
+    SCD_NQTY = models.IntegerField(("CANTIDAD"))
+    SCD_NPRECIO = models.DecimalField(("PRECIO"),max_digits=18,decimal_places=5)
+    SCD_NMONTO = models.DecimalField(("MONTO TOTAL"),max_digits=18,decimal_places=5)   
+
+
+    class Meta:
+        db_table = 'SOLICITUD_COMPRA_DETALLE'
+
+    def __str__(self):
+        return str(self.SC_NID)
+
+class ORDEN_VENTA(models.Model):
+    OV_NID = models.BigAutoField(("ID ORDEN DE VENTA"),primary_key=True)
+    US_NID = models.ForeignKey(User, verbose_name='ID USUARIO ORDEN DE VENTA', on_delete=models.PROTECT,null = True,blank =True)
+    DR_NID = models.ForeignKey(DIRECCION, verbose_name='ID DIRECCION ORDEN DE VENTA', on_delete=models.PROTECT,null = True,blank =True)
+    TC_NID = models.ForeignKey(TIPO_CAMBIO, verbose_name='ID TIPO CAMBIO ORDEN DE VENTA', on_delete=models.PROTECT,null = True,blank =True)
+    OV_CESTADO = models.CharField(("ESTADO"),max_length=32,null=True,blank=True)
+    OV_FFECHA_CREACION = models.DateTimeField(("FECHA CREACION"))
+    OV_NPROCESADO = models.BooleanField(("HABILITADO"),default=False,null=True,blank=True)    
+    
+    class Meta:
+        db_table = 'ORDEN_VENTA'
+
+    def __str__(self):
+        return str(self.OV_NID)
+
+class ORDEN_VENTA_DETALLE(models.Model):
+    OV_NID = models.ForeignKey(ORDEN_VENTA, verbose_name='ID SOLICITUD OVD', on_delete=models.PROTECT)
+    PC_NID = models.ForeignKey(PRODUCTO, verbose_name='ID PRODUCTO OVD', on_delete=models.PROTECT)
+    OVD_NQTY = models.IntegerField(("CANTIDAD"))
+    OVD_NLINEA = models.IntegerField(("Numero De Linea"))
+    OVD_NPRECIO = models.DecimalField(("PRECIO"),max_digits=18,decimal_places=5)
+    OVD_NMONTO = models.DecimalField(("MONTO TOTAL"),max_digits=18,decimal_places=5)   
+    class Meta:
+        db_table = 'ORDEN_VENTA_DETALLE'
+    def __str__(self):
+        return str(self.OV_NID)

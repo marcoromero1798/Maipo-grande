@@ -769,3 +769,7 @@ def transportista_deshabilitar(request,pk):
                 )   
     historial_acciones.save() 
     return redirect("sy-tr_list") 
+
+
+def añadir_carro(request):
+    return redirect ('sy-pc_list')

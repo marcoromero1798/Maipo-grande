@@ -41,7 +41,7 @@
 					</div>
 
 					<div class="card-body">
-						<form method="POST">
+						<form method="POST" enctype="multipart/form-data">
 							{% csrf_token %}
 							<div class="row">
 								<div class="col-md-12">
@@ -73,14 +73,19 @@
 									</div>
 									<div class="col-md-6">
 										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Categoria:</label>
+										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Foto:</label>
 										{{form.visible_fields.5}}
+									</div>
+									<div class="col-md-6">
+										{{ form.subject.errors }}
+										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Categoria:</label>
+										{{form.visible_fields.6}}
 									</div>
 								
 									<div class="col-md-6">
 										{{ form.subject.errors }}
 										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Peso:</label>
-										{{form.visible_fields.6}}
+										{{form.visible_fields.7}}
 									</div>
 									<!--<div class="col-md-6">
 										{{ form.subject.errors }}
@@ -89,13 +94,13 @@
 									</div>-->
 									<div class="col-md-6">
 										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Un Peso:</label>
-										{{form.visible_fields.7}}
+										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Unidad de Peso:</label>
+										{{form.visible_fields.8}}
 									</div>
 									<div class="col-md-6">
 										{{ form.subject.errors }}
 										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Refrigeracion:</label>
-										{{form.visible_fields.8}}
+										{{form.visible_fields.9}}
 									</div>
 								
 

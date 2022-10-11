@@ -386,41 +386,33 @@ class producto_update(UpdateView):
         historial_acciones.save() 
         return reverse_lazy('sy-pc_list')
 def producto_list(request):
-    try:
-        categories = CATEGARIAPRODUCTO.objects.all()
-        context={}
-        user=[]
-        producto=[]
+    if request.method == "POST":
+        try:
+            categorias = CATEGARIAPRODUCTO.objects.all()
+            context={}
+            producto = PRODUCTO.objects.filter(CP_NID=request.POST.get('category'))             
+            context ={
+                'object_list':producto,
+                'categorias':categorias, 
+            }
+            return render(request,'home/sy-pc_list.html',context)
+
+        except Exception as e:
+            print("Error listar productos: ",e)
+            return render(request,'home/sy-pc_list.html',context)
+    else:
         user = USERS_EXTENSION.objects.get(US_NID = request.user.id)
+        categorias = CATEGARIAPRODUCTO.objects.all()
         if user.UX_NHABILITADO == 0:
             messages.info(request,'Usuario no habiltado, contactese con un administrador')
             return render(request,'home/sy-pc_list.html',context)
         else:
             producto = PRODUCTO.objects.all()
-            
         context ={
-            'object_list':producto, 
-            'categories':categories,
-        }
+                'object_list':producto, 
+                'categorias':categorias,
+            }
         return render(request,'home/sy-pc_list.html',context)
-
-    except Exception as e:
-        print("Error listar productos: ",e)
-        return render(request,'home/sy-pc_list.html',context)
-
-def filter(request):
-    qs = PRODUCTO.objects.all()
-    categorias = CATEGARIAPRODUCTO.objects.all()
-    category = request.GET.get('category')
-
-    if is_valid_queryparam(category) and category != 'Categoria...':
-        qs = qs.filter(categories__name=category)
-
-    context = {
-        'queryset': qs,
-        'object_list_cat': categorias
-    }
-    return render(request,'home/sy-pr_list.html',context)
 
 
 def producto_listone(request,pk):

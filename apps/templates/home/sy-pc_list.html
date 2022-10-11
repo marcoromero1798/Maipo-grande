@@ -38,14 +38,17 @@
         </div>
         <div class="form-group col-md-4">
             <label for="category">Buscar por Categoria</label>
+            <form method="POST">
+            {% csrf_token %}
             <select id="category" class="form-control" name="category">
               <option selected>Categoria...</option>
-              {% for cat in categories %}
+              {% for cat in categorias %}
               <option value="{{ cat.CP_NID }}">{{ cat.CP_CDESCRIPCION}}</option>
               {% endfor %}
             </select>
             <br>
             <button type="submit" class="btn btn-primary">Buscar</button>
+            </form>
           </div>
         <br>
 

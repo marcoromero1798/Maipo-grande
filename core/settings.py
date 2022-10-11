@@ -133,7 +133,7 @@ USE_THOUSAND_SEPARATOR = True
 
 STATIC_URL = '/static/'
 
-MEDIA_ROOT = os.path.join(CORE_DIR, 'media')
+MEDIA_ROOT = os.path.join(CORE_DIR, 'apps/media')
 MEDIA_URL = '/media/'
 
 STATIC_ROOT = os.path.join(CORE_DIR, 'static')

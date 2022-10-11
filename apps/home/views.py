@@ -23,7 +23,7 @@ from django.views.generic import (CreateView, DeleteView, ListView, UpdateView,
                                   View, TemplateView)
 from apps.home.forms import *
 from django.contrib import messages
-from apps.home.models import CATEGARIAPRODUCTO, CONTRATO, USERS_EXTENSION
+from apps.home.models import CATEGARIAPRODUCTO, CONTRATO, USERS_EXTENSION, PRODUCTO
 from .models import * 
 import datetime as date
 from .filters import ListingFilter
@@ -312,6 +312,8 @@ def productor_list(request):
     except Exception as e:
         print("Error listar categoria: ",e)
         return render(request,'home/sy-pr_list.html',context)
+
+
 def productor_deshabilitar(request,pk):
     instancia = []
     try:
@@ -385,6 +387,7 @@ class producto_update(UpdateView):
         return reverse_lazy('sy-pc_list')
 def producto_list(request):
     try:
+        categories = CATEGARIAPRODUCTO.objects.all()
         context={}
         user=[]
         producto=[]
@@ -393,19 +396,33 @@ def producto_list(request):
             messages.info(request,'Usuario no habiltado, contactese con un administrador')
             return render(request,'home/sy-pc_list.html',context)
         else:
-            form = formPRODUCTO(request.POST, request.FILES)
             producto = PRODUCTO.objects.all()
-            listing_filter = ListingFilter(request.GET, queryset=producto)
-            producto = listing_filter.qs
+            
         context ={
             'object_list':producto, 
-            'listing_filter': listing_filter
+            'categories':categories,
         }
         return render(request,'home/sy-pc_list.html',context)
 
     except Exception as e:
         print("Error listar productos: ",e)
         return render(request,'home/sy-pc_list.html',context)
+
+def filter(request):
+    qs = PRODUCTO.objects.all()
+    categorias = CATEGARIAPRODUCTO.objects.all()
+    category = request.GET.get('category')
+
+    if is_valid_queryparam(category) and category != 'Categoria...':
+        qs = qs.filter(categories__name=category)
+
+    context = {
+        'queryset': qs,
+        'object_list_cat': categorias
+    }
+    return render(request,'home/sy-pr_list.html',context)
+
+
 def producto_listone(request,pk):
     try:
         context={}

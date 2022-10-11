@@ -30,13 +30,24 @@
                 </div>
             </div>
         </div>
-        <div class="btn-toolbar mb-1 mb-md-0 float-left">
+        <div class="btn-toolbar mb-1 mb-md-0 float-right">
             <a href="{% url 'sy-pc_create' %}" class="btn btn-secondary ">
                 <i class="feather icon-plus"></i>
                 Nuevo
             </a>
         </div>
-        <br><br><br>
+        <div class="form-group col-md-4">
+            <label for="category">Buscar por Categoria</label>
+            <select id="category" class="form-control" name="category">
+              <option selected>Categoria...</option>
+              {% for cat in categories %}
+              <option value="{{ cat.CP_NID }}">{{ cat.CP_CDESCRIPCION}}</option>
+              {% endfor %}
+            </select>
+            <br>
+            <button type="submit" class="btn btn-primary">Buscar</button>
+          </div>
+        <br>
 
         <!--LISTA DE PRODUCTOS ECOMERCE-->
         <div class="row">
@@ -45,20 +56,30 @@
             <div class="col-md-6 col-xl-4">
                 <div class="card">
                     <div class="card-body">
-                        <td class="card-img">{% if objeto.PC_FOTO %} {{ vino.VIN_FOTO }} {% endif %} </td>
+                        {% if objeto.PC_FOTO %}
+
+                        <img src="{{ objeto.PC_FOTO.url }}">
+
+                        {% endif %}
                         <h5 class="card-title">{{ objeto.PC_CDESCRIPCION }}</h5>
                         <h4 class="card-text">{{ objeto.PC_NPRECIO|floatformat:2 }}</h4>
                         <p class="card-text"> Categoria: {{ objeto.CP_NID }}</p>
                         <p class="card-text"> Origen: {{ objeto.PC_CORIGEN }}</p>
                         <p class="card-text"> Calidad: {{ objeto.PC_NCALIDAD }}</p>
                         <td>
+                            {% if user.is_superuser %}
                             <a class="btn btn-secondary" href="{% url 'sy-pc_update' objeto.PC_NID|unlocalize %}"><i
                                     class="feather icon-edit"></i> </a>
-                            <a class="btn btn-info" href="{% url 'sy-pc_listone' objeto.PC_NID|unlocalize %}"><i
-                                    class="feather feather icon-eye"></i> </a>
                             <a class="btn btn-danger" data-toggle="modal"
                                 data-target="#modal-default{{ objeto.PC_NID|unlocalize }}"><i
                                     class="feather icon-x-square"></i></a>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.is_authenticated %}
+                            <a class="btn btn-info" href="{% url 'sy-pc_listone' objeto.PC_NID|unlocalize %}"><i
+                                class="feather feather icon-eye"></i> </a>
+                            {% endif %}
                         </td>
                     </div>
                 </div>
@@ -87,7 +108,6 @@
                         <a href="{% url 'sy-pc_deshabilitar' objeto.PC_NID|unlocalize %}" class="btn btn-danger"
                             type="button">Eliminar</a>
                         <button type="button" class="btn  btn-secondary" data-dismiss="modal">Cerrar</button>
-
                     </div>
                 </div>
             </div>

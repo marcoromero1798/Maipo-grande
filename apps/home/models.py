@@ -110,7 +110,7 @@ class PRODUCTO(models.Model):
     PC_CUNIDAD_PESO = models.CharField(("UNIDAD PESO"),max_length=128)
     PC_NCALIDAD = models.IntegerField(('Dias Credito'))
     PC_CORIGEN = models.CharField(("Origen"),max_length=128)
-    PC_FOTO = models.ImageField(null=True, blank=True, upload_to="images/", verbose_name="Foto del producto")
+    PC_FOTO = models.ImageField(default='default.jpg', upload_to="images")
     PC_NHABILITADO = models.BooleanField(("Habilitado"),default=True,null=True,blank=True)
     PC_NREFRIGERACION = models.BooleanField(("REFRIGERACION"),default=False)
     PR_NID = models.ForeignKey(PRODUCTOR, related_name='FK_PRODUCTOR', on_delete=models.PROTECT,null=True,blank=True)

@@ -781,3 +781,9 @@ def transportista_deshabilitar(request,pk):
 
 def añadir_carro(request):
     return redirect ('sy-pc_list')
+
+def carrito_compra(request):
+    cantidad = request.POST.get('cantidad')
+    cantidad = request.POST.get('pc_nid')
+    
+    return HttpResponse("correcto")

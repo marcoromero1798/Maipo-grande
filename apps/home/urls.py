@@ -55,6 +55,7 @@ urlpatterns = [
     path('sy-con_list', login_required(views.consultor_list), name='sy-con_list'),
     path('sy-con_update/<int:pk>', login_required(views.consultor_update.as_view()), name='sy-con_update'),
     path('sy-con_deshabilitar/<int:pk>', login_required(views.consultor_deshabilitar), name='sy-con_deshabilitar'),
+    path('sy-envio_datos', login_required(views.carrito_compra), name='sy-envio_datos'),
     #LOG PROCESOS - LOG ACCIONES
     # path('sy-cp_create', login_required(views.categoria_create.as_view()), name='sy-cp_create'),
     # path('sy-cp_list', login_required(views.categoria_list), name='sy-cp_list'),

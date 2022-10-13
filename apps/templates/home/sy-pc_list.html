@@ -76,13 +76,6 @@
                             <a class="btn btn-danger" data-toggle="modal"
                                 data-target="#modal-default{{ objeto.PC_NID|unlocalize }}"><i
                                     class="feather icon-x-square"></i></a>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if user.is_authenticated %}
-                            <a class="btn btn-info" href="{% url 'sy-pc_listone' objeto.PC_NID|unlocalize %}"><i
-                                class="feather feather icon-eye"></i> </a>
-                            {% endif %}
                         </td>
                     </div>
                 </div>
@@ -116,6 +109,35 @@
             </div>
         </div>
         {% endfor %}
+
+        {% for objeto in object_list %}
+        <div class="modal fade" id="modal-shopping-cart{{ objeto.PC_NID|unlocalize }}" tabindex="-1" role="dialog"
+            aria-labelledby="modal-shopping-cart{{ objeto.PC_NID|unlocalize }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Agregar Producto al Carro</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">×</span></button>
+
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            Ingresar cantidad del producto: {{ objeto.PC_NID|unlocalize }}?
+                        </p>
+                        <input id="cantidad" type="number" class="form-control" step="1">
+                    </div>
+                    <div class="modal-footer">
+                        <a onclick="envio_datos('{{ objeto.PC_NID|unlocalize }}','{{ csrf_token }}')" id="#send_btn" class="btn btn-success"
+                            type="button">Confirmar</a>
+                        <button type="button" class="btn  btn-secondary" data-dismiss="modal">Cerrar</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% endfor %}
     </div>
 </section>
 {% endblock content %}
@@ -123,6 +145,29 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+<script>
+function envio_datos(pc_nid,csrf_token) {
+    // const pc_nid = pc_nid
+    const cantidad = $("cantidad").val();
+    $.ajax({
+        url: "sy-envio_datos",
+        method: "POST",
+        data: {
+            cantidad,
+            pc_nid,
+            csrfmiddlewaretoken: '{{ csrf_token }}' 
+        },
+        success: function (response) {
+            location.reload();
+        }
+
+    })
+
+
+}
+
+
+</script>
 <!-- datatable Js -->
 <script src="/static/assets/js/plugins/jquery.dataTables.min.js"></script>
 <script src="/static/assets/js/plugins/dataTables.bootstrap4.min.js"></script>

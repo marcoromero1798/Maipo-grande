@@ -3,11 +3,20 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 
-from tkinter import N
+from tkinter import CASCADE, N
 from tkinter.tix import Tree
+from turtle import pos
 from django.db import models
 from django.contrib.auth.models import User
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 # Create your models here.
+
+@receiver(post_save, sender=User)
+def create_modelb(sender, instance, created, **kwargs):
+    if created:
+        USUARIOS=User.objects.all().order_by("id")
+        CARRITO.objects.create(ID_USUARIO=USUARIOS[len(USUARIOS)-1])
 
 class PARAMETRO(models.Model):
     PM_CGRUPO = models.CharField(("Grupo Parametro"),max_length=128,null=False)
@@ -72,11 +81,13 @@ class USERS_EXTENSION(models.Model):
     UX_IS_CLIENTEINTERNO = models.BooleanField(default=False)
     UX_IS_CONSULTOR = models.BooleanField(default=False)
     UX_IS_PRODUCTOR = models.BooleanField(default=False)
+
     class Meta:
         db_table = 'USERS_EXTENSION'
 
     def __str__(self):
         return self.UX_CRUT
+
 class PRODUCTOR(models.Model):
     PR_NID = models.BigAutoField(("ID Bodega"),primary_key=True)
     PR_CDESCRIPCION = models.CharField(("COD PRODUCTO"),max_length=128)

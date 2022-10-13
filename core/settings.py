@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'apps.home',  # Enable the inner home (home)
     'django_filters',
     'crispy_forms',
+    
 
 ]
 
@@ -84,9 +85,9 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'MaipoGrande', 
+        'NAME': 'Maipo_grande', 
         'USER': 'postgres', 
-        'PASSWORD': '12345',
+        'PASSWORD': 'qwerty12345',
         'HOST': '127.0.0.1', 
         'PORT': '5432',
     }

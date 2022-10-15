@@ -434,6 +434,7 @@ def producto_listone(request,pk):
     except Exception as e:
         print("Error listar productos: ",e)
         return render(request,'home/sy-pc_listone.html',context)
+
 def producto_deshabilitar(request,pk):
     instancia = []
     try:
@@ -789,10 +790,24 @@ def transportista_deshabilitar(request,pk):
 
 
 def añadir_carro(request):
-    return redirect ('sy-pc_list')
+    context = super(CreateView, self).get_context_data(**kwargs)
+    historial_acciones = []        
+    historial_acciones = LOG_ACCIONES(
+            US_NID_id = self.request.user.id,
+            LG_FFECHA_ACCION = date.datetime.now(), 
+            LG_CSECCION = 'SISTEMA' ,
+            LG_CMODULO='CARRO_COMPRA',
+            LG_CACCION ='CREACION'
+            )   
+    historial_acciones.save() 
+    return reverse_lazy('sy-pc_list')
 
 def carrito_compra(request):
     cantidad = request.POST.get('cantidad')
     cantidad = request.POST.get('pc_nid')
+    cantidad = request.POST.get('precio')
     
     return HttpResponse("correcto")
+
+
+

@@ -30,40 +30,59 @@
                 </div>
             </div>
         </div>
-        <div class="btn-toolbar mb-1 mb-md-0 float-left">
+        <div class="btn-toolbar mb-1 mb-md-0 float-right">
             <a href="{% url 'sy-pc_create' %}" class="btn btn-secondary ">
                 <i class="feather icon-plus"></i>
                 Nuevo
             </a>
         </div>
-        <br><br><br>
+        <div class="form-group col-md-4">
+            <label for="category">Buscar por Categoria</label>
+            <form method="POST">
+            {% csrf_token %}
+            <select id="category" class="form-control" name="category">
+              <option selected>Categoria...</option>
+              {% for cat in categorias %}
+              <option value="{{ cat.CP_NID }}">{{ cat.CP_CDESCRIPCION}}</option>
+              {% endfor %}
+            </select>
+            <br>
+            <button type="submit" class="btn btn-primary">Buscar</button>
+            </form>
+          </div>
+        <br>
 
         <!--LISTA DE PRODUCTOS ECOMERCE-->
         <div class="row">
             {% for objeto in object_list %}
-            {% if objeto.PC_NHABILITADO %}
-            <div class="col-md-6 col-xl-4">
-                <div class="card">
-                    <div class="card-body">
-                        <td class="card-img">{% if objeto.PC_FOTO %} {{ vino.VIN_FOTO }} {% endif %} </td>
-                        <h5 class="card-title">{{ objeto.PC_CDESCRIPCION }}</h5>
-                        <h4 class="card-text">{{ objeto.PC_NPRECIO|floatformat:2 }}</h4>
-                        <p class="card-text"> Categoria: {{ objeto.CP_NID }}</p>
-                        <p class="card-text"> Origen: {{ objeto.PC_CORIGEN }}</p>
-                        <p class="card-text"> Calidad: {{ objeto.PC_NCALIDAD }}</p>
-                        <td>
-                            <a class="btn btn-secondary" href="{% url 'sy-pc_update' objeto.PC_NID|unlocalize %}"><i
-                                    class="feather icon-edit"></i> </a>
-                            <a class="btn btn-info" href="{% url 'sy-pc_listone' objeto.PC_NID|unlocalize %}"><i
-                                    class="feather feather icon-eye"></i> </a>
-                            <a class="btn btn-danger" data-toggle="modal"
-                                data-target="#modal-default{{ objeto.PC_NID|unlocalize }}"><i
-                                    class="feather icon-x-square"></i></a>
-                        </td>
+                {% if objeto.PC_NHABILITADO %}
+                <div class="col-md-6 col-xl-4">
+                    <div class="card">
+                        <div class="card-body">
+                            {% if objeto.PC_FOTO %}
+                            <img src="{{ objeto.PC_FOTO.url }}">
+                            {% endif %}
+                            <h5 class="card-title">{{ objeto.PC_CDESCRIPCION }}</h5>
+                            <h4 class="card-text">{{ objeto.PC_NPRECIO|floatformat:2 }}</h4>
+                            <p class="card-text"> Categoria: {{ objeto.CP_NID }}</p>
+                            <p class="card-text"> Origen: {{ objeto.PC_CORIGEN }}</p>
+                            <p class="card-text"> Calidad: {{ objeto.PC_NCALIDAD }}</p>
+                            <td>
+                                {% if user.is_superuser %}
+                                <a class="btn btn-secondary" href="{% url 'sy-pc_update' objeto.PC_NID|unlocalize %}"><i class="feather icon-edit"></i> </a>
+                                <a class="btn btn-info" href="{% url 'sy-pc_listone' objeto.PC_NID|unlocalize %}"><i class="feather feather icon-eye"></i> </a> 
+                                <a class="btn btn-danger" data-toggle="modal" data-target="#modal-default{{ objeto.PC_NID|unlocalize }}"><i class="feather icon-x-square"></i></a>
+                                <a class="btn btn-success" data-toggle="modal" data-target="#modal-shopping-cart{{ objeto.PC_NID|unlocalize }}"><i class="feather icon-shopping-cart"></i></a>
+                                {% endif %}
+                                {% if user.is_authenticated %}
+                                <a class="btn btn-info" href="{% url 'sy-pc_listone' objeto.PC_NID|unlocalize %}"><i class="feather feather icon-eye"></i> </a> 
+                                <a class="btn btn-success" data-toggle="modal" data-target="#modal-shopping-cart{{ objeto.PC_NID|unlocalize }}"><i class="feather icon-shopping-cart"></i></a>
+                                {% endif %}
+                            </td>
+                        </div>
                     </div>
                 </div>
-            </div>
-            {% endif %}
+                {% endif %}
             {% endfor %}
         </div>
 
@@ -87,11 +106,39 @@
                         <a href="{% url 'sy-pc_deshabilitar' objeto.PC_NID|unlocalize %}" class="btn btn-danger"
                             type="button">Eliminar</a>
                         <button type="button" class="btn  btn-secondary" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% for objeto in object_list %}
+        <div class="modal fade" id="modal-shopping-cart{{ objeto.PC_NID|unlocalize }}" tabindex="-1" role="dialog"
+            aria-labelledby="modal-shopping-cart{{ objeto.PC_NID|unlocalize }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Agregar Producto al Carro</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">×</span></button>
+
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            Ingresar cantidad del producto: {{ objeto.PC_NID|unlocalize }}?
+                        </p>
+                        <input id="cantidad" type="number" class="form-control" step="1">
+                    </div>
+                    <div class="modal-footer">
+                        <a onclick="envio_datos('{{ objeto.PC_NID|unlocalize }}','{{ csrf_token }}')" id="#send_btn" class="btn btn-success"
+                            type="button">Confirmar</a>
+                        <button type="button" class="btn  btn-secondary" data-dismiss="modal">Cerrar</button>
 
                     </div>
                 </div>
             </div>
         </div>
+        
         {% endfor %}
     </div>
 </section>
@@ -100,6 +147,30 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+<script>
+function envio_datos(pc_nid,csrf_token) {
+    // const pc_nid = pc_nid
+    const cantidad = $("cantidad").val();
+    $.ajax({
+        url: "sy-envio_datos",
+        method: "POST",
+        data: {
+            cantidad,
+            pc_nid,
+            precio,
+            csrfmiddlewaretoken: '{{ csrf_token }}' 
+        },
+        success: function (response) {
+            location.reload();
+        }
+
+    })
+
+
+}
+
+
+</script>
 <!-- datatable Js -->
 <script src="/static/assets/js/plugins/jquery.dataTables.min.js"></script>
 <script src="/static/assets/js/plugins/dataTables.bootstrap4.min.js"></script>

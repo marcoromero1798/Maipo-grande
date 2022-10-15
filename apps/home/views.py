@@ -23,7 +23,7 @@ from django.views.generic import (CreateView, DeleteView, ListView, UpdateView,
                                   View, TemplateView)
 from apps.home.forms import *
 from django.contrib import messages
-from apps.home.models import CATEGARIAPRODUCTO, CONTRATO, USERS_EXTENSION
+from apps.home.models import CATEGARIAPRODUCTO, CONTRATO, USERS_EXTENSION, PRODUCTO
 from .models import * 
 import datetime as date
 from .filters import ListingFilter
@@ -312,6 +312,8 @@ def productor_list(request):
     except Exception as e:
         print("Error listar categoria: ",e)
         return render(request,'home/sy-pr_list.html',context)
+
+
 def productor_deshabilitar(request,pk):
     instancia = []
     try:
@@ -384,28 +386,35 @@ class producto_update(UpdateView):
         historial_acciones.save() 
         return reverse_lazy('sy-pc_list')
 def producto_list(request):
-    try:
-        context={}
-        user=[]
-        producto=[]
+    if request.method == "POST":
+        try:
+            categorias = CATEGARIAPRODUCTO.objects.all()
+            context={}
+            producto = PRODUCTO.objects.filter(CP_NID=request.POST.get('category'))             
+            context ={
+                'object_list':producto,
+                'categorias':categorias, 
+            }
+            return render(request,'home/sy-pc_list.html',context)
+
+        except Exception as e:
+            print("Error listar productos: ",e)
+            return render(request,'home/sy-pc_list.html',context)
+    else:
         user = USERS_EXTENSION.objects.get(US_NID = request.user.id)
+        categorias = CATEGARIAPRODUCTO.objects.all()
         if user.UX_NHABILITADO == 0:
             messages.info(request,'Usuario no habiltado, contactese con un administrador')
             return render(request,'home/sy-pc_list.html',context)
         else:
-            form = formPRODUCTO(request.POST, request.FILES)
             producto = PRODUCTO.objects.all()
-            listing_filter = ListingFilter(request.GET, queryset=producto)
-            producto = listing_filter.qs
         context ={
-            'object_list':producto, 
-            'listing_filter': listing_filter
-        }
+                'object_list':producto, 
+                'categorias':categorias,
+            }
         return render(request,'home/sy-pc_list.html',context)
 
-    except Exception as e:
-        print("Error listar productos: ",e)
-        return render(request,'home/sy-pc_list.html',context)
+
 def producto_listone(request,pk):
     try:
         context={}
@@ -425,6 +434,7 @@ def producto_listone(request,pk):
     except Exception as e:
         print("Error listar productos: ",e)
         return render(request,'home/sy-pc_listone.html',context)
+
 def producto_deshabilitar(request,pk):
     instancia = []
     try:
@@ -777,3 +787,27 @@ def transportista_deshabilitar(request,pk):
                 )   
     historial_acciones.save() 
     return redirect("sy-tr_list") 
+
+
+def añadir_carro(request):
+    context = super(CreateView, self).get_context_data(**kwargs)
+    historial_acciones = []        
+    historial_acciones = LOG_ACCIONES(
+            US_NID_id = self.request.user.id,
+            LG_FFECHA_ACCION = date.datetime.now(), 
+            LG_CSECCION = 'SISTEMA' ,
+            LG_CMODULO='CARRO_COMPRA',
+            LG_CACCION ='CREACION'
+            )   
+    historial_acciones.save() 
+    return reverse_lazy('sy-pc_list')
+
+def carrito_compra(request):
+    cantidad = request.POST.get('cantidad')
+    cantidad = request.POST.get('pc_nid')
+    cantidad = request.POST.get('precio')
+    
+    return HttpResponse("correcto")
+
+
+

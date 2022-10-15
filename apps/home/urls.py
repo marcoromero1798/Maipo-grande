@@ -6,6 +6,9 @@ Copyright (c) 2019 - present AppSeed.us
 from django.urls import path, re_path
 from apps.home import views
 from django.contrib.auth.views import login_required
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = [
 
     # The home page
@@ -26,6 +29,7 @@ urlpatterns = [
     #PRODUCTO
     path('sy-pc_create', login_required(views.producto_create.as_view()), name='sy-pc_create'),
     path('sy-pc_list', login_required(views.producto_list), name='sy-pc_list'),
+    path('sy-pc_carro', login_required(views.añadir_carro), name='sy-pc_carro'),
     path('sy-pc_listone/<int:pk>', login_required(views.producto_listone), name='sy-pc_listone'),
     path('sy-pc_update/<int:pk>', login_required(views.producto_update.as_view()), name='sy-pc_update'),
     path('sy-pc_deshabilitar/<int:pk>', login_required(views.producto_deshabilitar), name='sy-pc_deshabilitar'),
@@ -54,6 +58,7 @@ urlpatterns = [
     path('sy-con_list', login_required(views.consultor_list), name='sy-con_list'),
     path('sy-con_update/<int:pk>', login_required(views.consultor_update.as_view()), name='sy-con_update'),
     path('sy-con_deshabilitar/<int:pk>', login_required(views.consultor_deshabilitar), name='sy-con_deshabilitar'),
+    path('sy-envio_datos', login_required(views.carrito_compra), name='sy-envio_datos'),
     #LOG PROCESOS - LOG ACCIONES
     # path('sy-cp_create', login_required(views.categoria_create.as_view()), name='sy-cp_create'),
     # path('sy-cp_list', login_required(views.categoria_list), name='sy-cp_list'),
@@ -62,4 +67,4 @@ urlpatterns = [
     # Matches any html file
     re_path(r'^.*\.*', views.pages, name='pages'),
 
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

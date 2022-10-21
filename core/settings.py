@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'apps.home',  # Enable the inner home (home)
     'django_filters',
     'crispy_forms',
+    'pwa',
     
 
 ]
@@ -147,4 +148,31 @@ STATICFILES_DIRS = (
 
 #############################################################
 #############################################################
+
+PWA_SERVICE_WORKER_PATH = os.path.join(CORE_DIR, '/static/assets/js', 'serviceworker.js')
+
+# PWA
+PWA_APP_START_URL = '/'
+PWA_APP_NAME = 'Feria Virtual'
+PWA_APP_DESCRIPTION = 'App Gestion frutas y verduras'
+PWA_APP_THEME_COLOR = '#87EFC3'
+PWA_APP_BACKGROUND_COLOR = '#fff'
+PWA_APP_ICONS = [
+    {
+        'src': '/static/assets/images/feria.jpg',
+        'sizes': '128x128'
+    },
+    {
+        'src': '/static/assets/images/feria.jpg',
+        'sizes': '256x256'
+    },
+    {
+        'src': '/static/assets/images/feria.jpg',
+        'sizes': '512x512'
+    }
+]
+
+PWA_APP_LANG = 'es'
+
+
 

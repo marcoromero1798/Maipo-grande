@@ -18,13 +18,13 @@
 				<div class="row align-items-center">
 					<div class="col-md-12">
 						<div class="page-header-title">
-							<h5 class="m-b-10">Crear Producto</h5>
+							<h5 class="m-b-10">Crear Detalle orden de venta</h5>
 						</div>
 						<ul class="breadcrumb">
 							<li class="breadcrumb-item"><a href="{% url 'home' %}"><i class="feather
 										icon-home"></i></a></li>
-							<li class="breadcrumb-item"><a href="#!">Producto</a></li>
-							<li class="breadcrumb-item"><a href="#!">Crear Producto</a></li>
+							<li class="breadcrumb-item"><a href="#!">Orden de venta Nro. {{ ov }}</a></li>
+							<li class="breadcrumb-item"><a href="#!">Añadir Producto</a></li>
 						</ul>
 					</div>
 				</div>
@@ -53,52 +53,15 @@
 									</div>
 									<div class="col-md-6">
 										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Descripcion:</label>
+										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Cantidad:</label>
 										{{form.visible_fields.1}}
 									</div>
 									<div class="col-md-6">
 										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Calidad:</label>
+										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Precio:</label>
 										{{form.visible_fields.2}}
 									</div>
-									<div class="col-md-6">
-										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Origen:</label>
-										{{form.visible_fields.3}}
-									</div>
-									<div class="col-md-6">
-										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Foto:</label>
-										{{form.visible_fields.4}}
-									</div>
-									<div class="col-md-6">
-										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Categoria:</label>
-										{{form.visible_fields.5}}
-									</div>
-									<div class="col-md-6">
-										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Peso:</label>
-										{{form.visible_fields.6}}
-									</div>
-							
-									<!--<div class="col-md-6">
-										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Un Peso:</label>
-										{{form.visible_fields.7}}
-									</div>-->
-									<div class="col-md-6">
-										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Unidad de Peso:</label>
-										{{form.visible_fields.7}}
-									</div>
-									<div class="col-md-6">
-										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Refrigeracion:</label>
-										{{form.visible_fields.8}}
-									</div>
 								
-
 								</div>
 							</div>
 							<div class="form-group nav justify-content-end">

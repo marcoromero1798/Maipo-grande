@@ -24,12 +24,12 @@ urlpatterns = [
     #CATEGORIA
     path('sy-cp_create', login_required(views.categoria_create.as_view()), name='sy-cp_create'),
     path('sy-cp_list', login_required(views.categoria_list), name='sy-cp_list'),
+    path('sy-cp_list_compra', login_required(views.categoria_list_compra), name='sy-cp_list_compra'),
     path('sy-cp_update/<int:pk>', login_required(views.categoria_update.as_view()), name='sy-cp_update'),
     path('sy-cp_deshabilitar/<int:pk>', login_required(views.categoria_deshabilitar), name='sy-cp_deshabilitar'),
     #PRODUCTO
     path('sy-pc_create', login_required(views.producto_create.as_view()), name='sy-pc_create'),
     path('sy-pc_list', login_required(views.producto_list), name='sy-pc_list'),
-    path('sy-pc_carro', login_required(views.añadir_carro), name='sy-pc_carro'),
     path('sy-pc_listone/<int:pk>', login_required(views.producto_listone), name='sy-pc_listone'),
     path('sy-pc_update/<int:pk>', login_required(views.producto_update.as_view()), name='sy-pc_update'),
     path('sy-pc_deshabilitar/<int:pk>', login_required(views.producto_deshabilitar), name='sy-pc_deshabilitar'),
@@ -62,8 +62,31 @@ urlpatterns = [
     #LOG PROCESOS - LOG ACCIONES
     # path('sy-cp_create', login_required(views.categoria_create.as_view()), name='sy-cp_create'),
     # path('sy-cp_list', login_required(views.categoria_list), name='sy-cp_list'),
+    #TRANSACCIONALES
+    path('tr-list', login_required(views.Transacciones_list), name='tr-list'),
+    # path('tr-carro_list', login_required(views.solicitud_compra_list), name='tr-carro_list'),
+    #CARRITO COMPRA
+    path('tr-carro_resumen/<int:us_nid>', login_required(views.carrito_compra_resumen), name='tr-carro_resumen'),
+    path('tr-carro_detalle', login_required(views.carrito_compra_listone), name='tr-carro_detalle'),
+    path('tr-carro_delete/<int:cc_nid>', login_required(views.carrito_compra_delete), name='tr-carro_delete'),
 
-    
+
+    #SOLICITUD COMPRA
+    path('tr-sc_listone/<int:sc_nid>', login_required(views.solicitud_compra_listone), name='tr-sc_listone'),
+    # path('tr-sc_list', login_required(views.solicitud_compra_list), name='tr-sc_listone'),
+
+    #ORDEN DE VENTA
+    path('tr-ov_listone/<int:ov_nid>', login_required(views.orden_venta_listone), name='tr-ov_listone'),
+    path('tr-ov_create', login_required(views.OV_Create.as_view()), name='tr-ov_create'),
+    path('tr-ov_update/<int:pk>', login_required(views.OV_Update.as_view()), name='tr-ov_update'),
+    #ORDEN DE VENTA DETALLE
+    path('tr-ovd_create/<int:ov_nid>', login_required(views.orden_venta_detalle_create), name='tr-ovd_create'),
+    path('tr-ovd_update/<int:pk>', login_required(views.OVD_Update.as_view()), name='tr-ovd_update'),
+    path('tr-ovd_delete/<int:id>', login_required(views.orden_venta_detalle_delete), name='tr-ovd_delete'),
+    #TRASPASO
+    path('tr-carro_solicitud/<int:us_nid>', login_required(views.generar_solicitud), name='tr-carro_solicitud'),
+    path('tr-solicitud_orden_venta/<int:sc_nid>', login_required(views.generar_orden_venta), name='tr-solicitud_orden_venta'),
+
     # Matches any html file
     re_path(r'^.*\.*', views.pages, name='pages'),
 

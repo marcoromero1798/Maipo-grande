@@ -6,6 +6,26 @@ $(document).ready(function() {
             dom: 'Bfrtip',
             buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
         });
+        $('#basic-btn1').DataTable({
+            dom: 'Bfrtip',
+            buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+        });
+        $('#basic-btn2').DataTable({
+            dom: 'Bfrtip',
+            buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+        });
+        $('#basic-btn3').DataTable({
+            dom: 'Bfrtip',
+            buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+        });
+        $('#basic-btn4').DataTable({
+            dom: 'Bfrtip',
+            buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+        });
+        $('#basic-btn5').DataTable({
+            dom: 'Bfrtip',
+            buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+        });
 
         // [ Column Selectors ]
         $('#cbtn-selectors').DataTable({

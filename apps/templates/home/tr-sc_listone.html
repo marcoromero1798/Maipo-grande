@@ -1,0 +1,155 @@
+{% extends "layouts/base.html" %}
+{% block title %} Detalle Orden de compra {% endblock %} 
+{% include 'includes/scripts.html' %}
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<section class="pcoded-main-container">
+	
+{% for object in object_list %}
+    <div class="pcoded-content">
+        <div class="page-header">
+			<div class="page-block">
+				<div class="row align-items-center">
+					<div class="col-md-12">
+						<div class="page-header-title">
+							<h5 class="m-b-10">Detalle Solicitud de compra</h5>
+						</div>
+						<ul class="breadcrumb">
+							<li class="breadcrumb-item"><i class="feather
+										icon-home"></i></a></li>
+							<li class="breadcrumb-item"><a href="/tr-list">Solicitud de compra</a></li>
+							<li class="breadcrumb-item"><a href="#!" onclick="window.history.go(-1); return false;">Volver</a></li>						
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-xl-12 col-lg-12 filter-bar invoice-list">
+			<nav class="navbar m-b-30 p-10">
+				<ul class="nav">
+					<li class="nav-item f-text active">
+						<a class="nav-link text-secondary" >Opciones documento:</a>
+					</li>
+					<li>
+						<a class="nav-link text-secondary" href="{% url 'tr-solicitud_orden_venta' object.SC_NID %}">Convertir en Orden de venta</a>
+					</li>
+				</ul>
+
+			</nav>
+		</div>
+		<div class="row">
+			<!-- [ Invoice ] start -->
+			<div class="container" id="printTable">
+				<div>
+					<div class="card">
+						<div class="card-body">
+							<div class="row invoive-info">
+								<div class="col-md-4 col-sm-6">
+									<h6>Informacion solicitud :</h6>
+									<table class="table table-responsive invoice-table invoice-order table-borderless">
+										<tbody>
+											<tr>
+												<th style="width: 10%;"><span class="fw-bold">Nro Solicitud:</span></th>
+												<td>
+													{{object.SC_NID }}
+												</td>
+											</tr>
+											<tr>
+												<th style="width: 10%;"><span class="fw-bold">Fecha creacion:</span></th>
+												<td>{{object.SC_FFECHA_CREACION|date:"d-m-Y"}}</td>
+											</tr>
+
+											<tr>
+												<th>Estado :</th>
+													{% if objeto.SC_NPROCESADO == 0 %}
+                    								    <td><span class="fw-bold text-danger">Pendiente</span></td>
+                    								{% else %}
+                    								    <td><span class="fw-bold text-success">Listo</span></td>
+                    								{% endif %} 
+											</tr>
+											<tr>
+												<th style="width: 10%;"><span class="fw-bold">Moneda:</span></th>
+												<td>
+													{{object.TC_NID}}
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-sm-12">
+									<div class="table-responsive">
+										<table class="table invoice-detail-table">
+											<thead>
+												<tr class="thead-default">
+													<th scope="row" class="border-0" >#</th>
+													
+													<th scope="row" class="border-0" >Descripcion</th>
+													<th scope="row" class="border-0" >Cantidad</th>
+												</tr>
+											</thead>
+											<tbody>
+												{% for object_lines in object_lines %}
+												<tr>
+													<td scope="row" class="text-left fw-bold h6"><span class="fw-normal">{{ object_lines.SC_NLINEA  }}</span></td>
+													<td ><span class="fw-normal">{{ object_lines.CP_NID.CP_CDESCRIPCION}}</span></td>
+													<td ><span class="fw-normal">{{ object_lines.SCD_NQTY }}</span></td>
+																									
+												</tr>
+												{% endfor %}
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+							{% comment %} <div class="row">
+								<div class="col-sm-12">
+									<table class="table table-responsive invoice-table invoice-total">
+										<tbody>
+											
+											<tr>
+												<th>SUBTOTAL :</th>
+													<td>${{totales.0|floatformat:2}}</td>
+											</tr>
+											<tr>
+												<th>IVA:</th>
+												<td>${{totales.1|floatformat:2}}</td>
+											</tr>
+											<tr class="text-info">
+												<td>
+													<hr />
+													<h5 class="text-primary m-r-10">Total :</h5>
+												</td>
+												<td>
+													<hr />
+													<h5 class="text-primary">${{totales.2|floatformat:2}}</h5>
+												</td>
+												
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div> {% endcomment %}
+
+						</div>
+					</div>
+					{% comment %} <div class="row text-center">
+						<div class="col-sm-12 invoice-btn-group text-center">
+							<button type="button" class="btn waves-effect waves-light btn-primary btn-print-invoice m-b-10">Print</button>
+						</div>
+					</div> {% endcomment %}
+				</div>
+			</div>
+        </div>
+    </div>
+</section>
+{% endfor %}
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}
+

@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django_filters',
     'crispy_forms',
     'pwa',
+    'khipu',
     
 
 ]
@@ -173,6 +174,11 @@ PWA_APP_ICONS = [
 ]
 
 PWA_APP_LANG = 'es'
+
+
+# KHIPU CONFIGURATION
+KHIPU_RECEIVER_ID = 148653
+KHIPU_SECRET_KEY = "73ebf4fc9d41f9892ab00a12d5070cdf389767f6"
 
 
 

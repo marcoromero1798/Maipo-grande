@@ -25,8 +25,7 @@
                         </ul>
                     </div>
                 </div>
-            </div>
-            
+            </div>  
         </div>
         <div class="btn-toolbar mb-2 mb-md-0 float-right">
             <a href="{% url 'sy-pc_create' %}" class="btn btn-secondary ">
@@ -86,29 +85,7 @@
                 </tbody>
             </table>
         </div>
-        {% comment %} <div class="card card-body border-0 shadow table-wrapper table-responsive">
-            <table class="table table-hover">
-                <h2 class="h4">Stock</h2>
-                
-                <tbody>
-                    {% if  object_list_kardex %}
-                        {% for object_list in object_list_kardex %}
-                        <tr>
-                            <th style="width: 10%;"><span class="fw-bold">Cantidad</span></th>
-                            <td><span class="fw-bold">{{ object_list.KX_NQTYACUM }}</span></td>
-                        </tr>
-                        <tr>
-                            <th style="width: 10%;"><span class="fw-bold">Fecha ultimo registro</span></th>
-                            <td><span class="fw-bold">{{ object_list.KX_FFECHA_REGISTRO }}</span></td>
-                        </tr>
-
-                        {% endfor %}
-                    {% else %}    
-                        <H2>Stock no cargado</H2>
-                    {% endif %}
-                </tbody>
-            </table>
-        </div> {% endcomment %}
+    </div>
 </section>
 
 

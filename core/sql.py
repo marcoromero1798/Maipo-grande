@@ -67,3 +67,18 @@ def listarParametros(grupo, retValue, retDisplay):
         if resultado == None:
             return None
         return resultado
+
+
+def listarPerfil():
+    with connection.cursor() as cursor:
+        cquery = f''' SELECT "USERS_EXTENSION".id,"USERS_EXTENSION"."UX_CRUT",auth_user.email,"USERS_EXTENSION"."UX_CTELEFONO"  FROM "USERS_EXTENSION"
+                      INNER JOIN auth_user ON auth_user.id = "USERS_EXTENSION"."US_NID_id" WHERE "USERS_EXTENSION"."US_NID_id" = 1'''
+        cursor.execute(cquery)
+        rawData = cursor.fetchall()
+        result = []
+        for r in rawData:
+            result.append(list(r))
+        context = {'consultas': result}
+        
+
+

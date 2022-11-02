@@ -199,3 +199,40 @@ class formPRODUCTO(forms.ModelForm):
             'PC_CORIGEN': forms.TextInput(attrs={'class': 'form-control','type':'text'}),
             'CP_NID': forms.Select(attrs={'class': 'form-control','type':'number'}),
         }
+
+
+
+class formDIRECCION(forms.ModelForm):
+    class Meta:
+        model = DIRECCION     
+        # DR_NID
+        # US_NID
+        # DR_CNOMBRE
+        # DR_CCALLE
+        # DR_CNUMERO
+        # DR_CTELEFONO1
+        # DR_CTELEFONO2
+        # DR_NHABILITADO
+	
+        fields = [
+        'US_NID',
+        'DR_CNOMBRE',
+        'DR_CCALLE',
+        'DR_CNUMERO',
+        'DR_CTELEFONO1',
+        'DR_CTELEFONO2'
+
+
+        ]
+        labels = '__all__'
+        widgets = {        
+            'US_NID': forms.Select(attrs={'class': 'form-control','type':'number'}),
+            'DR_CNOMBRE': forms.TextInput(attrs={'class': 'form-control','type':'text'}),
+            'DR_CCALLE': forms.TextInput(attrs={'class': 'form-control','type':'text'}),
+            'DR_CNUMERO': forms.TextInput(attrs={'class': 'form-control','type':'number'}),
+            'DR_CTELEFONO1': forms.TextInput(attrs={'class': 'form-control','type':'number'}),
+            'DR_CTELEFONO2': forms.TextInput(attrs={'class': 'form-control','type':'number'}),
+            
+
+           
+        }

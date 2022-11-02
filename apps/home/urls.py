@@ -62,6 +62,15 @@ urlpatterns = [
     #LOG PROCESOS - LOG ACCIONES
     # path('sy-cp_create', login_required(views.categoria_create.as_view()), name='sy-cp_create'),
     # path('sy-cp_list', login_required(views.categoria_list), name='sy-cp_list'),
+    #DIRECCION
+    path('sy-dir_create', login_required(views.direccion_create.as_view()), name='sy-dir_create'),
+    path('sy-dir_list', login_required(views.direccion_list), name='sy-dir_list'),
+    path('sy-dir_update/<int:pk>', login_required(views.direccion_update.as_view()), name='sy-dir_update'),
+    path('sy-dir_deshabilitar/<int:pk>', login_required(views.direccion_deshabilitar), name='sy-dir_deshabilitar'),
+
+
+    #PERFIL
+    path('user-profile.html', login_required(views.info_perfil), name='user-profile'),
 
     
     # Matches any html file

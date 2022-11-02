@@ -70,9 +70,7 @@
                             <td>
                                 {% if user.is_superuser %}
                                 <a class="btn btn-secondary" href="{% url 'sy-pc_update' objeto.PC_NID|unlocalize %}"><i class="feather icon-edit"></i> </a>
-                                <a class="btn btn-info" href="{% url 'sy-pc_listone' objeto.PC_NID|unlocalize %}"><i class="feather feather icon-eye"></i> </a> 
                                 <a class="btn btn-danger" data-toggle="modal" data-target="#modal-default{{ objeto.PC_NID|unlocalize }}"><i class="feather icon-x-square"></i></a>
-                                <a class="btn btn-success" data-toggle="modal" data-target="#modal-shopping-cart{{ objeto.PC_NID|unlocalize }}"><i class="feather icon-shopping-cart"></i></a>
                                 {% endif %}
                                 {% if user.is_authenticated %}
                                 <a class="btn btn-info" href="{% url 'sy-pc_listone' objeto.PC_NID|unlocalize %}"><i class="feather feather icon-eye"></i> </a> 

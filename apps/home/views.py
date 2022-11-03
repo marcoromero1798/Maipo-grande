@@ -975,6 +975,7 @@ def carrito_compra(request):
         carrito_compra.save()
     except Exception as e:
         print("error al guardar datos en el carro de compra: ", e)
+        estado = False
     return JsonResponse({
         'estado': estado
     })

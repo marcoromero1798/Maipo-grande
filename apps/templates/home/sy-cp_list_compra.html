@@ -68,7 +68,7 @@
                             <input id="cantidad_ingresada-'{{ objeto.CP_NID|unlocalize }}'" type="number" class="form-control" step="1">
                         </div>
                         <div class="modal-footer">
-                            <a onclick="envio_datos('{{ objeto.CP_NID|unlocalize }}')" id="#send_btn" class="btn btn-success"
+                            <a onclick="envio_datos('{{ objeto.CP_NID|unlocalize }}')"  class="btn btn-success"
                                 type="button">Confirmar</a>
                             <button type="button" class="btn  btn-secondary" data-dismiss="modal">Cerrar</button>
 
@@ -101,7 +101,28 @@ function envio_datos(cp_nid) {
             csrfmiddlewaretoken: '{{ csrf_token }}' 
         },
         success: function (response) {
-            location.reload();
+            if (response.estado == true){
+                str_id = '#modal-shopping-cart'+cp_nid
+                $(str_id).modal('hide')
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito!',
+                    text: 'Producto agregado correctamente',
+                    footer: '<a href="/tr-carro_detalle">Ver carro de compra</a>'
+                  }).then((result) => {
+                    if (result.isConfirmed) {
+                        location.reload();
+                    } 
+                  })
+            }else{
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ocurrio un error, contactese con soporte!',
+                    
+                  })
+            }
+            
         }
 
     })

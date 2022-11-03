@@ -1,0 +1,94 @@
+{% extends "layouts/base.html" %}
+{% block title %} Lista de stock {% endblock %} 
+{% include 'includes/scripts.html' %}
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<link rel="stylesheet" href="/static/assets/css/plugins/dataTables.bootstrap4.min.css">
+{% endblock stylesheets %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% block content %}
+
+<section class="pcoded-main-container">
+    <div class="pcoded-content">
+        <div class="page-header">
+			<div class="page-block">
+				<div class="row align-items-center">
+					<div class="col-md-12">
+						<div class="page-header-title">
+							<h5 class="m-b-10">Stock</h5>
+						</div>
+						<ul class="breadcrumb">
+							<li class="breadcrumb-item"><a href="{% url 'home' %}"><i class="feather
+										icon-home"></i></a></li>
+							<li class="breadcrumb-item"><a href="#!">Stock</a></li>
+							<li class="breadcrumb-item"><a href="#!">Lista stock</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+        <div class="btn-toolbar mb-2 mb-md-0 float-right">
+            <a href="{% url 'sy-stk_create' %}" class="btn btn-secondary ">
+                <i class="feather icon-plus"></i> 
+                Nuevo
+            </a>
+        </div>
+        <!--DATOS DE LA TABLA-->
+        <div class="card card-body border-0 shadow table-wrapper table-responsive">
+            <table class="table table-hover" id="basic-btn">
+                <thead>
+                    <tr>
+                            <th class="border-gray-200" scope="col">Codigo</th>
+                            <th class="border-gray-200" scope="col">Descripcion</th>
+                            <th class="border-gray-200" scope="col">Cantidad</th>
+                            <th class="border-gray-200" scope="col">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for objeto in object_list %}
+                    
+                    <tr>
+                        <th><span class="fw-normal">{{ objeto.1 }}</span></th>
+                        <td><span class="fw-bold">{{ objeto.2 }}</span></td>
+                        {% if objeto.3 != None %}
+                            <td><span class="fw-bold">{{ objeto.3 }}</span></td>
+                        {% else %}
+                            <td><span class="fw-bold">Sin stock asignado</span></td>
+                        {% endif %}    
+                        <td>
+                            {% if objeto.4 == None%}
+                            <a class="btn btn-secondary" href="{% url 'sy-stk_create' %}">Nuevo</a>
+                            {% else %}
+                            <a class="btn btn-secondary" href="{% url 'sy-stk_update' objeto.4|unlocalize %}"><i class="feather icon-edit"></i> </a>
+                            {% endif %}
+                            {% comment %} <a class="btn btn-info" href="{% url 'sy-pr_listone' objeto.PR_NID|unlocalize %}"><i class="feather icon-edit"></i> </a>  {% endcomment %}
+                            {% comment %} <a class="btn btn-danger" data-toggle="modal" data-target="#modal-default{{ objeto.PR_NID|unlocalize }}"><i class="feather icon-x-square"></i></a>  {% endcomment %}
+                        </td>
+                    </tr>
+                    
+                    {% endfor %}
+                </tbody>
+               
+            </table>
+        </div>
+</section>
+{% endblock content %}
+
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+    <!-- datatable Js -->
+    <script src="/static/assets/js/plugins/jquery.dataTables.min.js"></script>
+    <script src="/static/assets/js/plugins/dataTables.bootstrap4.min.js"></script>
+    <script src="/static/assets/js/plugins/buttons.colVis.min.js"></script>
+    <script src="/static/assets/js/plugins/buttons.print.min.js"></script>
+    <script src="/static/assets/js/plugins/pdfmake.min.js"></script>
+    <script src="/static/assets/js/plugins/jszip.min.js"></script>
+    <script src="/static/assets/js/plugins/dataTables.buttons.min.js"></script>
+    <script src="/static/assets/js/plugins/buttons.html5.min.js"></script>
+    <script src="/static/assets/js/plugins/buttons.bootstrap4.min.js"></script>
+    <script src="/static/assets/js/pages/data-export-custom.js"></script>
+    {% endblock javascripts %}
+

@@ -43,6 +43,24 @@ class formCATEGORIA(forms.ModelForm):
             'CP_CDESCRIPCION': forms.TextInput(attrs={'class': 'form-control','type':'text'}),
            
         }
+class formSTOCK(forms.ModelForm):
+    class Meta:
+        model = STOCK
+        # CT_NID
+        # CT_FFECHA_CREACION
+        # CT_FFECHA_VIGENCIA
+        # CT_NHABILITADO
+	
+        fields = [
+        'PC_NID',
+        'STK_NQTY'
+
+        ]
+        labels = '__all__'
+        widgets = {        
+            'PC_NID': forms.Select(attrs={'class': 'form-control','type':'text'}),
+            'STK_NQTY': forms.TextInput(attrs={'class': 'form-control','type':'number'}),
+        }
 class formPRODUCTOR(forms.ModelForm):
     class Meta:
         model = PRODUCTOR
@@ -175,15 +193,15 @@ class formPRODUCTO(forms.ModelForm):
         fields = [
         'PC_CCODIGO_PROD',
         'PC_CDESCRIPCION',
-        'PC_NPRECIO',
         'PC_NCALIDAD',
         'PC_CORIGEN',
         'PC_FOTO',
         'CP_NID',
-
         'PC_NPESO',
         'PC_CUNIDAD_PESO',
-        'PC_NREFRIGERACION'
+        'PC_NREFRIGERACION',
+        'PC_NPRECIO_REF',
+        'PC_FFECHA_VENCIMIENTO'
         
         
 
@@ -197,5 +215,47 @@ class formPRODUCTO(forms.ModelForm):
             'PC_CUNIDAD_PESO' : forms.Select(choices=[('KG','Kilogramos'),('GR','Gramos')],attrs={'class': 'form-control','type':'text'}),
             'PC_NCALIDAD' : forms.Select(choices=[(1,'Pesima'),(2,'Mala'),(3,"Calidad"),(4,"Buena"),(5,"Excelente")],attrs={'class': 'form-control','type':'text'}),
             'PC_CORIGEN': forms.TextInput(attrs={'class': 'form-control','type':'text'}),
+            'PC_NPRECIO_REF': forms.TextInput(attrs={'class': 'form-control','type':'number','step':'1'}),
             'CP_NID': forms.Select(attrs={'class': 'form-control','type':'number'}),
+            'PC_FFECHA_VENCIMIENTO': forms.DateTimeInput(format='%Y-%m-%d %H:%M:%S',attrs={'class': 'form-control','type':'datetime-local'}),
+        }
+
+
+class formOVD(forms.ModelForm):
+    class Meta:
+        model = ORDEN_VENTA_DETALLE    	
+        fields = [
+        'PC_NID',
+        'OVD_NQTY',
+        'OVD_NPRECIO'
+        ]
+        labels = '__all__'
+        widgets = {        
+            'OVD_NQTY': forms.TextInput(attrs={'class': 'form-control','type':'number'}),
+            'OVD_NPRECIO': forms.TextInput(attrs={'class': 'form-control','type':'number'}),
+            'PC_NID': forms.Select(attrs={'class': 'form-control','type':'number'})
+           
+        }
+class formOV(forms.ModelForm):
+    class Meta:
+        model = ORDEN_VENTA  	
+        fields = [
+        
+        'OV_NDOCUMENTO_ORIGEN',
+        'OV_CTIPO_PROCESO',
+        'OV_CESTADO',
+        'TC_NID',
+        'US_NID',
+        'OV_COBSERVACIONES'
+
+        ]
+        labels = '__all__'
+        widgets = {        
+            'OV_NDOCUMENTO_ORIGEN': forms.Select(attrs={'class': 'form-control','type':'number'}),
+            'OV_CTIPO_PROCESO':  forms.Select(choices=[('EXTERNO','EXTERNO'),('INTERNO','INTERNO')],attrs={'class': 'form-control','type':'text'}), 
+            'OV_CESTADO':  forms.Select(choices=[('INICIADO','INICIADO'),('SELECCION','SELECCION'),('PAGO','PAGO'),('SUBASTA','SUBASTA'),('ENTREGA','ENTREGA'),('COMPLETADO','COMPLETADO'),('RECHAZADO','RECHAZADO')],attrs={'class': 'form-control','type':'text'}),
+            'TC_NID': forms.Select(attrs={'class': 'form-control','type':'number'}),
+            'US_NID': forms.Select(attrs={'class': 'form-control','type':'number'}),
+            'OV_COBSERVACIONES': forms.Textarea(attrs={'class': 'form-control','type':'text','placeholder':'escriba sus observaciones'}),
+           
         }

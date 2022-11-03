@@ -1,0 +1,52 @@
+<div class="dropdown">
+    <a class="dropdown-toggle" id='notificaciones' href="#" data-toggle="dropdown">
+        <i class="feather icon-shopping-cart"></i>
+        <span class="badge bg-danger">
+            <span class="sr-only"></span>
+        </span>
+    </a>
+
+    <div  class="dropdown-menu dropdown-menu-right notification" >
+        <div class="noti-head">
+            <h6 class="d-inline-block m-b-0">Carro de compra</h6>
+        </div>
+        <ul id="carro" class="noti-body">
+            
+        </ul>
+        <div class="noti-footer">
+            <a href="/tr-carro_detalle">Ver todos</a>
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script>
+
+$(document).ready(function() {
+    $.ajax({
+        type: 'GET',
+        url: "/tr-carro_resumen/{{request.user.id}}",
+        success: function (data) {
+            var elemento = data.elementos_carro
+            for (let i=0 ; i < elemento.length ; i++){
+                producto = elemento[i][0]
+                cantidad = elemento[i][1]
+                $("#carro").append( 
+                '<li class="notification">'+
+                    '<div class="media">'+
+                        '<div class="media-body">'+
+                            '<p><strong> Producto: '+producto+'</strong></p>'+
+                            '<p> Cantidad: '+cantidad+'</p>'
+                        +'</div>'+
+                    '</div>'+
+                '</li>')
+            }
+
+            
+            
+        },
+
+    });
+});
+
+</script>

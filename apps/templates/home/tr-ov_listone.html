@@ -1,0 +1,314 @@
+{% extends "layouts/base.html" %}
+{% block title %} Detalle Orden de compra {% endblock %} 
+{% include 'includes/scripts.html' %}
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+<section class="pcoded-main-container">
+	
+{% for object in instancia_ov %}
+    <div class="pcoded-content">
+        <div class="page-header">
+			<div class="page-block">
+				<div class="row align-items-center">
+					<div class="col-md-12">
+						<div class="page-header-title">
+							<h5 class="m-b-10">Detalle Orden de venta</h5>
+						</div>
+						<ul class="breadcrumb">
+							<li class="breadcrumb-item"><a href="#"><i class="feather
+										icon-home"></i></a></li>
+							<li class="breadcrumb-item"><a href="#">Orden de venta</a></li>
+							<li class="breadcrumb-item"><a href="#!" onclick="window.history.go(-1); return false;">Volver</a></li>						
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-xl-12 col-lg-12 filter-bar invoice-list">
+			<nav class="navbar m-b-30 p-10">
+				<ul class="nav">
+					<li class="nav-item f-text active">
+						<a class="nav-link text-secondary" >Opciones documento:</a>
+					</li>
+					<li>
+						<a class="nav-link text-secondary" href='#'onclick="obtener_mejor_producto('{{object.OV_NDOCUMENTO_ORIGEN}}','{{object.OV_NID}}')">Buscar mejores productos</a>
+					</li>
+					<li>
+						<a class="nav-link text-secondary" href="{% url 'tr-ov_update' object.OV_NID %}">Editar datos Orden de venta</a>
+					</li>
+					<li>
+						<a class="nav-link text-secondary" href="{% url 'tr-ovd_create' object.OV_NID %}">Agregar producto</a>
+					</li>
+				</ul>
+
+			</nav>
+		</div>
+		<div class="row">
+			<!-- [ Invoice ] start -->
+			<div class="container" id="printTable">
+				<div>
+					<div class="card">
+						<div class="card-body">
+							<div class="row invoive-info">
+								<div class="col-md-4 col-sm-6">
+									<h6>Informacion de Orden de venta:</h6>
+									<table class="table table-responsive invoice-table invoice-order table-borderless">
+										<tbody>
+											<tr>
+												<th style="width: 10%;"><span class="fw-bold">Nro Orden de venta :</span></th>
+												<td>{{object.OV_NID}}</td>
+											</tr>
+											<tr>
+												<th style="width: 10%;"><span class="fw-bold">Fecha creación:</span></th>
+												<td>{{object.OV_FFECHA_CREACION|date:"d-m-Y" }}</td>
+											</tr>
+											<tr>
+												<th style="width: 10%;"><span class="fw-bold">Fecha procesamiento:</span></th>
+												{% if object.OV_FFECHA_PROCESAMIENTO == None %}
+													<td><span class="fw-bold text-danger">Pendiente</span></td>
+												{% else %}
+													<td><span class="fw-bold text-success">{{object.OV_FFECHA_PROCESAMIENTO|date:"d-m-Y"}}</span></td>
+												{% endif %} 
+											</tr>
+											<tr>
+												<th style="width: 10%;"><span class="fw-bold">Cod Proveedor:</span></th>
+												<td>{{object.OV_NDOCUMENTO_ORIGEN}}</td>
+											</tr>
+											<tr>
+												<th>Estado :</th>
+													{% if objeto.OV_NPROCESADO == 0 %}
+                    								    <td><span class="fw-bold text-danger">Pendiente</span></td>
+                    								{% else %}
+                    								    <td><span class="fw-bold text-success">Listo</span></td>
+                    								{% endif %} 
+											</tr>
+											<tr>
+												<th style="width: 10%;"><span class="fw-bold">Tipo de proceso</span></th>
+												<td>
+													{{object.OV_CTIPO_PROCESO }}
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+								<!-- <div class="col-md-4 col-sm-6">
+									<h6>Informacion OC :</h6>
+									<table class="table table-responsive invoice-table invoice-order table-borderless">
+										<tbody>
+											<tr>
+												<th style="width: 10%;"><span class="fw-bold">Nro OC:</span></th>
+												<td>
+													{{object.OC_CNRO_REF }}
+												</td>
+											</tr>
+											<tr>
+												<th style="width: 10%;"><span class="fw-bold">Fecha creacion:</span></th>
+												<td>{{object.OC_FFECHA_CREACION|date:"d-m-Y"}}</td>
+											</tr>
+
+											<tr>
+												{ <th>Estado :</th>
+													{% if objeto.OC_NPENDIENTE == 0 %}
+                    								    <td><span class="fw-bold text-danger">Pendiente</span></td>
+                    								{% else %}
+                    								    <td><span class="fw-bold text-success">Listo</span></td>
+                    								{% endif %}
+											</tr>
+											<tr>
+												<th style="width: 10%;"><span class="fw-bold">Moneda:</span></th>
+												<td>
+													{{object.OC_CMONEDA }}
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div> -->
+							</div>
+							<div class="row">
+								<div class="col-sm-12">
+									<ul class="nav nav-tabs mb-3" id="myTab" role="tablist">
+										<li class="nav-item">
+											<a class="nav-link active text-uppercase" id="solicitud-tab" data-toggle="tab" href="#solicitud" role="tab" aria-controls="solicitud" aria-selected="true">Solicitud de compra</a>
+										</li>
+										<li class="nav-item">
+											<a class="nav-link text-uppercase" id="orden_venta-tab" data-toggle="tab" href="#orden_venta" role="tab" aria-controls="orden_venta" aria-selected="false">Orden de venta</a>
+										</li>
+										<!-- <li class="nav-item">
+											<a class="nav-link text-uppercase" id="despacho-tab" data-toggle="tab" href="#despacho" role="tab" aria-controls="despacho" aria-selected="false">despacho</a>
+										</li> -->
+									</ul>
+									<div class="tab-content" id="myTabContent">
+										<div class="tab-pane fade show active" id="solicitud" role="tabpanel" aria-labelledby="solicitud-tab">
+											<table class="table invoice-detail-table" id="simpletable1">
+												<thead>
+												<tr class="thead-default">
+													<th scope="row" class="border-0" >Linea</th>
+													<th scope="row" class="border-0" >Producto</th>
+													<th scope="row" class="border-0" >Cantidad</th>
+												</tr>
+												</thead>
+												<tbody>
+													{% for object in instancia_sc %}
+													<tr>
+														<td>{{object.SC_NLINEA}}</td>
+														<td>{{object.CP_NID}}</td>
+														<td>{{object.SCD_NQTY}}</td>
+													</tr>
+													{% endfor %}
+												</tbody>
+											</table>
+										</div>
+										<div class="tab-pane fade" id="orden_venta" role="tabpanel" aria-labelledby="orden_venta-tab">
+			
+											<table class="table invoice-detail-table" id="simpletable2">
+												<thead>
+													<tr class="thead-default">
+			
+														<th scope="row" class="border-0" >Acciones</th>
+														<th scope="row" class="border-0" >#</th>
+														<th scope="row" class="border-0" >producto</th>
+														<th scope="row" class="border-0" >Cantidad</th>
+														<th scope="row" class="border-0" >Precio</th>
+														<th scope="row" class="border-0" >Monto total</th>
+													</tr>
+												</thead>
+												<tbody>
+													{% for object_lines in instancia_ovd %}
+													<tr>
+														<td>                                
+															<a class="btn btn-secondary" href="{% url 'tr-ovd_update' object_lines.id %}"><i class="feather icon-edit"></i> </a>
+														</td>
+														<td ><span class="fw-normal">{{ object_lines.OVD_NLINEA }}</span></td>
+														<td ><span class="fw-normal">{{ object_lines.PC_NID }}</span></td>
+														<td ><span class="fw-normal">{{ object_lines.OVD_NQTY  }}</span></td>
+														<td ><span class="fw-normal">{{ object_lines.OVD_NPRECIO|floatformat:0  }}</span></td>
+														<td ><span class="fw-normal">{{ object_lines.OVD_NMONTO}}</span></td>													
+													</tr>
+													{% endfor %}
+												</tbody>
+											</table>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-sm-12">
+									<table class="table table-responsive invoice-table invoice-total">
+										<tbody>
+											
+											<tr>
+												<th>SUBTOTAL :</th>
+													<td>${{sub_total|floatformat:2}}</td>
+											</tr>
+																				
+											<tr class="text-info">
+												<td>
+													<hr />
+													<h5 class="text-primary m-r-10">Total :</h5>
+												</td>
+												<td>
+													<hr />
+													<h5 class="text-primary">${{total_iva|floatformat:2}}</h5>
+												</td>
+												
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+
+						</div>
+					</div>
+					{% comment %} <div class="row text-center">
+						<div class="col-sm-12 invoice-btn-group text-center">
+							<button type="button" class="btn waves-effect waves-light btn-primary btn-print-invoice m-b-10">Print</button>
+						</div>
+					</div> {% endcomment %}
+				</div>
+			</div>
+        </div>
+
+
+                    
+
+    </div>
+</section>
+{% endfor %}
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>
+	function obtener_mejor_producto(sc_nid,ov_nid) {
+			var url = "/buscar_productos/" + ov_nid
+			$.ajax({
+			url: url,
+			method: "POST",
+			data: {
+				sc_nid : sc_nid,
+				csrfmiddlewaretoken: '{{ csrf_token }}' 
+			},
+			success: function (response) {
+				if(response.Estado == true){
+					console.log(response.mensaje)
+					if(response.mensaje != 'correcto' ){
+						Swal.fire({
+							title: '<strong><u>Advertencia</u></strong>',
+							icon: 'info',
+							html: 'No se cubrio la totalidad de la demanda con productos de buena calidad para las siguentes categorias:<br>'+response.mensaje,
+							showCloseButton: true,
+							focusConfirm: true,
+							confirmButtonText:
+								'<i class="fa fa-thumbs-up"></i> Entendido!'
+							}).then((result) => {
+								if (result.isConfirmed) {
+									window.location.reload()
+								}
+						})
+					}else{
+						Swal.fire({
+							title: '<strong><u>Éxito!</u></strong>',
+							icon: 'success',
+							html: 'Productos seleccionados correctamente',
+							showCloseButton: true,
+							focusConfirm: true,
+							confirmButtonText:
+								'<i class="fa fa-thumbs-up"></i> Entendido!'
+							}).then((result) => {
+								if (result.isConfirmed) {
+									window.location.reload()
+								}
+						})
+						
+					}
+				}
+			}
+	
+		})
+	
+	
+	}
+</script>	
+
+<!-- datatable Js -->
+<script src="/static/assets/js/plugins/jquery.dataTables.min.js"></script>
+<script src="/static/assets/js/plugins/dataTables.bootstrap4.min.js"></script>
+<script src="/static/assets/js/plugins/buttons.colVis.min.js"></script>
+<script src="/static/assets/js/plugins/buttons.print.min.js"></script>
+<script src="/static/assets/js/plugins/pdfmake.min.js"></script>
+<script src="/static/assets/js/plugins/jszip.min.js"></script>
+<script src="/static/assets/js/plugins/dataTables.buttons.min.js"></script>
+<script src="/static/assets/js/plugins/buttons.html5.min.js"></script>
+<script src="/static/assets/js/plugins/buttons.bootstrap4.min.js"></script>
+<script src="/static/assets/js/pages/data-export-custom.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+<script src="/static/assets/js/plugins/jquery.dataTables.min.js"></script>
+<script src="/static/assets/js/plugins/dataTables.bootstrap4.min.js"></script>
+<script src="/static/assets/js/pages/data-basic-custom.js"></script>
+{% endblock javascripts %}
+

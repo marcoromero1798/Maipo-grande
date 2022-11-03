@@ -3,6 +3,7 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 
+from tabnanny import verbose
 from tkinter import CASCADE, N
 from tkinter.tix import Tree
 from turtle import pos
@@ -10,13 +11,9 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
+from pyparsing import null_debug_action
 # Create your models here.
 
-@receiver(post_save, sender=User)
-def create_modelb(sender, instance, created, **kwargs):
-    if created:
-        USUARIOS=User.objects.all().order_by("id")
-        CARRITO.objects.create(ID_USUARIO=USUARIOS[len(USUARIOS)-1])
 
 class PARAMETRO(models.Model):
     PM_CGRUPO = models.CharField(("Grupo Parametro"),max_length=128,null=False)
@@ -62,6 +59,8 @@ class CATEGARIAPRODUCTO(models.Model):
     CP_NID = models.BigAutoField(("ID CATEGORIA"),primary_key=True)
     CP_CDESCRIPCION = models.CharField(("DESCRIPCION "),max_length=128)
     CP_NHABILITADO = models.BooleanField(("Habilitado"),default=True,null=True,blank=True)
+    CP_FOTO = models.ImageField(upload_to="images")
+
 
     class Meta:
         db_table = 'CATEGORIA_PRODUCTO'
@@ -116,21 +115,23 @@ class PRODUCTO(models.Model):
     PC_NID = models.BigAutoField(("ID PRODUCTO"),primary_key=True)
     PC_CCODIGO_PROD = models.CharField(("COD PRODUCTO"),max_length=128)
     PC_CDESCRIPCION = models.CharField(("DESCRIPCION"),max_length=128)
-    PC_NPRECIO = models.IntegerField(("Precio"))
     PC_NPESO = models.DecimalField(("Cantidad unidad de venta"),max_digits=18,decimal_places=5)
+    PC_NPRECIO_REF = models.DecimalField(("PRECIO REFERENCIA"),max_digits=18,decimal_places=5)
     PC_CUNIDAD_PESO = models.CharField(("UNIDAD PESO"),max_length=128)
     PC_NCALIDAD = models.IntegerField(('Dias Credito'))
     PC_CORIGEN = models.CharField(("Origen"),max_length=128)
-    PC_FOTO = models.ImageField(default='default.jpg', upload_to="images")
+    PC_FOTO = models.ImageField( upload_to="images")
     PC_NHABILITADO = models.BooleanField(("Habilitado"),default=True,null=True,blank=True)
     PC_NREFRIGERACION = models.BooleanField(("REFRIGERACION"),default=False)
     PR_NID = models.ForeignKey(PRODUCTOR, related_name='FK_PRODUCTOR', on_delete=models.PROTECT,null=True,blank=True)
     CP_NID = models.ForeignKey(CATEGARIAPRODUCTO, related_name='CATEGORIAPRODUCTO', on_delete=models.PROTECT)
+    PC_FFECHA_VENCIMIENTO = models.DateTimeField(("Fecha TERMINO"))
     class Meta:
         db_table = 'PRODUCTO'
 
     def __str__(self):
         return self.PC_CDESCRIPCION
+
 class CLIENTE_EXTERNO(models.Model):
     CLE_NID = models.BigAutoField(("ID Cliente externo"),primary_key=True)
     CLE_CDESCRIPCION = models.CharField(("Descripcion cliente"),max_length=128)
@@ -255,9 +256,11 @@ class CARRO_COMPRA(models.Model):
     CC_NID = models.BigAutoField(("ID CARRO COMPRA"),primary_key=True)
     US_NID = models.ForeignKey(User, verbose_name='ID USUARIO CARRO COMPRA', on_delete=models.PROTECT,null = True,blank =True)
     PC_NID = models.ForeignKey(PRODUCTO, verbose_name='ID PRODUCTO CARRO COMPRA', on_delete=models.PROTECT,null = True,blank =True)
+    CP_NID = models.ForeignKey(CATEGARIAPRODUCTO, verbose_name='CATEGORIA PRODUCTO', on_delete=models.PROTECT,null = True,blank =True)
     CC_NQTY = models.IntegerField(("CANTIDAD"))
-    CC_NPRECIO = models.DecimalField(("PRECIO"),max_digits=18,decimal_places=5)   
-    CC_NMONTO_TOTAL = models.DecimalField(("MONTO TOTAL"),max_digits=18,decimal_places=5)   
+    CC_NPRECIO = models.DecimalField(("PRECIO"),max_digits=18,decimal_places=5,null=True,blank=True)   
+    CC_NMONTO_TOTAL = models.DecimalField(("MONTO TOTAL"),max_digits=18,decimal_places=5,null=True,blank=True)   
+    CC_NESTADO = models.BooleanField(("ESTADO"),default=False,null=True,blank=True)
 
     class Meta:
         db_table = 'CARRO_COMPRA'
@@ -331,9 +334,9 @@ class SOLICITUD_COMPRA(models.Model):
     DR_NID = models.ForeignKey(DIRECCION, verbose_name='ID DIRECCION SOLICITUD', on_delete=models.PROTECT,null = True,blank =True)
     TC_NID = models.ForeignKey(TIPO_CAMBIO, verbose_name='ID TIPO CAMBIO SOLICITUD', on_delete=models.PROTECT,null = True,blank =True)
     SC_FFECHA_CREACION = models.DateTimeField(("FECHA CREACION"))
-    SC_FFECHA_PROCESAMIENTO = models.DateTimeField(("FECHA PROCESAMIENTO"))
+    SC_FFECHA_PROCESAMIENTO = models.DateTimeField(("FECHA PROCESAMIENTO"),null=True,blank=True)
     SC_NPROCESADO = models.BooleanField(("Habilitado"),default=False,null=True,blank=True)
-    SCD_NMONTO_TOTAL = models.DecimalField(("MONTO TOTAL"),max_digits=18,decimal_places=5)   
+    # SCD_NMONTO_TOTAL = models.DecimalField(("MONTO TOTAL"),max_digits=18,decimal_places=5)   
 
     class Meta:
         db_table = 'SOLICITUD_COMPRA'
@@ -342,11 +345,12 @@ class SOLICITUD_COMPRA(models.Model):
 class SOLICITUD_COMPRA_DETALLE(models.Model):
     SC_NID = models.ForeignKey(SOLICITUD_COMPRA, verbose_name='ID SOLICITUD DETALLE', on_delete=models.PROTECT)
     SC_NLINEA = models.IntegerField(("Numero De Linea"))
-    PC_NID = models.ForeignKey(PRODUCTO, verbose_name='ID PRODUCTO SCD', on_delete=models.PROTECT)
+    PC_NID = models.ForeignKey(PRODUCTO, verbose_name='ID PRODUCTO SCD', on_delete=models.PROTECT,null = True,blank =True)
+    CP_NID = models.ForeignKey(CATEGARIAPRODUCTO, verbose_name='CATEGORIA PRODUCTO', on_delete=models.PROTECT,null = True,blank =True)
     SCD_NQTY = models.IntegerField(("CANTIDAD"))
-    SCD_NPRECIO = models.DecimalField(("PRECIO"),max_digits=18,decimal_places=5)
-    SCD_NMONTO = models.DecimalField(("MONTO TOTAL"),max_digits=18,decimal_places=5)   
-
+    SCD_NPRECIO = models.DecimalField(("PRECIO"),max_digits=18,decimal_places=5,null = True,blank =True)
+    SCD_NMONTO = models.DecimalField(("MONTO TOTAL"),max_digits=18,decimal_places=5,null = True,blank =True)   
+    SCD_NESTADO = models.BooleanField(("Habilitado"),default=False,null=True,blank=True)
 
     class Meta:
         db_table = 'SOLICITUD_COMPRA_DETALLE'
@@ -356,12 +360,16 @@ class SOLICITUD_COMPRA_DETALLE(models.Model):
 
 class ORDEN_VENTA(models.Model):
     OV_NID = models.BigAutoField(("ID ORDEN DE VENTA"),primary_key=True)
+    OV_NDOCUMENTO_ORIGEN = models.ForeignKey(SOLICITUD_COMPRA,on_delete=models.PROTECT,verbose_name="Documento origen",null = True,blank =True)
     US_NID = models.ForeignKey(User, verbose_name='ID USUARIO ORDEN DE VENTA', on_delete=models.PROTECT,null = True,blank =True)
     DR_NID = models.ForeignKey(DIRECCION, verbose_name='ID DIRECCION ORDEN DE VENTA', on_delete=models.PROTECT,null = True,blank =True)
     TC_NID = models.ForeignKey(TIPO_CAMBIO, verbose_name='ID TIPO CAMBIO ORDEN DE VENTA', on_delete=models.PROTECT,null = True,blank =True)
     OV_CESTADO = models.CharField(("ESTADO"),max_length=32,null=True,blank=True)
     OV_FFECHA_CREACION = models.DateTimeField(("FECHA CREACION"))
+    OV_FFECHA_PROCESAMIENTO = models.DateTimeField(("FECHA PROCESAMIENTO"),null=True,blank=True)
     OV_NPROCESADO = models.BooleanField(("HABILITADO"),default=False,null=True,blank=True)    
+    OV_CTIPO_PROCESO = models.CharField(("Tipo Documento"),max_length=50)
+    OV_COBSERVACIONES = models.CharField(("Observaciones"),max_length=100)
     
     class Meta:
         db_table = 'ORDEN_VENTA'
@@ -370,13 +378,20 @@ class ORDEN_VENTA(models.Model):
         return str(self.OV_NID)
 
 class ORDEN_VENTA_DETALLE(models.Model):
-    OV_NID = models.ForeignKey(ORDEN_VENTA, verbose_name='ID SOLICITUD OVD', on_delete=models.PROTECT)
+    OV_NID = models.ForeignKey(ORDEN_VENTA, verbose_name='ID SOLICITUD OVD', on_delete=models.PROTECT,blank=True,null =True)
     PC_NID = models.ForeignKey(PRODUCTO, verbose_name='ID PRODUCTO OVD', on_delete=models.PROTECT)
+    CP_NID = models.ForeignKey(CATEGARIAPRODUCTO, verbose_name='CATEGORIA PRODUCTO', on_delete=models.PROTECT,null = True,blank =True)
     OVD_NQTY = models.IntegerField(("CANTIDAD"))
     OVD_NLINEA = models.IntegerField(("Numero De Linea"))
     OVD_NPRECIO = models.DecimalField(("PRECIO"),max_digits=18,decimal_places=5)
-    OVD_NMONTO = models.DecimalField(("MONTO TOTAL"),max_digits=18,decimal_places=5)   
+    OVD_NMONTO = models.DecimalField(("MONTO TOTAL"),max_digits=18,decimal_places=5,null = True,blank =True)   
     class Meta:
         db_table = 'ORDEN_VENTA_DETALLE'
     def __str__(self):
         return str(self.OV_NID)
+    @property
+    def MONTO_TOTAL(self):
+        return self.OVD_NPRECIO * self.OVD_NQTY
+    @property
+    def TOTAL_IVA(self):
+        return (self.OVD_NPRECIO * self.OVD_NQTY) * 1,19

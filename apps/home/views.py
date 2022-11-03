@@ -321,7 +321,6 @@ def categoria_list_compra(request):
             'object_list': producto
         }
         return render(request, 'home/sy-cp_list_compra.html', context)
-
     except Exception as e:
         print("Error listar categoria: ", e)
         return render(request, 'home/sy-cp_list_compra.html', context)
@@ -1792,3 +1791,6 @@ def obtener_mejor_producto(request,ov_nid):
                 'Estado':estado,
                 'mensaje':mensaje
             })
+        
+def notificaciones_correo():
+    return

@@ -49,9 +49,15 @@
 					{% endif %} {% endcomment %}
 					{% if request.user.is_superuser == 1 or request.user.USER.UX_IS_ADMINISTRADOR == 1 %}
 						{% if object.SU_NPROCESADO == 1 %}
-						<li>
-							<a class="nav-link text-info" href="{% url 'tr-sud_terminar' object.SU_NID %}">Terminar Subasta</a>
-						</li>
+							{% if object.VIGENCIA != 'TERMINADO' %}
+							<li>
+								<a class="nav-link text-info" href="{% url 'tr-sud_terminar' object.SU_NID %}">Terminar Subasta</a>
+							</li>
+							{% else %}
+							<li>
+								<a class="nav-link text-info" href="{% url 'tr-sud_terminar' object.SU_NID %}">Terminar Subasta</a>
+							</li>
+							{% endif %}
 						{% else %}
 						<li>
 							<a class="nav-link text-info" href="{% url 'tr-sud_iniciar' object.SU_NID %}">Iniciar Subasta</a>

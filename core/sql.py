@@ -131,6 +131,41 @@ def detalle_carro(US_NID):
         if resultado == None:
             return None
         return resultado
+def detalle_solicitud(CP_NID,SC_NID):
+    with connection.cursor() as cursor:
+        cquery = f'''
+                SELECT 
+                    SUM(SD."SCD_NQTY") AS CANTIDAD_SC
+                FROM "SOLICITUD_COMPRA_DETALLE" AS SD
+                LEFT JOIN "CATEGORIA_PRODUCTO" AS CP ON CP."CP_NID" = SD."CP_NID_id"
+
+                WHERE CP."CP_NID" IS NOT NULL AND CP."CP_NID" = {CP_NID} AND SD."SC_NID_id" = {SC_NID}
+                GROUP BY CP."CP_NID",SD."SC_NID_id" '''
+
+        cursor.execute(cquery)
+        resultado = cursor.fetchone()
+        if resultado == None:
+            return None
+        return resultado[0]
+def detalle_ov(CP_NID,SC_NID):
+    with connection.cursor() as cursor:
+        cquery = f'''
+SELECT 
+
+SUM(OVD."OVD_NQTY") AS CANTIDAD_OV
+FROM "ORDEN_VENTA_DETALLE" AS OVD
+LEFT JOIN "ORDEN_VENTA" AS OV ON OV."OV_NID" = OVD."OV_NID_id"
+LEFT JOIN "PRODUCTO" AS PC ON OVD."PC_NID_id" = PC."PC_NID"
+LEFT JOIN "CATEGORIA_PRODUCTO" AS CP ON CP."CP_NID" = PC."CP_NID_id"
+WHERE OV."OV_NDOCUMENTO_ORIGEN_id" = {SC_NID} and CP."CP_NID" ={CP_NID}
+GROUP BY CP."CP_NID",OV."OV_NDOCUMENTO_ORIGEN_id"
+'''
+
+        cursor.execute(cquery)
+        resultado = cursor.fetchone()
+        if resultado == None:
+            return None
+        return resultado[0]
 def stock_list_sql():
     with connection.cursor() as cursor:
         cquery = f'''

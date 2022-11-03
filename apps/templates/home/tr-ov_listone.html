@@ -35,14 +35,22 @@
 					<li class="nav-item f-text active">
 						<a class="nav-link text-secondary" >Opciones documento:</a>
 					</li>
+					{% if object.OV_CESTADO == 'INICIADO' %}
 					<li>
-						<a class="nav-link text-secondary" href='#'onclick="obtener_mejor_producto('{{object.OV_NDOCUMENTO_ORIGEN}}','{{object.OV_NID}}')">Buscar mejores productos</a>
+						<a class="nav-link text-info" href='#'onclick="obtener_mejor_producto('{{object.OV_NDOCUMENTO_ORIGEN}}','{{object.OV_NID}}')">Buscar mejores productos</a>
+					</li>
+					{% else %}
+					{% if object.OV_CESTADO == 'SELECCION' %}
+					<li>
+						<a class="nav-link text-info" href='#'>Subastar Transporte</a>
+					</li>
+					{% endif %}
+					{% endif %}
+					<li>
+						<a class="nav-link text-info" href="{% url 'tr-ov_update' object.OV_NID %}">Editar datos Orden de venta</a>
 					</li>
 					<li>
-						<a class="nav-link text-secondary" href="{% url 'tr-ov_update' object.OV_NID %}">Editar datos Orden de venta</a>
-					</li>
-					<li>
-						<a class="nav-link text-secondary" href="{% url 'tr-ovd_create' object.OV_NID %}">Agregar producto</a>
+						<a class="nav-link text-info" href="{% url 'tr-ovd_create' object.OV_NID %}">Agregar producto</a>
 					</li>
 				</ul>
 
@@ -55,7 +63,7 @@
 					<div class="card">
 						<div class="card-body">
 							<div class="row invoive-info">
-								<div class="col-md-4 col-sm-6">
+								<div class="col-md-12 col-sm-6">
 									<h6>Informacion de Orden de venta:</h6>
 									<table class="table table-responsive invoice-table invoice-order table-borderless">
 										<tbody>
@@ -80,17 +88,28 @@
 												<td>{{object.OV_NDOCUMENTO_ORIGEN}}</td>
 											</tr>
 											<tr>
+												<th>Procesado :</th>
+													{% if object.OV_NPROCESADO == 0 %}
+														<td><span class="fw-bold text-danger">Pendiente</span></td>
+													{% else %}
+														<td><span class="fw-bold text-success">Listo</span></td>
+													{% endif %} 
+											</tr>
+											<tr>
 												<th>Estado :</th>
-													{% if objeto.OV_NPROCESADO == 0 %}
-                    								    <td><span class="fw-bold text-danger">Pendiente</span></td>
-                    								{% else %}
-                    								    <td><span class="fw-bold text-success">Listo</span></td>
-                    								{% endif %} 
+													<td><span class="fw-bold">{{object.OV_CESTADO }}</span></td>
+													
 											</tr>
 											<tr>
 												<th style="width: 10%;"><span class="fw-bold">Tipo de proceso</span></th>
 												<td>
 													{{object.OV_CTIPO_PROCESO }}
+												</td>
+											</tr>
+											<tr>
+												<th style="width: 10%;"><span class="fw-bold">Observaciones</span></th>
+												<td>
+													{{object.OV_COBSERVACIONES}}
 												</td>
 											</tr>
 										</tbody>
@@ -150,6 +169,7 @@
 													<th scope="row" class="border-0" >Linea</th>
 													<th scope="row" class="border-0" >Producto</th>
 													<th scope="row" class="border-0" >Cantidad</th>
+													<th scope="row" class="border-0" >Estado</th>
 												</tr>
 												</thead>
 												<tbody>
@@ -158,6 +178,7 @@
 														<td>{{object.SC_NLINEA}}</td>
 														<td>{{object.CP_NID}}</td>
 														<td>{{object.SCD_NQTY}}</td>
+														<td>{{object.ESTADO_PEDIDO}}</td>
 													</tr>
 													{% endfor %}
 												</tbody>
@@ -187,7 +208,7 @@
 														<td ><span class="fw-normal">{{ object_lines.PC_NID }}</span></td>
 														<td ><span class="fw-normal">{{ object_lines.OVD_NQTY  }}</span></td>
 														<td ><span class="fw-normal">{{ object_lines.OVD_NPRECIO|floatformat:0  }}</span></td>
-														<td ><span class="fw-normal">{{ object_lines.OVD_NMONTO}}</span></td>													
+														<td ><span class="fw-normal">{{ object_lines.MONTO_TOTAL|floatformat:2}}</span></td>													
 													</tr>
 													{% endfor %}
 												</tbody>
@@ -205,11 +226,15 @@
 												<th>SUBTOTAL :</th>
 													<td>${{sub_total|floatformat:2}}</td>
 											</tr>
+											<tr>
+												<th>IVA :</th>
+													<td>${{iva 	 |floatformat:2}}</td>
+											</tr>
 																				
 											<tr class="text-info">
 												<td>
 													<hr />
-													<h5 class="text-primary m-r-10">Total :</h5>
+													<h5 class="text-primary m-r-10">Total:</h5>
 												</td>
 												<td>
 													<hr />

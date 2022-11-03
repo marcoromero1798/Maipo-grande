@@ -286,7 +286,7 @@ class stock_create(CreateView):
         context = super(CreateView, self).get_context_data(**kwargs)
         messages.success(self.request,"Stock agregado correctamente")
         return reverse_lazy('sy-stk_list')
-        
+
 class stock_update(UpdateView):
     model = STOCK      # Modelo a utilizar
     form_class = formSTOCK  # Formulario definido en forms.py
@@ -1063,14 +1063,15 @@ def orden_venta_listone(request, ov_nid):
         total_iva =total_iva + (int(elemento.OVD_NQTY) * float(elemento.OVD_NPRECIO)) * 1.19
         sub_total =sub_total + (int(elemento.OVD_NQTY) * float(elemento.OVD_NPRECIO))
     instancia_sc = SOLICITUD_COMPRA_DETALLE.objects.filter(SC_NID_id=SC_NID)
-
+    iva = sub_total*0.19
 
     context = {
         'instancia_ov': instancia_ov,
         'instancia_ovd': instancia_ovd,
         'instancia_sc':instancia_sc,
         'total_iva':total_iva,
-        'sub_total':sub_total
+        'sub_total':sub_total,
+        'iva':iva
     }
     return render(request, 'home/tr-ov_listone.html', context)
 
@@ -1105,7 +1106,7 @@ def orden_venta_detalle_delete(request,id):
     try:
         instancia_detalle.delete()
         messages.success(request,"Producto eliminado correctamente")
-        return redirect('tr-ov_listone', ov_nid)    
+        return redirect('tr-ov_listone', ov_nid)
     except Exception as e:
         print("error al eliminar ",e)
         messages.warning(request,"Error al eliminar el producto seleccionado")
@@ -1113,22 +1114,24 @@ def orden_venta_detalle_delete(request,id):
 
 class OVD_Update(UpdateView):
     model = ORDEN_VENTA_DETALLE
-    form_class: formOVD
-    template_name:'home/tr-ovd_create.html'
+    form_class = formOVD
+    template_name ='home/tr-ovd_create.html'
+    
+#    success_url = reverse_lazy('do-nv_listartodo')
+    # VALIDACIÓN DEL FORMULARIO ANTES DE CONTINUAR
     def form_valid(self, form, **kwargs):
         # INDICA EL USUARIO ACTUAL
+
         context = super(UpdateView, self).get_context_data(**kwargs)
-        context = self.kwargs['pk']
-        # ACTUALIZAR EL TOTAL DE LA CABECERA
+
         retorno = super(OVD_Update, self).form_valid(form)
-        messages.success(self.request,"Producto modificado correctamente")
         return retorno
+
     def get_success_url(self, **kwargs):
         # if you are passing 'pk' from 'urls' to 'DeleteView' for company
         # capture that 'pk' as companyid and pass it to 'reverse_lazy()' function
         context = super(UpdateView, self).get_context_data(**kwargs)
-        context = self.kwargs['pk']
-        return reverse_lazy('tr-ov_listone', kwargs={'context': context})
+        return reverse_lazy('tr-ov_listone', kwargs={'ov_nid': context['object'].OV_NID_id})
 
 class OV_Create( CreateView):
     model = ORDEN_VENTA  # Modelo a utilizar
@@ -1142,7 +1145,7 @@ class OV_Update(UpdateView):
     template_name = 'home/tr-ov_create.html'  # html template en core
     success_url = reverse_lazy("tr-list")
 
-#PROCESOS 
+#PROCESOS
 # CARRO ---> SOLICITUD
 def generar_solicitud(request,us_nid):
     try:
@@ -1159,7 +1162,7 @@ def generar_solicitud(request,us_nid):
 
             SC_NID = nextSC_NID()
             #creamos la cabecera de solicitud de compra
-            try:    
+            try:
                 Nueva_cabecera = SOLICITUD_COMPRA(
                     SC_NID = SC_NID,
                     US_NID_id= request.user.id,
@@ -1173,13 +1176,13 @@ def generar_solicitud(request,us_nid):
                 print("error al generar la cabecera de solicitud:",e)
                 estado == False
             #obtenemos la nueva cabecera para ingresarla en el detalle
-            
+
             linea = nextLine_SC(SC_NID)
             #almacenamos las variables
             lista_datos = []
             try:
-                for elemento in instancia_queryset_carro_compra:  
-                    lista_aux=[]      
+                for elemento in instancia_queryset_carro_compra:
+                    lista_aux=[]
                     Detalle = SOLICITUD_COMPRA_DETALLE(
                         SC_NID_id = SC_NID,
                         # PC_NID = elemento.PC_NID,
@@ -1188,7 +1191,7 @@ def generar_solicitud(request,us_nid):
                         SCD_NQTY = elemento.CC_NQTY
                     )
                     lista_datos.append(Detalle)
-                    linea +=1 
+                    linea +=1
                 SOLICITUD_COMPRA_DETALLE.objects.bulk_create(lista_datos)
             except Exception as e:
                 print("Error al generar detalle de solicitud: ",e)
@@ -1219,7 +1222,7 @@ def generar_orden_venta(request,sc_nid):
 
         OV_NID = nextOV_NID()
         #creamos la cabecera de solicitud de compra
-        try:    
+        try:
             Nueva_cabecera = ORDEN_VENTA(
                 OV_NID = OV_NID,
                 OV_NDOCUMENTO_ORIGEN_id = sc_nid,
@@ -1274,20 +1277,20 @@ def categoria_list_compra(request):
 #OBTENER MEJOR PRODUCTO
 def obtener_mejor_producto(request,ov_nid):
     ##############################################
-    # a considerar en este codigo 
-    # el flujo es el siguiente 
+    # a considerar en este codigo
+    # el flujo es el siguiente
     # SOLICITUD(ID)-->SOLICITUD DETALLE ---> CATEGORIA DE PRODUCTO ---->PRODUCTOS ASOCIADOS ----> STOCK-----> OVD
     #############################################
     #OBTENGO EL ID DE SOLICITUD
     sc_nid = request.POST.get('sc_nid',None)
-    #DEFINO VARIABLES PARA PARAMETROS 
+    #DEFINO VARIABLES PARA PARAMETROS
     minimo_calidad = 3
     estado = True
     fecha_minima = datetime.now() +  timedelta(days=31)
     fecha_minima_formato = fecha_minima.strftime("%Y-%m-%d")
     #variables
     categoria = ''
-    qty = 0 
+    qty = 0
     #listas
     listado_productos = []
     lista_categorias = []
@@ -1308,7 +1311,7 @@ def obtener_mejor_producto(request,ov_nid):
             lista_categorias.append(lista_aux)
         #RECORRO LA LISTA DE CATEGORIAS ASIGNANDO DOS VARIABLES A CADA POSICION
         for categoria,cantidad in lista_categorias:
-            
+
             #DEFINO LA LINEA INICIAL, UNA OV VACIA INICIA CON LINEA 0 sino inicia con la ultima linea ingresada
             if cant_lineas > 1:
                 linea_ovd = nextLine_OV(ov_nid)
@@ -1356,14 +1359,14 @@ def obtener_mejor_producto(request,ov_nid):
                 pc_nid = row[0]
                 precio = row[1]
                 stock = row[3]
-                #SI EL STOCK DEL PRODUCTO ES MAYOR AL NECESITADO, SE CALCULA LA DIFERENCIA, SE ALMACENA LO NECESITADO, Y SE ACTUALIZA EL STOCK 
+                #SI EL STOCK DEL PRODUCTO ES MAYOR AL NECESITADO, SE CALCULA LA DIFERENCIA, SE ALMACENA LO NECESITADO, Y SE ACTUALIZA EL STOCK
                 #SI EL STOCK ES 0 SE CIERRA EL CICLO
                 if stock_necesario == 0:
                     break
                 else:
                     if stock >= stock_necesario:
                         try:
-                            #SE ALMACENA EL STOCK FINAL DEL PRODUCTO PARA ACTUALIZARLO EN LA TABLA STOCK 
+                            #SE ALMACENA EL STOCK FINAL DEL PRODUCTO PARA ACTUALIZARLO EN LA TABLA STOCK
                             stock_final = stock - stock_necesario
                             nuevo_objeto = ORDEN_VENTA_DETALLE(
                                 OV_NID_id = ov_nid,
@@ -1402,7 +1405,7 @@ def obtener_mejor_producto(request,ov_nid):
                         except Exception as e:
                             print("error al ingresar stock en ovd 2 :",e)
                             estado = False
-            #EN EL CASO DE QUE EL STOCK NECESARIO SEA MAYOR QUE 0 IMPLICA QUE NO SE ALCANZO A CUBRIR LA TOTALIDAD DE LA DEMANDA CON LOS PRODUCTOS 
+            #EN EL CASO DE QUE EL STOCK NECESARIO SEA MAYOR QUE 0 IMPLICA QUE NO SE ALCANZO A CUBRIR LA TOTALIDAD DE LA DEMANDA CON LOS PRODUCTOS
             #ENCONTRADOS
             #SE ACTUALIZA EL ESTADO DE CADA LINEA DE LA SOLICITUD PARA NOTIFICAR SI UN PRODUCTO ESTA PENDIENTE EN EL SISTEMA
 
@@ -1414,7 +1417,7 @@ def obtener_mejor_producto(request,ov_nid):
             else:
                 SOLICITUD_COMPRA_DETALLE.objects.filter(CP_NID_id= categoria.CP_NID,SC_NID_id = sc_nid).update(SCD_NESTADO = True)
         #SE CREAN LOS PRODUCTOS EN EL DETALLE Y SE ACTUALIZA EL STOCK
-        if estado == True:  
+        if estado == True:
             try:
                 ORDEN_VENTA_DETALLE.objects.bulk_create(lista_bulk)
                 ORDEN_VENTA.objects.filter(OV_NID = ov_nid).update(OV_CESTADO = 'SELECCION')
@@ -1422,7 +1425,7 @@ def obtener_mejor_producto(request,ov_nid):
                 print("error al crear la OVD ",e)
             for elemento in lista_updates:
                 STOCK.objects.filter(PC_NID_id= elemento[0]).update(STK_NQTY = elemento[1])
-        
+
             return JsonResponse({
                 'Estado':estado,
                 'mensaje':mensaje

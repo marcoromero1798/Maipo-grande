@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from pyparsing import null_debug_action
+from core.sql import *
 # Create your models here.
 
 
@@ -268,26 +269,7 @@ class CARRO_COMPRA(models.Model):
     def __str__(self):
         return str(self.CC_NID)
 
-class SUBASTA(models.Model):
-    SU_NID =  models.BigAutoField(("ID ORDEN DE VENTA SUBASTA"),primary_key=True)
-    US_NID = models.ForeignKey(User, verbose_name='ID DIRECCION SUBASTA', on_delete=models.PROTECT,null = True,blank =True)
-    DR_NID = models.ForeignKey(DIRECCION, verbose_name='ID DIRECCION SUBASTA', on_delete=models.PROTECT,null = True,blank =True)
-    SU_FFECHA_INICIO = models.DateTimeField(("FECHA INICIO")) 
-    SU_FFECHA_TERMINO = models.DateTimeField(("FECHA TERMINO"))
-    SU_PESO_TOTAL = models.DecimalField(("PRECIO"),max_digits=18,decimal_places=5) 
-    SU_NREFRIGERACION = models.BooleanField(("REFRIGERACION"),default=False,null=True,blank=True)
-    class Meta:
-        db_table = 'SUBASTA'
 
-    def __str__(self):
-        return str(self.SU_NID)
-class SUBASTA_DETALLE(models.Model):
-    TRA_NID = models.ForeignKey(TRANSPORTE, verbose_name='ID TRANSPORTE', on_delete=models.PROTECT,null = True,blank =True)
-    TR_NID = models.ForeignKey(TRANSPORTISTA, verbose_name='ID DIRECCION SUBASTA', on_delete=models.PROTECT,null = True,blank =True)
-    SUD_NCOBRO = models.DecimalField(("PRECIO"),max_digits=18,decimal_places=5) 
-    
-    class Meta:
-        db_table = 'SUBASTA_DETALLE'
 
 class KARDEX(models.Model):
     KX_NID = models.BigAutoField(("ID"), primary_key=True)
@@ -354,7 +336,15 @@ class SOLICITUD_COMPRA_DETALLE(models.Model):
 
     class Meta:
         db_table = 'SOLICITUD_COMPRA_DETALLE'
-
+    
+    @property
+    def ESTADO_PEDIDO(self):
+        qty_sc = detalle_solicitud(self.CP_NID_id,self.SC_NID_id)
+        qty_ov = detalle_ov(self.CP_NID_id,self.SC_NID_id)
+        if (qty_sc -qty_ov )  == 0:
+            return 'COMPLETADO'
+        else:
+            return 'PENDIENTE'
     def __str__(self):
         return str(self.SC_NID)
 
@@ -393,5 +383,32 @@ class ORDEN_VENTA_DETALLE(models.Model):
     def MONTO_TOTAL(self):
         return self.OVD_NPRECIO * self.OVD_NQTY
     @property
+    def IVA(self):
+        return (self.OVD_NPRECIO * self.OVD_NQTY) * 0,19
+    @property
     def TOTAL_IVA(self):
         return (self.OVD_NPRECIO * self.OVD_NQTY) * 1,19
+
+
+class SUBASTA(models.Model):
+    SU_NID =  models.BigAutoField(("ID ORDEN DE VENTA SUBASTA"),primary_key=True)
+    US_NID = models.ForeignKey(User, verbose_name='ID DIRECCION SUBASTA', on_delete=models.PROTECT,null = True,blank =True)
+    DR_NID = models.ForeignKey(DIRECCION, verbose_name='ID DIRECCION SUBASTA', on_delete=models.PROTECT,null = True,blank =True)
+    OV_NDOCUMENTO_ORIGEN = models.ForeignKey(ORDEN_VENTA,on_delete=models.PROTECT,verbose_name="Documento origen",null = True,blank =True)
+    SU_FFECHA_INICIO = models.DateTimeField(("FECHA INICIO")) 
+    SU_FFECHA_TERMINO = models.DateTimeField(("FECHA TERMINO"))
+    SU_PESO_TOTAL = models.DecimalField(("PRECIO"),max_digits=18,decimal_places=5) 
+    SU_NREFRIGERACION = models.BooleanField(("REFRIGERACION"),default=False,null=True,blank=True)
+    class Meta:
+        db_table = 'SUBASTA'
+
+    def __str__(self):
+        return str(self.SU_NID)
+class SUBASTA_DETALLE(models.Model):
+    SU_NID = models.ForeignKey(SUBASTA, verbose_name='ID SUBASTA', on_delete=models.PROTECT,null = True,blank =True)
+    TRA_NID = models.ForeignKey(TRANSPORTE, verbose_name='ID TRANSPORTE', on_delete=models.PROTECT,null = True,blank =True)
+    TR_NID = models.ForeignKey(TRANSPORTISTA, verbose_name='ID DIRECCION SUBASTA', on_delete=models.PROTECT,null = True,blank =True)
+    SUD_NCOBRO = models.DecimalField(("PRECIO"),max_digits=18,decimal_places=5) 
+    
+    class Meta:
+        db_table = 'SUBASTA_DETALLE'

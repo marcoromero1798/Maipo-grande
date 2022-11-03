@@ -93,6 +93,12 @@ def nextOV_NID():
         cursor.execute(cquery)
         resultado = cursor.fetchone()
         return resultado[0]
+def nextSU_NID():
+    with connection.cursor() as cursor:
+        cquery = f'select COALESCE(max("SU_NID"),0) + 1  from "SUBASTA"'
+        cursor.execute(cquery)
+        resultado = cursor.fetchone()
+        return resultado[0]
 def resumen_carro(US_NID):
     with connection.cursor() as cursor:
         cquery = f'''

@@ -43,6 +43,24 @@ class formCATEGORIA(forms.ModelForm):
             'CP_CDESCRIPCION': forms.TextInput(attrs={'class': 'form-control','type':'text'}),
            
         }
+class formSTOCK(forms.ModelForm):
+    class Meta:
+        model = STOCK
+        # CT_NID
+        # CT_FFECHA_CREACION
+        # CT_FFECHA_VIGENCIA
+        # CT_NHABILITADO
+	
+        fields = [
+        'PC_NID',
+        'STK_NQTY'
+
+        ]
+        labels = '__all__'
+        widgets = {        
+            'PC_NID': forms.Select(attrs={'class': 'form-control','type':'text'}),
+            'STK_NQTY': forms.TextInput(attrs={'class': 'form-control','type':'number'}),
+        }
 class formPRODUCTOR(forms.ModelForm):
     class Meta:
         model = PRODUCTOR
@@ -175,15 +193,15 @@ class formPRODUCTO(forms.ModelForm):
         fields = [
         'PC_CCODIGO_PROD',
         'PC_CDESCRIPCION',
-
         'PC_NCALIDAD',
         'PC_CORIGEN',
         'PC_FOTO',
         'CP_NID',
-
         'PC_NPESO',
         'PC_CUNIDAD_PESO',
-        'PC_NREFRIGERACION'
+        'PC_NREFRIGERACION',
+        'PC_NPRECIO_REF',
+        'PC_FFECHA_VENCIMIENTO'
         
         
 
@@ -193,10 +211,13 @@ class formPRODUCTO(forms.ModelForm):
             'PC_CCODIGO_PROD': forms.TextInput(attrs={'class': 'form-control','type':'text'}),
             'PC_CDESCRIPCION': forms.TextInput(attrs={'class': 'form-control','type':'text'}),
             'PC_NPRECIO': forms.TextInput(attrs={'class': 'form-control','type':'number'}),
+            'PC_NPESO': forms.TextInput(attrs={'class': 'form-control','type':'number'}),
             'PC_CUNIDAD_PESO' : forms.Select(choices=[('KG','Kilogramos'),('GR','Gramos')],attrs={'class': 'form-control','type':'text'}),
             'PC_NCALIDAD' : forms.Select(choices=[(1,'Pesima'),(2,'Mala'),(3,"Calidad"),(4,"Buena"),(5,"Excelente")],attrs={'class': 'form-control','type':'text'}),
             'PC_CORIGEN': forms.TextInput(attrs={'class': 'form-control','type':'text'}),
+            'PC_NPRECIO_REF': forms.TextInput(attrs={'class': 'form-control','type':'number','step':'1'}),
             'CP_NID': forms.Select(attrs={'class': 'form-control','type':'number'}),
+            'PC_FFECHA_VENCIMIENTO': forms.DateTimeInput(format='%Y-%m-%d %H:%M:%S',attrs={'class': 'form-control','type':'datetime-local'}),
         }
 
 

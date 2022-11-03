@@ -131,6 +131,24 @@ def detalle_carro(US_NID):
         if resultado == None:
             return None
         return resultado
+def stock_list_sql():
+    with connection.cursor() as cursor:
+        cquery = f'''
+            SELECT 
+            "PRODUCTO"."PC_NID",
+            "PRODUCTO"."PC_CCODIGO_PROD",
+            "PRODUCTO"."PC_CDESCRIPCION",
+            "STOCK"."STK_NQTY",	
+            "STOCK"."STK_NID"	
+
+            FROM "PRODUCTO"
+            LEFT JOIN "STOCK" ON "STOCK"."PC_NID_id" = "PRODUCTO"."PC_NID" 
+            '''
+        cursor.execute(cquery)
+        resultado = cursor.fetchall()
+        if resultado == None:
+            return None
+        return resultado
 def data_clicle(us_nid,tabla):
     if tabla == 'cle':
         cquery = f'''

@@ -23,7 +23,8 @@ from apps.home.models import CATEGARIAPRODUCTO, CONTRATO, USERS_EXTENSION, PRODU
 from .models import *
 import datetime as date
 from .filters import ListingFilter
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
+import pandas as pd
 
 
 @login_required(login_url="/login/")
@@ -83,7 +84,7 @@ class contrato_create(CreateView):
         historial_acciones = []
         historial_acciones = LOG_ACCIONES(
                 US_NID_id=self.request.user.id,
-                LG_FFECHA_ACCION=date.datetime.now(),
+                LG_FFECHA_ACCION=datetime.now(),
                 LG_CSECCION='SISTEMA',
                 LG_CMODULO='CONTRATO',
                 LG_CACCION='CREACION'
@@ -106,7 +107,7 @@ class contrato_update(UpdateView):
         historial_acciones = []
         historial_acciones = LOG_ACCIONES(
                 US_NID_id=self.request.user.id,
-                LG_FFECHA_ACCION=date.datetime.now(),
+                LG_FFECHA_ACCION=datetime.now(),
                 LG_CSECCION='SISTEMA',
                 LG_CMODULO='CONTRATO',
                 LG_CACCION='MODIFICACION'
@@ -168,7 +169,7 @@ def contrato_deshabilitar(request, pk):
     historial_acciones = []
     historial_acciones = LOG_ACCIONES(
                 US_NID_id=request.user.id,
-                LG_FFECHA_ACCION=date.datetime.now(),
+                LG_FFECHA_ACCION=datetime.now(),
                 LG_CSECCION='SISTEMA',
                 LG_CMODULO='CONTRATO',
                 LG_CACCION='DESHABILITADO'
@@ -200,7 +201,7 @@ class categoria_create(CreateView):
         historial_acciones = []
         historial_acciones = LOG_ACCIONES(
                 US_NID_id=self.request.user.id,
-                LG_FFECHA_ACCION=date.datetime.now(),
+                LG_FFECHA_ACCION=datetime.now(),
                 LG_CSECCION='SISTEMA',
                 LG_CMODULO='CATEGORIA',
                 LG_CACCION='CREACION'
@@ -223,7 +224,7 @@ class categoria_update(UpdateView):
         historial_acciones = []
         historial_acciones = LOG_ACCIONES(
                 US_NID_id=self.request.user.id,
-                LG_FFECHA_ACCION=date.datetime.now(),
+                LG_FFECHA_ACCION=datetime.now(),
                 LG_CSECCION='SISTEMA',
                 LG_CMODULO='CATEGORIA',
                 LG_CACCION='MODIFICACION'
@@ -252,6 +253,56 @@ def categoria_list(request):
     except Exception as e:
         print("Error listar categoria: ", e)
         return render(request, 'home/sy-cp_list.html', context)
+def stock_list(request):
+    try:
+        context = {}
+        user = []
+        producto = []
+        user = USERS_EXTENSION.objects.get(US_NID=request.user.id)
+        if user.UX_NHABILITADO == 0:
+            messages.info(
+                request, 'Usuario no habiltado, contactese con un administrador')
+            return render(request, 'home/sy-stk_list.html', context)
+        else:
+            stock = stock_list_sql()
+        context = {
+            'object_list': stock
+        }
+        return render(request, 'home/sy-stk_list.html', context)
+
+    except Exception as e:
+        print("Error listar categoria: ", e)
+        return render(request, 'home/sy-stk_list.html', context)
+
+class stock_create(CreateView):
+    model = STOCK      # Modelo a utilizar
+    form_class = formSTOCK  # Formulario definido en forms.py
+    template_name = 'home/sy-stk_create.html'  # html template en core
+    success_url = reverse_lazy("sy-stk_list")
+
+    def get_success_url(self, **kwargs):
+        # if you are passing 'pk' from 'urls' to 'DeleteView' for company
+        # capture that 'pk' as companyid and pass it to 'reverse_lazy()' function
+        context = super(CreateView, self).get_context_data(**kwargs)
+        messages.success(self.request,"Stock agregado correctamente")
+        return reverse_lazy('sy-stk_list')
+        
+class stock_update(UpdateView):
+    model = STOCK      # Modelo a utilizar
+    form_class = formSTOCK  # Formulario definido en forms.py
+    template_name = 'home/sy-stk_create.html'  # html template en core
+    success_url = reverse_lazy("sy-stk_list")
+
+    def get_success_url(self, **kwargs):
+        # if you are passing 'pk' from 'urls' to 'DeleteView' for company
+        # capture that 'pk' as companyid and pass it to 'reverse_lazy()' function
+        context = super(UpdateView, self).get_context_data(**kwargs)
+        messages.success(self.request,"Stock modificado correctamente")
+        return reverse_lazy('sy-stk_list')
+
+
+
+
 
 
 def categoria_deshabilitar(request, pk):
@@ -268,7 +319,7 @@ def categoria_deshabilitar(request, pk):
     historial_acciones = []
     historial_acciones = LOG_ACCIONES(
                 US_NID_id=request.user.id,
-                LG_FFECHA_ACCION=date.datetime.now(),
+                LG_FFECHA_ACCION=datetime.now(),
                 LG_CSECCION='SISTEMA',
                 LG_CMODULO='CONTRATO',
                 LG_CACCION='MODIFICACION'
@@ -299,7 +350,7 @@ class productor_create(CreateView):
         historial_acciones = []
         historial_acciones = LOG_ACCIONES(
                 US_NID_id=self.request.user.id,
-                LG_FFECHA_ACCION=date.datetime.now(),
+                LG_FFECHA_ACCION=datetime.now(),
                 LG_CSECCION='SISTEMA',
                 LG_CMODULO='PRODUCTOR',
                 LG_CACCION='CREACION'
@@ -322,7 +373,7 @@ class productor_update(UpdateView):
         historial_acciones = []
         historial_acciones = LOG_ACCIONES(
                 US_NID_id=self.request.user.id,
-                LG_FFECHA_ACCION=date.datetime.now(),
+                LG_FFECHA_ACCION=datetime.now(),
                 LG_CSECCION='SISTEMA',
                 LG_CMODULO='PRODUCCION',
                 LG_CACCION='MODIFICACION'
@@ -367,7 +418,7 @@ def productor_deshabilitar(request, pk):
     historial_acciones = []
     historial_acciones = LOG_ACCIONES(
                 US_NID_id=request.user.id,
-                LG_FFECHA_ACCION=date.datetime.now(),
+                LG_FFECHA_ACCION=datetime.now(),
                 LG_CSECCION='SISTEMA',
                 LG_CMODULO='PRODUCTOR',
                 LG_CACCION='MODIFICACION'
@@ -382,7 +433,6 @@ class producto_create(CreateView):
     form_class = formPRODUCTO  # Formulario definido en forms.py
     template_name = 'home/sy-pc_create.html'  # html template en core
     success_url = reverse_lazy("sy-pc_list")
-
     def form_valid(self, form, **kwargs):
         user = USERS_EXTENSION.objects.get(US_NID=self.request.user.id)
         productor = []
@@ -396,6 +446,7 @@ class producto_create(CreateView):
         retorno = super(producto_create, self).form_valid(form)
         return retorno
 
+
     def get_success_url(self, **kwargs):
         # if you are passing 'pk' from 'urls' to 'DeleteView' for company
         # capture that 'pk' as companyid and pass it to 'reverse_lazy()' function
@@ -403,7 +454,7 @@ class producto_create(CreateView):
         historial_acciones = []
         historial_acciones = LOG_ACCIONES(
                 US_NID_id=self.request.user.id,
-                LG_FFECHA_ACCION=date.datetime.now(),
+                LG_FFECHA_ACCION=datetime.now(),
                 LG_CSECCION='SISTEMA',
                 LG_CMODULO='PRODUCTO',
                 LG_CACCION='CREACION'
@@ -425,7 +476,7 @@ class producto_update(UpdateView):
         historial_acciones = []
         historial_acciones = LOG_ACCIONES(
                 US_NID_id=self.request.user.id,
-                LG_FFECHA_ACCION=date.datetime.now(),
+                LG_FFECHA_ACCION=datetime.now(),
                 LG_CSECCION='SISTEMA',
                 LG_CMODULO='PRODUCTO',
                 LG_CACCION='MODIFICACION'
@@ -478,8 +529,10 @@ def producto_listone(request, pk):
             return render(request, 'home/sy-pc_listone.html', context)
         else:
             producto = PRODUCTO.objects.filter(PC_NID=pk)
+            stock = STOCK.objects.filter(PC_NID_id = pk)
         context = {
-            'object_list': producto
+            'object_list': producto,
+            'STOCK':stock
         }
         return render(request, 'home/sy-pc_listone.html', context)
 
@@ -502,7 +555,7 @@ def producto_deshabilitar(request, pk):
     historial_acciones = []
     historial_acciones = LOG_ACCIONES(
                 US_NID_id=request.user.id,
-                LG_FFECHA_ACCION=date.datetime.now(),
+                LG_FFECHA_ACCION=datetime.now(),
                 LG_CSECCION='SISTEMA',
                 LG_CMODULO='PRODUCTO',
                 LG_CACCION='DESHABILITADO'
@@ -532,7 +585,7 @@ class clienteexterno_create(CreateView):
         historial_acciones = []
         historial_acciones = LOG_ACCIONES(
                 US_NID_id=self.request.user.id,
-                LG_FFECHA_ACCION=date.datetime.now(),
+                LG_FFECHA_ACCION=datetime.now(),
                 LG_CSECCION='SISTEMA',
                 LG_CMODULO='CLIENTE EXTERNO',
                 LG_CACCION='CREACION'
@@ -554,7 +607,7 @@ class clienteexterno_update(UpdateView):
         historial_acciones = []
         historial_acciones = LOG_ACCIONES(
                 US_NID_id=self.request.user.id,
-                LG_FFECHA_ACCION=date.datetime.now(),
+                LG_FFECHA_ACCION=datetime.now(),
                 LG_CSECCION='SISTEMA',
                 LG_CMODULO='CLIENTE EXTERNO',
                 LG_CACCION='MODIFICACION'
@@ -599,7 +652,7 @@ def clienteexterno_deshabilitar(request, pk):
     historial_acciones = []
     historial_acciones = LOG_ACCIONES(
                 US_NID_id=request.user.id,
-                LG_FFECHA_ACCION=date.datetime.now(),
+                LG_FFECHA_ACCION=datetime.now(),
                 LG_CSECCION='SISTEMA',
                 LG_CMODULO='CLIENTE EXTERNO',
                 LG_CACCION='DESHABILITADO'
@@ -630,7 +683,7 @@ class clienteinterno_create(CreateView):
         historial_acciones = []
         historial_acciones = LOG_ACCIONES(
                 US_NID_id=self.request.user.id,
-                LG_FFECHA_ACCION=date.datetime.now(),
+                LG_FFECHA_ACCION=datetime.now(),
                 LG_CSECCION='SISTEMA',
                 LG_CMODULO='CLIENTE INTERNO',
                 LG_CACCION='CREACION'
@@ -652,7 +705,7 @@ class clienteinterno_update(UpdateView):
         historial_acciones = []
         historial_acciones = LOG_ACCIONES(
                 US_NID_id=self.request.user.id,
-                LG_FFECHA_ACCION=date.datetime.now(),
+                LG_FFECHA_ACCION=datetime.now(),
                 LG_CSECCION='SISTEMA',
                 LG_CMODULO='CLIENTE INTERNO',
                 LG_CACCION='MODIFICACION'
@@ -697,7 +750,7 @@ def clienteinterno_deshabilitar(request, pk):
     historial_acciones = []
     historial_acciones = LOG_ACCIONES(
                 US_NID_id=request.user.id,
-                LG_FFECHA_ACCION=date.datetime.now(),
+                LG_FFECHA_ACCION=datetime.now(),
                 LG_CSECCION='SISTEMA',
                 LG_CMODULO='CLIENTE INTERNO',
                 LG_CACCION='DESHABILITADO'
@@ -727,7 +780,7 @@ class consultor_create(CreateView):
         historial_acciones = []
         historial_acciones = LOG_ACCIONES(
                 US_NID_id=self.request.user.id,
-                LG_FFECHA_ACCION=date.datetime.now(),
+                LG_FFECHA_ACCION=datetime.now(),
                 LG_CSECCION='SISTEMA',
                 LG_CMODULO='CONSULTOR',
                 LG_CACCION='CREACION'
@@ -749,7 +802,7 @@ class consultor_update(UpdateView):
         historial_acciones = []
         historial_acciones = LOG_ACCIONES(
                 US_NID_id=self.request.user.id,
-                LG_FFECHA_ACCION=date.datetime.now(),
+                LG_FFECHA_ACCION=datetime.now(),
                 LG_CSECCION='SISTEMA',
                 LG_CMODULO='CONSULTOR',
                 LG_CACCION='MODIFICACION'
@@ -794,7 +847,7 @@ def consultor_deshabilitar(request, pk):
     historial_acciones = []
     historial_acciones = LOG_ACCIONES(
                 US_NID_id=request.user.id,
-                LG_FFECHA_ACCION=date.datetime.now(),
+                LG_FFECHA_ACCION=datetime.now(),
                 LG_CSECCION='SISTEMA',
                 LG_CMODULO='CONSULTOR',
                 LG_CACCION='DESHABILITADO'
@@ -824,7 +877,7 @@ class transportista_create(CreateView):
         historial_acciones = []
         historial_acciones = LOG_ACCIONES(
                 US_NID_id=self.request.user.id,
-                LG_FFECHA_ACCION=date.datetime.now(),
+                LG_FFECHA_ACCION=datetime.now(),
                 LG_CSECCION='SISTEMA',
                 LG_CMODULO='TRANSPORTISTA',
                 LG_CACCION='CREACION'
@@ -846,7 +899,7 @@ class transportista_update(UpdateView):
         historial_acciones = []
         historial_acciones = LOG_ACCIONES(
                 US_NID_id=self.request.user.id,
-                LG_FFECHA_ACCION=date.datetime.now(),
+                LG_FFECHA_ACCION=datetime.now(),
                 LG_CSECCION='SISTEMA',
                 LG_CMODULO='TRANSPORTISTA',
                 LG_CACCION='MODIFICACION'
@@ -891,7 +944,7 @@ def transportista_deshabilitar(request, pk):
     historial_acciones = []
     historial_acciones = LOG_ACCIONES(
                 US_NID_id=request.user.id,
-                LG_FFECHA_ACCION=date.datetime.now(),
+                LG_FFECHA_ACCION=datetime.now(),
                 LG_CSECCION='SISTEMA',
                 LG_CMODULO='TRANSPORTISTA',
                 LG_CACCION='DESHABILITADO'
@@ -1219,11 +1272,163 @@ def categoria_list_compra(request):
         return render(request, 'home/sy-cp_list_compra.html', context)
 
 #OBTENER MEJOR PRODUCTO
-def obtener_mejor_producto(request):
-    categoria = request.POST.get('categoria',None)
-    #OBTENGO LOS PRODUCTOS ASOCIADOS A ESA CATEGORIA
-    if categoria != None:
-        productos = PRODUCTO.objects.filter(CP_NID = categoria)
+def obtener_mejor_producto(request,ov_nid):
+    ##############################################
+    # a considerar en este codigo 
+    # el flujo es el siguiente 
+    # SOLICITUD(ID)-->SOLICITUD DETALLE ---> CATEGORIA DE PRODUCTO ---->PRODUCTOS ASOCIADOS ----> STOCK-----> OVD
+    #############################################
+    #OBTENGO EL ID DE SOLICITUD
+    sc_nid = request.POST.get('sc_nid',None)
+    #DEFINO VARIABLES PARA PARAMETROS 
+    minimo_calidad = 3
+    estado = True
+    fecha_minima = datetime.now() +  timedelta(days=31)
+    fecha_minima_formato = fecha_minima.strftime("%Y-%m-%d")
+    #variables
+    categoria = ''
+    qty = 0 
+    #listas
+    listado_productos = []
+    lista_categorias = []
+    lista_bulk = []
+    cant_lineas = ORDEN_VENTA_DETALLE.objects.filter(OV_NID_id = ov_nid).count()
+    if sc_nid != None:
+        #OBTENGO LOS DATOS DEL DETALLE DE LA SOLICITUD GRACIAS AL ID DE LA CABECERA
+        solicitudes = SOLICITUD_COMPRA_DETALLE.objects.filter(SC_NID_id = sc_nid)
+        for elemento in solicitudes:
+            lista_aux = []
+            categoria = elemento.CP_NID
+            qty = elemento.SCD_NQTY
+            lista_aux.append(categoria)
+            lista_aux.append(qty)
+            #CREO UN UNA LISTA CON ESTE FORMATO [[CATEGORIA,CANTIDAD],[CATEGORIA,CANTIDAD]] DONDE:
+            #  CATEGORIA ES LA CATEGORIA DE PRODUCTO SOLICITADA
+            #  CANTIDAD ES LA CANTIDAD TOTAL SOLICITADA PARA ESA CATEGORIA
+            lista_categorias.append(lista_aux)
+        #RECORRO LA LISTA DE CATEGORIAS ASIGNANDO DOS VARIABLES A CADA POSICION
+        for categoria,cantidad in lista_categorias:
+            
+            #DEFINO LA LINEA INICIAL, UNA OV VACIA INICIA CON LINEA 0 sino inicia con la ultima linea ingresada
+            if cant_lineas > 1:
+                linea_ovd = nextLine_OV(ov_nid)
+            else:
+                linea_ovd = 1
+            #OBTENGO LOS PRODUCTOS ASOCIADOS A LA CATEGORIA ORDENADOS POR LA CALIDAD
+            productos = PRODUCTO.objects.filter(CP_NID = categoria,PC_NHABILITADO = True).order_by('-PC_NCALIDAD')
+            #RECORRO LA LISTA DE PRODUCTOS ASOCIADOS A LA CATEGORIA
+            for valor in productos:
+                lista_aux=[]
+                try:
+                    stock_asociado = STOCK.objects.get(PC_NID_id = valor.PC_NID).STK_NQTY
+                except :
+                    stock_asociado = 0
+                #almacenamos las variables que seran utilizadas para determinar la importancia
+                pc_nid = valor.PC_NID
+                precio_base = valor.PC_NPRECIO_REF
+                calidad = valor.PC_NCALIDAD
+                vencimiento = valor.PC_FFECHA_VENCIMIENTO
+                fecha_formateada = vencimiento.strftime("%Y-%m-%d")
+
+                # FILTRO LOS DATOS EN BASE A LA CATEGORIA, SI SU FECHA DE VENCIMIENTO ES VALIDA Y SI TIENE STOCK
+                if calidad >= minimo_calidad:
+                    if fecha_formateada > fecha_minima_formato:
+                        if stock_asociado > 0:
+                            lista_aux.append(pc_nid)            #pos 0
+                            lista_aux.append(precio_base)       #pos 1
+                            lista_aux.append(calidad)           #pos 1
+                            lista_aux.append(stock_asociado)    #pos 2
+                            listado_productos.append(lista_aux)
+
+            #TRANSFORMO LA LISTA EN UN DATAFRAME PARA ORDENAR LA LISTA
+            dataframe = pd.DataFrame(listado_productos,columns=['id','precio','calidad','stk'])
+            dataframe_ordenado = dataframe.sort_values(by=['calidad', 'precio'],ascending=[False,True])
+
+            suma_cantidad = 0
+            diferencia = 0
+            lista_updates = []
+            mensaje = 'correcto'
+            stock_necesario = cantidad #cantidad es lo que se solicito de la categoria
+            #REALIZO EL CALCULO AL DATAFRAME DETERMINANDO CUANTO STOCK DE CADA PRODUCTO SE LE ASIGNARA EN LA ORDEN DE VENTA
+            for index,row in dataframe_ordenado.iterrows():
+                nuevo_objeto = ''
+                lista_aux_updates= []
+                pc_nid = row[0]
+                precio = row[1]
+                stock = row[3]
+                #SI EL STOCK DEL PRODUCTO ES MAYOR AL NECESITADO, SE CALCULA LA DIFERENCIA, SE ALMACENA LO NECESITADO, Y SE ACTUALIZA EL STOCK 
+                #SI EL STOCK ES 0 SE CIERRA EL CICLO
+                if stock_necesario == 0:
+                    break
+                else:
+                    if stock >= stock_necesario:
+                        try:
+                            #SE ALMACENA EL STOCK FINAL DEL PRODUCTO PARA ACTUALIZARLO EN LA TABLA STOCK 
+                            stock_final = stock - stock_necesario
+                            nuevo_objeto = ORDEN_VENTA_DETALLE(
+                                OV_NID_id = ov_nid,
+                                PC_NID_id = pc_nid,
+                                CP_NID_id = categoria.CP_NID,
+                                OVD_NQTY = cantidad,
+                                OVD_NPRECIO = precio,
+                                OVD_NLINEA = linea_ovd
+                            )
+                            lista_bulk.append(nuevo_objeto)
+                            lista_aux_updates.append(pc_nid)
+                            lista_aux_updates.append(stock_final)
+                            lista_updates.append(lista_aux_updates)
+                            linea_ovd +=1
+                            stock_necesario = 0
+                        except Exception as e:
+                            print("error al ingresar stock en ovd 1 :",e)
+                            estado = False
+                    elif stock < stock_necesario:
+                        try:
+                            stock_necesario = stock_necesario - stock
+                            stock_final = 0
+                            nuevo_objeto = ORDEN_VENTA_DETALLE(
+                                OV_NID_id = ov_nid,
+                                PC_NID_id = pc_nid,
+                                CP_NID_id = categoria.CP_NID,
+                                OVD_NQTY = stock,
+                                OVD_NPRECIO = precio,
+                                OVD_NLINEA = linea_ovd
+                            )
+                            lista_bulk.append(nuevo_objeto)
+                            lista_aux_updates.append(pc_nid)
+                            lista_aux_updates.append(stock_final)
+                            lista_updates.append(lista_aux_updates)
+                            linea_ovd +=1
+                        except Exception as e:
+                            print("error al ingresar stock en ovd 2 :",e)
+                            estado = False
+            #EN EL CASO DE QUE EL STOCK NECESARIO SEA MAYOR QUE 0 IMPLICA QUE NO SE ALCANZO A CUBRIR LA TOTALIDAD DE LA DEMANDA CON LOS PRODUCTOS 
+            #ENCONTRADOS
+            #SE ACTUALIZA EL ESTADO DE CADA LINEA DE LA SOLICITUD PARA NOTIFICAR SI UN PRODUCTO ESTA PENDIENTE EN EL SISTEMA
+
+            if stock_necesario >= 0:
+                print("no se pudo cubrir la totalidad de la demanda con productos de buena calidad")
+                mensaje = ''
+                mensaje = mensaje + f'''{categoria.CP_CDESCRIPCION} <br>'''
+                SOLICITUD_COMPRA_DETALLE.objects.filter(CP_NID_id= categoria.CP_NID,SC_NID_id = sc_nid).update(SCD_NESTADO = False)
+            else:
+                SOLICITUD_COMPRA_DETALLE.objects.filter(CP_NID_id= categoria.CP_NID,SC_NID_id = sc_nid).update(SCD_NESTADO = True)
+        #SE CREAN LOS PRODUCTOS EN EL DETALLE Y SE ACTUALIZA EL STOCK
+        if estado == True:  
+            try:
+                ORDEN_VENTA_DETALLE.objects.bulk_create(lista_bulk)
+                ORDEN_VENTA.objects.filter(OV_NID = ov_nid).update(OV_CESTADO = 'SELECCION')
+            except Exception as e:
+                print("error al crear la OVD ",e)
+            for elemento in lista_updates:
+                STOCK.objects.filter(PC_NID_id= elemento[0]).update(STK_NQTY = elemento[1])
         
-    
-    return JsonResponse({})
+            return JsonResponse({
+                'Estado':estado,
+                'mensaje':mensaje
+            })
+        else:
+            return JsonResponse({
+                'Estado':estado,
+                'mensaje':mensaje
+            })

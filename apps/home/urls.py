@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: )utf-8 -*-
 """
 Copyright (c) 2019 - present AppSeed.us
 """
@@ -62,6 +62,12 @@ urlpatterns = [
     #LOG PROCESOS - LOG ACCIONES
     # path('sy-cp_create', login_required(views.categoria_create.as_view()), name='sy-cp_create'),
     # path('sy-cp_list', login_required(views.categoria_list), name='sy-cp_list'),
+    #STOCK
+    path('sy-stk_create', login_required(views.stock_create.as_view()), name='sy-stk_create'),
+    path('sy-stk_update/<int:pk>', login_required(views.stock_update.as_view()), name='sy-stk_update'),
+    path('sy-stk_list', login_required(views.stock_list), name='sy-stk_list'),
+    # path('sy-con_deshabilitar/<int:pk>', login_required(views.consultor_deshabilitar), name='sy-con_deshabilitar'),
+    # path('sy-envio_datos', login_required(views.carrito_compra), name='sy-envio_datos'),
     #TRANSACCIONALES
     path('tr-list', login_required(views.Transacciones_list), name='tr-list'),
     # path('tr-carro_list', login_required(views.solicitud_compra_list), name='tr-carro_list'),
@@ -86,6 +92,9 @@ urlpatterns = [
     #TRASPASO
     path('tr-carro_solicitud/<int:us_nid>', login_required(views.generar_solicitud), name='tr-carro_solicitud'),
     path('tr-solicitud_orden_venta/<int:sc_nid>', login_required(views.generar_orden_venta), name='tr-solicitud_orden_venta'),
+    #SELECCION DE PRODUCTOS
+    path('buscar_productos/<int:ov_nid>', login_required(views.obtener_mejor_producto), name='buscar_productos'),
+    
 
     # Matches any html file
     re_path(r'^.*\.*', views.pages, name='pages'),

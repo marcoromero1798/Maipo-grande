@@ -47,6 +47,9 @@
                     {% if request.user.is_superuser == 1 or request.user.USER.UX_IS_ADMINISTRADOR == 1 or request.user.USER.UX_IS_PRODUCTOR == 1 %}
                     <li><a href="/sy-ct_list">Contratos</a></li>
                     {% endif %}
+                    {% if request.user.is_superuser == 1 or request.user.USER.UX_IS_ADMINISTRADOR == 1 or request.user.USER.UX_IS_PRODUCTOR == 1 %}
+                    <li><a href="/sy-stk_list">Stock</a></li>
+                    {% endif %}
             </ul>
         </li>
         <li class="nav-item pcoded-hasmenu">

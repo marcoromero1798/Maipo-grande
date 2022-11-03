@@ -47,7 +47,7 @@
                     </tr>
                     <tr>
                         <th style="width: 10%;"><span class="fw-bold">PRECIO</span></th>
-                        <td><span class="fw-normal">{{ objeto.PC_NPRECIO|floatformat:2 }}</span></td>
+                        <td><span class="fw-normal">{{ objeto.PC_NPRECIO_REF|floatformat:2 }}</span></td>
                     </tr>
                     <tr>
                         <th style="width: 10%;"><span class="fw-bold">PESO</span></th>
@@ -69,8 +69,7 @@
                     <tr>
                         <th style="width: 10%;"><span class="fw-bold">Foto</span></th>
                         <td> <img src="{{ objeto.PC_FOTO.url }}"></td>
-                    </tr>
-                    
+                    </tr> 
                     <tr>
                         <th style="width: 10%;"><span class="fw-bold">Productor</span></th>
                         <td><span class="fw-normal">{{ objeto.PR_NID }}</span></td>
@@ -81,11 +80,33 @@
                     </tr>
                     <tr>
                         <th style="width: 10%;"><span class="fw-bold">Refrigeración</span></th>
-                        <td><span class="fw-normal">{{ objeto.PC_NREFRIGERACION }}</span></td>
+                        {% if  objeto.PC_NREFRIGERACION == true %}
+                            <td><span class="fw-normal">Si</span></td>
+                        {% else %}
+                            <td><span class="fw-normal">No</span></td>
+                        {% endif %}
                     </tr>
                 </tbody>
             </table>
         </div>
+        {% if request.user.is_superuser == 1 or request.user.USER.UX_IS_ADMINISTRADOR == 1 or request.user.USER.UX_IS_PRODUCTOR == 1 %}
+
+        <div class="card card-body border-0 shadow table-wrapper table-responsive">
+            <h4>Informacion stock</h4>
+            <table class="table table-hover">
+                <tbody>
+                    <tr>
+                        <th style="width: 10%;"><span class="fw-bold">Stock asignado:</span></th>
+                        {% if objeto.STK_NQTY != None%}
+                            <td><span class="fw-bold">{{ objeto.STK_NQTY }}</span></td>
+                        {% else %}
+                            <td><span class="fw-bold">Sin stock asignado</span></td>
+                        {% endif %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>     
+        {% endif %}
         {% comment %} <div class="card card-body border-0 shadow table-wrapper table-responsive">
             <table class="table table-hover">
                 <h2 class="h4">Stock</h2>

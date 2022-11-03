@@ -39,16 +39,19 @@
                     </li>
                     {% endif %}
                     {% if request.user.is_superuser == 1 or request.user.USER.UX_IS_ADMINISTRADOR == 1 or request.user.USER.UX_IS_PRODUCTOR == 1 or request.user.USER.UX_IS_CLIENTEINTERNO  == 1  or request.user.USER.UX_IS_CLIENTEEXTERNO == 1%}
-                    <li><a href="/sy-pc_list">Productos</a></li>
+                        <li><a href="/sy-pc_list">Productos</a></li>
+                    {% endif %}
+                    {% if request.user.is_superuser == 1 or request.user.USER.UX_IS_ADMINISTRADOR == 1 or request.user.USER.UX_IS_TRANSPORTISTA == 1%}
+                        <li><a href="/sy-tra_list">Mis Transportes</a></li>
                     {% endif %}
                     {% if request.user.is_superuser == 1 or request.user.USER.UX_IS_ADMINISTRADOR == 1 or request.user.USER.UX_IS_PRODUCTOR == 1 %}
-                    <li><a href="/sy-cp_list">Categoria</a></li>
+                        <li><a href="/sy-cp_list">Categoria</a></li>
                     {% endif %}
                     {% if request.user.is_superuser == 1 or request.user.USER.UX_IS_ADMINISTRADOR == 1 or request.user.USER.UX_IS_PRODUCTOR == 1 %}
-                    <li><a href="/sy-ct_list">Contratos</a></li>
+                        <li><a href="/sy-ct_list">Contratos</a></li>
                     {% endif %}
                     {% if request.user.is_superuser == 1 or request.user.USER.UX_IS_ADMINISTRADOR == 1 or request.user.USER.UX_IS_PRODUCTOR == 1 %}
-                    <li><a href="/sy-stk_list">Stock</a></li>
+                        <li><a href="/sy-stk_list">Stock</a></li>
                     {% endif %}
             </ul>
         </li>

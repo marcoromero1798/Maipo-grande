@@ -53,6 +53,12 @@ urlpatterns = [
     path('sy-tr_list', login_required(views.transportista_list), name='sy-tr_list'),
     path('sy-tr_update/<int:pk>', login_required(views.transportista_update.as_view()), name='sy-tr_update'),
     path('sy-tr_deshabilitar/<int:pk>', login_required(views.transportista_deshabilitar), name='sy-tr_deshabilitar'),
+    #TRANSPORTE
+    path('sy-tra_create/<int:tr_nid>', login_required(views.transporte_create.as_view()), name='sy-tra_create'),
+    path('sy-tra_update/<int:pk>', login_required(views.transporte_update.as_view()), name='sy-tra_update'),
+    path('sy-tra_list', login_required(views.transporte_list), name='sy-tra_list'),
+    path('sy-tra_deshabilitar/<int:pk>', login_required(views.transporte_deshabilitar), name='sy-tra_deshabilitar'),
+
     #CONSULTOR
     path('sy-con_create', login_required(views.consultor_create.as_view()), name='sy-con_create'),
     path('sy-con_list', login_required(views.consultor_list), name='sy-con_list'),
@@ -89,9 +95,18 @@ urlpatterns = [
     path('tr-ovd_create/<int:ov_nid>', login_required(views.orden_venta_detalle_create), name='tr-ovd_create'),
     path('tr-ovd_update/<int:pk>', login_required(views.OVD_Update.as_view()), name='tr-ovd_update'),
     path('tr-ovd_delete/<int:id>', login_required(views.orden_venta_detalle_delete), name='tr-ovd_delete'),
+    #SUBASTA 
+    path('tr-su_listone/<int:su_nid>', login_required(views.subasta_listone), name='tr-su_listone'),
+    path('tr-sud_create/<int:su_nid>', login_required(views.subasta_detalle_create), name='tr-sud_create'),
+    path('tr-sud_delete/<int:id>', login_required(views.subasta_detalle_delete), name='tr-sud_delete'),
+    path('tr-sud_update/<int:pk>', login_required(views.SUD_Update.as_view()), name='tr-sud_update'),
+    path('tr-sud_iniciar/<int:su_nid>', login_required(views.iniciar_subasta), name='tr-sud_iniciar'),
+    path('tr-sud_terminar/<int:su_nid>', login_required(views.terminar_subasta), name='tr-sud_terminar'),
+    
     #TRASPASO
     path('tr-carro_solicitud/<int:us_nid>', login_required(views.generar_solicitud), name='tr-carro_solicitud'),
     path('tr-solicitud_orden_venta/<int:sc_nid>', login_required(views.generar_orden_venta), name='tr-solicitud_orden_venta'),
+    path('tr-orden_venta_subasta/<int:ov_nid>', login_required(views.generar_subasta), name='tr-orden_venta_subasta'),
     #SELECCION DE PRODUCTOS
     path('buscar_productos/<int:ov_nid>', login_required(views.obtener_mejor_producto), name='buscar_productos'),
     

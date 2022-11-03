@@ -13,6 +13,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from pyparsing import null_debug_action
 from core.sql import *
+from datetime import date, datetime, timedelta ,timezone
 # Create your models here.
 
 
@@ -182,19 +183,20 @@ class TRANSPORTISTA(models.Model):
     def __str__(self):
         return self.TR_CDESCRIPCION
 class TRANSPORTE(models.Model):
-    TRA_NID = models.ForeignKey(TRANSPORTISTA, verbose_name='USUARIO_TRANSPORTISTA', on_delete=models.PROTECT)
+    TR_NID = models.ForeignKey(TRANSPORTISTA, verbose_name='USUARIO_TRANSPORTISTA', on_delete=models.PROTECT,null=True,blank=True)
     TRA_NCARGA = models.DecimalField(("CARGA TOTAL"),max_digits=18,decimal_places=5)
     TRA_NREFRIGERACION = models.BooleanField(("Habilitado"),default=True,null=True,blank=True)
     TRA_CMARCA = models.CharField(("MARCA"),max_length=128)  
     TRA_CMODELO = models.CharField(("MODELO"),max_length=128)  
     TRA_CPATENTE = models.CharField(("PATENTE"),max_length=128) 
-
+    TRA_NHABILITADO= models.BooleanField(("Habilitado"),default=True,null=True,blank=True)
     class Meta:
         db_table = 'TRANSPORTE'
 
     def __str__(self):
         DESCRIPCION = self.TRA_CMARCA +' '+self.TRA_CMODELO+' '+self.TRA_CMODELO 
         return str(DESCRIPCION)
+        
 class LOG_ACCIONES(models.Model):
     LG_NID = models.BigAutoField(("ID"),primary_key=True)
     US_NID = models.ForeignKey(User, related_name='USUARIO_LOG', on_delete=models.PROTECT)
@@ -394,13 +396,28 @@ class SUBASTA(models.Model):
     SU_NID =  models.BigAutoField(("ID ORDEN DE VENTA SUBASTA"),primary_key=True)
     US_NID = models.ForeignKey(User, verbose_name='ID DIRECCION SUBASTA', on_delete=models.PROTECT,null = True,blank =True)
     DR_NID = models.ForeignKey(DIRECCION, verbose_name='ID DIRECCION SUBASTA', on_delete=models.PROTECT,null = True,blank =True)
-    OV_NDOCUMENTO_ORIGEN = models.ForeignKey(ORDEN_VENTA,on_delete=models.PROTECT,verbose_name="Documento origen",null = True,blank =True)
-    SU_FFECHA_INICIO = models.DateTimeField(("FECHA INICIO")) 
-    SU_FFECHA_TERMINO = models.DateTimeField(("FECHA TERMINO"))
+    SU_NDOCUMENTO_ORIGEN = models.ForeignKey(ORDEN_VENTA,on_delete=models.PROTECT,verbose_name="Documento origen",null = True,blank =True)
+    SU_FFECHA_INICIO = models.DateTimeField(("FECHA INICIO"),null=True,blank=True) 
+    SU_FFECHA_TERMINO = models.DateTimeField(("FECHA TERMINO"),null=True,blank=True)
     SU_PESO_TOTAL = models.DecimalField(("PRECIO"),max_digits=18,decimal_places=5) 
     SU_NREFRIGERACION = models.BooleanField(("REFRIGERACION"),default=False,null=True,blank=True)
+    SU_NPROCESADO = models.BooleanField(("HABILITADO"),default=False,null=True,blank=True)    
+    SU_NESTADO = models.BooleanField(("HABILITADO"),default=False,null=True,blank=True)    
+    SU_NTRANSPORTE_SELECCIONADO= models.ForeignKey(TRANSPORTE,on_delete=models.PROTECT,verbose_name="Documento origen",null = True,blank =True)
     class Meta:
         db_table = 'SUBASTA'
+
+    @property
+    def VIGENCIA(self):
+        fecha_consulta = datetime.now(self.SU_FFECHA_TERMINO.tzinfo)
+        if self.SU_FFECHA_TERMINO != None:
+            fecha_termino = self.SU_FFECHA_TERMINO
+            if fecha_consulta >= fecha_termino:
+                return 'TERMINADA'
+            else:
+                return 'VIGENTE'
+        else:
+            return 'NO INICIADA'
 
     def __str__(self):
         return str(self.SU_NID)
@@ -409,6 +426,6 @@ class SUBASTA_DETALLE(models.Model):
     TRA_NID = models.ForeignKey(TRANSPORTE, verbose_name='ID TRANSPORTE', on_delete=models.PROTECT,null = True,blank =True)
     TR_NID = models.ForeignKey(TRANSPORTISTA, verbose_name='ID DIRECCION SUBASTA', on_delete=models.PROTECT,null = True,blank =True)
     SUD_NCOBRO = models.DecimalField(("PRECIO"),max_digits=18,decimal_places=5) 
-    
+    SUD_NSELECCION =  models.BooleanField(("Seleccion"),default=False,null=True,blank=True)    
     class Meta:
         db_table = 'SUBASTA_DETALLE'

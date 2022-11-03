@@ -1,6 +1,6 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Crear Producto {% endblock %}
+{% block title %} Crear Transporte{% endblock %}
 
 <!-- Specific CSS goes HERE -->
 {% block stylesheets %}
@@ -18,13 +18,13 @@
 				<div class="row align-items-center">
 					<div class="col-md-12">
 						<div class="page-header-title">
-							<h5 class="m-b-10">Crear Producto</h5>
+							<h5 class="m-b-10">Transporte</h5>
 						</div>
 						<ul class="breadcrumb">
 							<li class="breadcrumb-item"><a href="{% url 'home' %}"><i class="feather
 										icon-home"></i></a></li>
-							<li class="breadcrumb-item"><a href="#!">Producto</a></li>
-							<li class="breadcrumb-item"><a href="#!">Crear Producto</a></li>
+							<li class="breadcrumb-item"><a href="#!">Transporte</a></li>
+							<li class="breadcrumb-item"><a href="#!">Crear Transporte</a></li>
 						</ul>
 					</div>
 				</div>
@@ -37,7 +37,7 @@
 			<div class="col-sm-12">
 				<div class="card">
 					<div class="card-header">
-						<h5>Producto</h5>
+						<h5>Crear transporte</h5>
 					</div>
 					{{form.errors}}
 					<div class="card-body">
@@ -48,69 +48,35 @@
 									{{ form.non_field_errors }}
 									<div class="col-md-6">
 										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Cod Producto:</label>
+										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Transportista:</label>
 										{{form.visible_fields.0}}
 									</div>
 									<div class="col-md-6">
 										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Descripcion:</label>
+										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Patente:</label>
 										{{form.visible_fields.1}}
 									</div>
 									<div class="col-md-6">
 										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Calidad:</label>
+										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Marca:</label>
 										{{form.visible_fields.2}}
 									</div>
 									<div class="col-md-6">
 										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Origen:</label>
+										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Modelo:</label>
 										{{form.visible_fields.3}}
 									</div>
-
 									<div class="col-md-6">
 										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Categoria:</label>
-										{{form.visible_fields.5}}
-									</div>
-									<div class="col-md-6">
-										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Peso:</label>
-										{{form.visible_fields.6}}
-									</div>
-							
-									<!--<div class="col-md-6">
-										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Un Peso:</label>
-										{{form.visible_fields.7}}
-									</div>-->
-									<div class="col-md-6">
-										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Unidad de Peso:</label>
-										{{form.visible_fields.7}}
+										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Carga:</label>
+										{{form.visible_fields.4}}
 									</div>
 									<div class="col-md-6">
 										{{ form.subject.errors }}
 										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Refrigeracion:</label>
-										{{form.visible_fields.8}}
+										{{form.visible_fields.5}}
 									</div>
-									<div class="col-md-6">
-										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Precio referencia:</label>
-										{{form.visible_fields.9}}
-									</div>
-									<div class="col-md-6">
-										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Fecha vencimiento:</label>
-										{{form.visible_fields.10}}
-									</div>
-									<div class="col-md-6">
-										{{ form.subject.errors }}
-										<label class="my-1 me-2"  for="{{ form.subject.id_for_label }}">Foto:</label>
-										{{form.visible_fields.4}}
-										
-									</div>
-	
-
+					
 								</div>
 							</div>
 							<div class="form-group nav justify-content-end">

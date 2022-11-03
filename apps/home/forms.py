@@ -220,6 +220,36 @@ class formPRODUCTO(forms.ModelForm):
             'PC_FFECHA_VENCIMIENTO': forms.DateTimeInput(format='%Y-%m-%d %H:%M:%S',attrs={'class': 'form-control','type':'datetime-local'}),
         }
 
+class formTRANSPORTE(forms.ModelForm):
+    class Meta:
+        model = TRANSPORTE     
+        # TR_CDESCRIPCION
+        # TR_CCORREO
+        # TR_NCONTACTO
+        # TR_NHABILITADO
+        # US_NID
+        # CT_NID
+	
+        fields = [
+        'TR_NID',
+        'TRA_CPATENTE',
+        'TRA_CMARCA',
+        'TRA_CMODELO',
+        'TRA_NCARGA',
+        'TRA_NREFRIGERACION'
+
+        ]
+        labels = '__all__'
+        widgets = {    
+            'TR_NID': forms.Select(attrs={'class': 'form-control','type':'number'}),
+            'TRA_CPATENTE': forms.TextInput(attrs={'class': 'form-control','type':'text'}),
+            'TRA_CMARCA': forms.TextInput(attrs={'class': 'form-control','type':'text'}),
+            'TRA_CMODELO': forms.TextInput(attrs={'class': 'form-control','type':'text'}),
+            'TRA_NCARGA': forms.TextInput(attrs={'class': 'form-control','type':'number'}),
+            'TRA_NREFRIGERACION': forms.CheckboxInput(attrs={'class': 'form-control','type':'checkbox'}),
+            
+        }
+
 
 class formOVD(forms.ModelForm):
     class Meta:
@@ -235,6 +265,20 @@ class formOVD(forms.ModelForm):
             'OVD_NPRECIO': forms.TextInput(attrs={'class': 'form-control','type':'number'}),
             'PC_NID': forms.Select(attrs={'class': 'form-control','type':'number'})
            
+        }
+class formSUD(forms.ModelForm):
+    class Meta:
+        model = SUBASTA_DETALLE    	
+        fields = [
+        'TRA_NID',
+        'TR_NID',
+        'SUD_NCOBRO'
+        ]
+        labels = '__all__'
+        widgets = {        
+            'SUD_NCOBRO': forms.TextInput(attrs={'class': 'form-control','type':'number'}),
+            'TRA_NID': forms.Select(attrs={'class': 'form-control','type':'number'}),
+            'TR_NID': forms.Select(attrs={'class': 'form-control','type':'number'})      
         }
 class formOV(forms.ModelForm):
     class Meta:

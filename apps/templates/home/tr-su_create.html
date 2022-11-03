@@ -1,6 +1,6 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Crear Orden de venta {% endblock %}
+{% block title %} Crear Transporte Subasta{% endblock %}
 
 <!-- Specific CSS goes HERE -->
 {% block stylesheets %}
@@ -18,13 +18,13 @@
 				<div class="row align-items-center">
 					<div class="col-md-12">
 						<div class="page-header-title">
-							<h5 class="m-b-10">Crear Orden de venta</h5>
+							<h5 class="m-b-10">Añadir transporte a subasta</h5>
 						</div>
 						<ul class="breadcrumb">
 							<li class="breadcrumb-item"><a href="{% url 'home' %}"><i class="feather
 										icon-home"></i></a></li>
-							<li class="breadcrumb-item"><a href="#!">Orden de venta</a></li>
-							<li class="breadcrumb-item"><a href="#!">Crear Orden de venta</a></li>
+							<li class="breadcrumb-item"><a href="#!">Subasta</a></li>
+							<li class="breadcrumb-item"><a href="#!">Añadir Transporte a subasta</a></li>
 						</ul>
 					</div>
 				</div>
@@ -37,7 +37,7 @@
 			<div class="col-sm-12">
 				<div class="card">
 					<div class="card-header">
-						<h5>Orden de venta</h5>
+						<h5>Añadir transporte</h5>
 					</div>
 
 					<div class="card-body">
@@ -48,23 +48,18 @@
 									{{ form.non_field_errors }}
 									<div class="col-md-6">
 										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Solicitud asociada:</label>
-										{{form.visible_fields.0}}
-									</div>
-									<div class="col-md-6">
-										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Tipo de proceso:</label>
+										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Transportista:</label>
 										{{form.visible_fields.1}}
 									</div>
 									<div class="col-md-6">
 										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Estado</label>
-										{{form.visible_fields.2}}
+										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Transporte:</label>
+										{{form.visible_fields.0}}
 									</div>
 									<div class="col-md-6">
 										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Observaciones:</label>
-										{{form.visible_fields.5}}
+										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Precio transporte</label>
+										{{form.visible_fields.2}}
 									</div>
 						
 

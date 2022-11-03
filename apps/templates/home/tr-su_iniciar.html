@@ -1,6 +1,6 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Crear Orden de venta {% endblock %}
+{% block title %} Iniciar subasta{% endblock %}
 
 <!-- Specific CSS goes HERE -->
 {% block stylesheets %}
@@ -18,13 +18,13 @@
 				<div class="row align-items-center">
 					<div class="col-md-12">
 						<div class="page-header-title">
-							<h5 class="m-b-10">Crear Orden de venta</h5>
+							<h5 class="m-b-10">Iniciar Subasta</h5>
 						</div>
 						<ul class="breadcrumb">
 							<li class="breadcrumb-item"><a href="{% url 'home' %}"><i class="feather
 										icon-home"></i></a></li>
-							<li class="breadcrumb-item"><a href="#!">Orden de venta</a></li>
-							<li class="breadcrumb-item"><a href="#!">Crear Orden de venta</a></li>
+							<li class="breadcrumb-item"><a href="#!">Subasta</a></li>
+							<li class="breadcrumb-item"><a href="#!">Iniciar Subasta</a></li>
 						</ul>
 					</div>
 				</div>
@@ -37,7 +37,7 @@
 			<div class="col-sm-12">
 				<div class="card">
 					<div class="card-header">
-						<h5>Orden de venta</h5>
+						<h5>Iniciar subasta</h5>
 					</div>
 
 					<div class="card-body">
@@ -45,29 +45,15 @@
 							{% csrf_token %}
 							<div class="row">
 								<div class="col-md-12">
-									{{ form.non_field_errors }}
+									
 									<div class="col-md-6">
-										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Solicitud asociada:</label>
-										{{form.visible_fields.0}}
+										<label class="my-1 me-2">Fecha de inicio:</label>
+										<input type="datetime-local" required name='fecha_inicio' class="form-control" >
 									</div>
 									<div class="col-md-6">
-										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Tipo de proceso:</label>
-										{{form.visible_fields.1}}
+										<label class="my-1 me-2">Fecha de termino:</label>
+										<input type="datetime-local" name='fecha_termino' required class="form-control" >
 									</div>
-									<div class="col-md-6">
-										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Estado</label>
-										{{form.visible_fields.2}}
-									</div>
-									<div class="col-md-6">
-										{{ form.subject.errors }}
-										<label class="my-1 me-2" for="{{ form.subject.id_for_label }}">Observaciones:</label>
-										{{form.visible_fields.5}}
-									</div>
-						
-
 								</div>
 							</div>
 							<div class="form-group nav justify-content-end">

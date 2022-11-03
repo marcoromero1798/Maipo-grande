@@ -67,6 +67,9 @@
                             <li class="nav-item">
                                 <a class="nav-link text-uppercase" id="orden_venta-tab" data-toggle="tab" href="#orden_venta" role="tab" aria-controls="orden_venta" aria-selected="false">Orden de venta</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-uppercase" id="subasta-tab" data-toggle="tab" href="#subasta" role="tab" aria-controls="subasta" aria-selected="false">Subasta</a>
+                            </li>
                             <!-- <li class="nav-item">
                                 <a class="nav-link text-uppercase" id="despacho-tab" data-toggle="tab" href="#despacho" role="tab" aria-controls="despacho" aria-selected="false">despacho</a>
                             </li> -->
@@ -127,7 +130,8 @@
                                         {% for object in object_list_ov %}
                                         <tr>
                                             <td>
-                                                <a class="btn btn-secondary" href="{% url 'tr-ov_listone' object.OV_NID|unlocalize %}"><i class="feather icon-eye"></i> </a>                                                <a class="btn btn-danger" data-toggle="modal" data-target="#modal-default{{ objeto.CON_NID|unlocalize }}"><i class="feather icon-x-square"></i></a>
+                                                <a class="btn btn-info" href="{% url 'tr-ov_listone' object.OV_NID|unlocalize %}"><i class="feather icon-eye"></i> </a>                                                
+                                                <a class="btn btn-secondary" href="{% url 'tr-ov_update' object.OV_NID|unlocalize %}"><i class="feather icon-edit"></i> </a>                                                
                                             </td>
                                             <td>{{object.OV_NID}}</td>
                                             <td>{{object.US_NID}}</td>
@@ -135,6 +139,38 @@
                                             <td>{{object.OV_FFECHA_CREACION}}</td>
                                             <td>{{object.OV_FFECHA_PROCESAMIENTO}}</td>
                                             {% if object.OV_NPROCESADO == True %}
+                                                <td>Procesado</td>
+                                            {% else %}
+                                                <td>Sin Procesar</td>
+                                            {% endif %}
+                                            {% endfor %}
+                                        </tr>
+                                        </tbody>
+                                </table>
+                            </div>
+                            <div class="tab-pane fade" id="subasta" role="tabpanel" aria-labelledby="subasta-tab">
+                                <table class="table table-hover" id="basic-btn4">
+                                    <thead>
+                                        <th>Acciones</th>
+                                        <th>Nro. Documento</th>
+                                        <th>Usuario</th>
+                                        <th>Tipo cambio</th>
+                                        <th>Vigencia</th>
+                                        <th>Procesado</th>
+                                    </thead>
+                                    
+                                    <tbody>
+                                        {% for object in object_list_su %}
+                                        <tr>
+                                            <td>
+                                                <a class="btn btn-info" href="{% url 'tr-su_listone' object.SU_NID|unlocalize %}"><i class="feather icon-eye"></i> </a>                                               
+                                                 {% comment %} <a class="btn btn-danger" data-toggle="modal" data-target="#modal-default{{ objeto.CON_NID|unlocalize }}"><i class="feather icon-x-square"></i></a> {% endcomment %}
+                                            </td>
+                                            <td>{{object.SU_NID}}</td>
+                                            <td>{{object.US_NID}}</td>
+                                            <td>{{object.TC_NID}}</td>
+                                            <td>{{object.VIGENCIA}}</td>
+                                            {% if object.SU_NPROCESADO == True %}
                                                 <td>Procesado</td>
                                             {% else %}
                                                 <td>Sin Procesar</td>

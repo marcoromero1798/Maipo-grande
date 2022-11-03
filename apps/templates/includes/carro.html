@@ -26,14 +26,23 @@ $(document).ready(function() {
     $.ajax({
         type: 'GET',
         url: "/tr-carro_resumen/{{request.user.id}}",
-        success: function (response) {
-            for (i=0 ; i==response.elementos_carro.length-1 ; i++){
-                elemento = response.elementos_carro[i][0]
-                cantidad = response.elementos_carro[i][1]
-                console.log(response.elementos_carro[i][0])
+        success: function (data) {
+            var elemento = data.elementos_carro
+            for (let i=0 ; i < elemento.length ; i++){
+                producto = elemento[i][0]
+                cantidad = elemento[i][1]
+                $("#carro").append( 
+                '<li class="notification">'+
+                    '<div class="media">'+
+                        '<div class="media-body">'+
+                            '<p><strong> Producto: '+producto+'</strong></p>'+
+                            '<p> Cantidad: '+cantidad+'</p>'
+                        +'</div>'+
+                    '</div>'+
+                '</li>')
             }
 
-            // $("carro").append
+            
             
         },
 

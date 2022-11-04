@@ -33,9 +33,15 @@
 					<li class="nav-item f-text active">
 						<a class="nav-link text-secondary" >Opciones documento:</a>
 					</li>
+					{% if object.SC_CTIPO_SOLICITUD == 'EXTERNO' %}
 					<li>
 						<a class="nav-link text-secondary" href="{% url 'tr-solicitud_orden_venta' object.SC_NID %}">Convertir en Orden de venta</a>
 					</li>
+					{% else %}
+					<li>
+						<a class="nav-link text-secondary" href="{% url 'tr-solicitud_orden_venta_completa' object.SC_NID %}">Convertir en Orden de venta</a>
+					</li>
+					{% endif %}
 				</ul>
 
 			</nav>
@@ -71,6 +77,11 @@
                     								{% endif %} 
 											</tr>
 											<tr>
+												<th>Tipo de proceso :</th>
+													<td><span class="fw-bold text-secondary">{{object.SC_CTIPO_SOLICITUD}}</span></td>
+
+											</tr>
+											<tr>
 												<th style="width: 10%;"><span class="fw-bold">Moneda:</span></th>
 												<td>
 													{{object.TC_NID}}
@@ -95,8 +106,13 @@
 											<tbody>
 												{% for object_lines in object_lines %}
 												<tr>
+
 													<td scope="row" class="text-left fw-bold h6"><span class="fw-normal">{{ object_lines.SC_NLINEA  }}</span></td>
+													{% if object_lines.CP_NID != None %}
 													<td ><span class="fw-normal">{{ object_lines.CP_NID.CP_CDESCRIPCION}}</span></td>
+													{% else %}
+													<td ><span class="fw-normal">{{ object_lines.PC_NID.PC_CDESCRIPCION}}</span></td>
+													{% endif %}
 													<td ><span class="fw-normal">{{ object_lines.SCD_NQTY }}</span></td>
 																									
 												</tr>

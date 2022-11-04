@@ -103,12 +103,14 @@ def resumen_carro(US_NID):
     with connection.cursor() as cursor:
         cquery = f'''
         SELECT 
-		"CATEGORIA_PRODUCTO"."CP_CDESCRIPCION",
-        "CARRO_COMPRA"."CC_NQTY"
+		"PRODUCTO"."PC_CDESCRIPCION",
+        "CATEGORIA_PRODUCTO"."CP_CDESCRIPCION",
+		"CARRO_COMPRA"."CC_NQTY"
         FROM "CARRO_COMPRA" 
         LEFT JOIN "CATEGORIA_PRODUCTO" on "CATEGORIA_PRODUCTO"."CP_NID" = "CARRO_COMPRA"."CP_NID_id"
-        WHERE "CARRO_COMPRA"."CC_NESTADO" = TRUE 
-        AND "CARRO_COMPRA"."US_NID_id" = {US_NID}'''
+        LEFT JOIN "PRODUCTO" ON "PRODUCTO"."PC_NID" = "CARRO_COMPRA"."PC_NID_id"
+		WHERE "CARRO_COMPRA"."CC_NESTADO" = TRUE 
+        AND "CARRO_COMPRA"."US_NID_id" =  {US_NID}'''
 
         cursor.execute(cquery)
         resultado = cursor.fetchall()
@@ -240,6 +242,85 @@ def data_clicle(us_nid,tabla):
     with connection.cursor() as cursor:
         cursor.execute(cquery)
         resultado = cursor.fetchone()
+        if resultado == None:
+            return None
+        return resultado
+    
+def ranking_productos_segun_vendidos_externo():
+    with connection.cursor() as cursor:
+        cquery = f'''
+        SELECT
+        "PRODUCTO"."PC_CDESCRIPCION",
+        SUM("ORDEN_VENTA_DETALLE"."OVD_NQTY")
+        FROM "ORDEN_VENTA"
+        LEFT JOIN "ORDEN_VENTA_DETALLE" ON "ORDEN_VENTA"."OV_NID" = "ORDEN_VENTA_DETALLE"."OV_NID_id"
+        LEFT JOIN "PRODUCTO" ON "PRODUCTO"."PC_NID" = "ORDEN_VENTA_DETALLE"."PC_NID_id"
+        WHERE "PC_NID_id" is NOT NULL AND "ORDEN_VENTA"."OV_CTIPO_PROCESO" ='EXTERNO'
+        GROUP BY "PRODUCTO"."PC_CDESCRIPCION";
+            '''
+        cursor.execute(cquery)
+        resultado = cursor.fetchall()
+        if resultado == None:
+            return None
+        return resultado
+
+def ranking_productos_segun_vendidos_interno():
+    with connection.cursor() as cursor:
+        cquery = f'''
+    SELECT
+    "PRODUCTO"."PC_CDESCRIPCION",
+    SUM("ORDEN_VENTA_DETALLE"."OVD_NQTY")
+    FROM "ORDEN_VENTA"
+    LEFT JOIN "ORDEN_VENTA_DETALLE" ON "ORDEN_VENTA"."OV_NID" = "ORDEN_VENTA_DETALLE"."OV_NID_id"
+    LEFT JOIN "PRODUCTO" ON "PRODUCTO"."PC_NID" = "ORDEN_VENTA_DETALLE"."PC_NID_id"
+    WHERE "PC_NID_id" is NOT NULL AND "ORDEN_VENTA"."OV_CTIPO_PROCESO" ='INTERNO'
+    GROUP BY "PRODUCTO"."PC_CDESCRIPCION";
+            '''
+        cursor.execute(cquery)
+        resultado = cursor.fetchall()
+        if resultado == None:
+            return None
+        return resultado
+def venta_por_productos_por_fecha():
+    with connection.cursor() as cursor:
+        cquery = f'''
+    SELECT
+    to_char("ORDEN_VENTA"."OV_FFECHA_CREACION",'YYYY/MM/DD'),
+    SUM("ORDEN_VENTA"."OV_NID")
+    FROM "ORDEN_VENTA"
+    LEFT JOIN "ORDEN_VENTA_DETALLE" ON "ORDEN_VENTA"."OV_NID" = "ORDEN_VENTA_DETALLE"."OV_NID_id"
+    LEFT JOIN "PRODUCTO" ON "PRODUCTO"."PC_NID" = "ORDEN_VENTA_DETALLE"."PC_NID_id"
+    WHERE "PC_NID_id" is NOT NULL AND "ORDEN_VENTA"."OV_CTIPO_PROCESO" ='INTERNO'
+    GROUP BY to_char("ORDEN_VENTA"."OV_FFECHA_CREACION",'YYYY/MM/DD');
+            '''
+        cursor.execute(cquery)
+        resultado = cursor.fetchall()
+        if resultado == None:
+            return None
+        return resultado
+def comparacion_venta_externa_interna():
+    with connection.cursor() as cursor:
+        cquery = f'''
+            SELECT
+            "ORDEN_VENTA"."OV_CTIPO_PROCESO",
+            SUM("ORDEN_VENTA_DETALLE"."OVD_NQTY")
+            FROM "ORDEN_VENTA"
+            LEFT JOIN "ORDEN_VENTA_DETALLE" ON "ORDEN_VENTA"."OV_NID" = "ORDEN_VENTA_DETALLE"."OV_NID_id"
+            LEFT JOIN "PRODUCTO" ON "PRODUCTO"."PC_NID" = "ORDEN_VENTA_DETALLE"."PC_NID_id"
+            WHERE "PC_NID_id" is NOT NULL AND "ORDEN_VENTA"."OV_CTIPO_PROCESO" ='EXTERNO'
+            GROUP BY "ORDEN_VENTA"."OV_CTIPO_PROCESO"
+            UNION ALL
+            SELECT
+            "ORDEN_VENTA"."OV_CTIPO_PROCESO",
+            SUM("ORDEN_VENTA_DETALLE"."OVD_NQTY")
+            FROM "ORDEN_VENTA"
+            LEFT JOIN "ORDEN_VENTA_DETALLE" ON "ORDEN_VENTA"."OV_NID" = "ORDEN_VENTA_DETALLE"."OV_NID_id"
+            LEFT JOIN "PRODUCTO" ON "PRODUCTO"."PC_NID" = "ORDEN_VENTA_DETALLE"."PC_NID_id"
+            WHERE "PC_NID_id" is NOT NULL AND "ORDEN_VENTA"."OV_CTIPO_PROCESO" ='INTERNO'
+            GROUP BY "ORDEN_VENTA"."OV_CTIPO_PROCESO";
+            '''
+        cursor.execute(cquery)
+        resultado = cursor.fetchall()
         if resultado == None:
             return None
         return resultado

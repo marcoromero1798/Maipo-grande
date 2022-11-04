@@ -83,9 +83,14 @@
 											</thead>
 											<tbody>
 												{% for object_lines in object_list %}
+												
 												<tr>
 													<td><a class="btn btn-danger" data-toggle="modal" data-target="#modal-default{{ objeto.CC_NID|unlocalize }}"><i class='feather icon-trash-2'></i></a>														
+													{% if object_lines.CP_NID != None %}
 													<td scope="row" class="text-left fw-bold h6"><span class="fw-normal">{{ object_lines.CP_NID.CP_CDESCRIPCION}}</span></td>
+													{% else %}
+													<td scope="row" class="text-left fw-bold h6"><span class="fw-normal">{{ object_lines.PC_NID.PC_CDESCRIPCION}}</span></td>
+													{% endif %}
 													<td ><span class="fw-normal">{{ object_lines.CC_NQTY  }}</span></td>
 												</tr>
 												<div class="modal fade" id="modal-default{{ objeto.CC_NID|unlocalize }}" tabindex="-1" role="dialog" aria-labelledby="modal-default{{ objeto.CC_NID|unlocalize }}" aria-hidden="true">

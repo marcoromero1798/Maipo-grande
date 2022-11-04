@@ -172,7 +172,7 @@ GROUP BY CP."CP_NID",OV."OV_NDOCUMENTO_ORIGEN_id"
         if resultado == None:
             return None
         return resultado[0]
-def stock_list_sql():
+def stock_list_sql_externa():
     with connection.cursor() as cursor:
         cquery = f'''
             SELECT 
@@ -180,10 +180,32 @@ def stock_list_sql():
             "PRODUCTO"."PC_CCODIGO_PROD",
             "PRODUCTO"."PC_CDESCRIPCION",
             "STOCK"."STK_NQTY",	
-            "STOCK"."STK_NID"	
+            "STOCK"."STK_NID",	
+            "STOCK"."STK_CBODEGA"	
 
             FROM "PRODUCTO"
             LEFT JOIN "STOCK" ON "STOCK"."PC_NID_id" = "PRODUCTO"."PC_NID" 
+            WHERE "STOCK"."STK_CBODEGA" = 'EXTERNA'
+            '''
+        cursor.execute(cquery)
+        resultado = cursor.fetchall()
+        if resultado == None:
+            return None
+        return resultado
+def stock_list_sql_interna():
+    with connection.cursor() as cursor:
+        cquery = f'''
+            SELECT 
+            "PRODUCTO"."PC_NID",
+            "PRODUCTO"."PC_CCODIGO_PROD",
+            "PRODUCTO"."PC_CDESCRIPCION",
+            "STOCK"."STK_NQTY",	
+            "STOCK"."STK_NID",	
+            "STOCK"."STK_CBODEGA"	
+
+            FROM "PRODUCTO"
+            LEFT JOIN "STOCK" ON "STOCK"."PC_NID_id" = "PRODUCTO"."PC_NID"
+            WHERE "STOCK"."STK_CBODEGA" = 'INTERNA' 
             '''
         cursor.execute(cquery)
         resultado = cursor.fetchall()

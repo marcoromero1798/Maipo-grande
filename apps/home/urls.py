@@ -72,6 +72,7 @@ urlpatterns = [
     path('sy-stk_create', login_required(views.stock_create.as_view()), name='sy-stk_create'),
     path('sy-stk_update/<int:pk>', login_required(views.stock_update.as_view()), name='sy-stk_update'),
     path('sy-stk_list', login_required(views.stock_list), name='sy-stk_list'),
+    path('sy-stk_traspaso', login_required(views.traspasar_stock), name='sy-stk_traspaso'),
     # path('sy-con_deshabilitar/<int:pk>', login_required(views.consultor_deshabilitar), name='sy-con_deshabilitar'),
     # path('sy-envio_datos', login_required(views.carrito_compra), name='sy-envio_datos'),
     #TRANSACCIONALES

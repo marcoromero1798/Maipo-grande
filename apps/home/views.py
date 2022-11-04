@@ -264,9 +264,11 @@ def stock_list(request):
                 request, 'Usuario no habiltado, contactese con un administrador')
             return render(request, 'home/sy-stk_list.html', context)
         else:
-            stock = stock_list_sql()
+            stock_externa = stock_list_sql_externa()
+            stock_interna = stock_list_sql_interna()
         context = {
-            'object_list': stock
+            'object_list_interna': stock_interna,
+            'object_list_externa': stock_externa
         }
         return render(request, 'home/sy-stk_list.html', context)
 
@@ -280,6 +282,12 @@ class stock_create(CreateView):
     template_name = 'home/sy-stk_create.html'  # html template en core
     success_url = reverse_lazy("sy-stk_list")
 
+    def form_valid(self, form, **kwargs):
+        # INDICA EL USUARIO ACTUAL
+        form.instance.STK_CBODEGA = 'EXTERNA'
+        retorno = super(CreateView, self).form_valid(form)
+        return retorno
+
     def get_success_url(self, **kwargs):
         # if you are passing 'pk' from 'urls' to 'DeleteView' for company
         # capture that 'pk' as companyid and pass it to 'reverse_lazy()' function
@@ -292,7 +300,11 @@ class stock_update(UpdateView):
     form_class = formSTOCK  # Formulario definido en forms.py
     template_name = 'home/sy-stk_create.html'  # html template en core
     success_url = reverse_lazy("sy-stk_list")
-
+    def form_valid(self, form, **kwargs):
+        # INDICA EL USUARIO ACTUAL
+        form.instance.STK_CBODEGA = 'EXTERNA'
+        retorno = super(UpdateView, self).form_valid(form)
+        return retorno
     def get_success_url(self, **kwargs):
         # if you are passing 'pk' from 'urls' to 'DeleteView' for company
         # capture that 'pk' as companyid and pass it to 'reverse_lazy()' function
@@ -1392,6 +1404,19 @@ class OV_Update(UpdateView):
     template_name = 'home/tr-ov_create.html'  # html template en core
     success_url = reverse_lazy("tr-list")
 
+# class SC_Create( CreateView):
+#     model = SOLICITUD_COMPRA  # Modelo a utilizar
+#     form_class = formOV
+#     template_name = 'home/tr-ov_create.html'  # html template en core
+#     success_url = reverse_lazy("tr-list")
+
+# class OV_Update(UpdateView):
+#     model = ORDEN_VENTA  # Modelo a utilizar
+#     form_class = formOV
+#     template_name = 'home/tr-ov_create.html'  # html template en core
+#     success_url = reverse_lazy("tr-list")
+
+
 #PROCESOS
 # CARRO ---> SOLICITUD
 def generar_solicitud(request,us_nid):
@@ -1416,7 +1441,8 @@ def generar_solicitud(request,us_nid):
                     #DR_NID = ?
                     #TC_NID = ?
                     SC_FFECHA_CREACION = datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    SC_NPROCESADO = False
+                    SC_NPROCESADO = False,
+                    SU_CTIPO_SOLICITUD = 'EXTERNO'
                 )
                 Nueva_cabecera.save()
             except Exception as e:
@@ -1693,7 +1719,7 @@ def obtener_mejor_producto(request,ov_nid):
             for valor in productos:
                 lista_aux=[]
                 try:
-                    stock_asociado = STOCK.objects.get(PC_NID_id = valor.PC_NID).STK_NQTY
+                    stock_asociado = STOCK.objects.get(PC_NID_id = valor.PC_NID,STK_CBODEGA ='EXTERNA').STK_NQTY
                 except :
                     stock_asociado = 0
                 #almacenamos las variables que seran utilizadas para determinar la importancia
@@ -1794,7 +1820,7 @@ def obtener_mejor_producto(request,ov_nid):
             except Exception as e:
                 print("error al crear la OVD ",e)
             for elemento in lista_updates:
-                STOCK.objects.filter(PC_NID_id= elemento[0]).update(STK_NQTY = elemento[1])
+                STOCK.objects.filter(PC_NID_id= elemento[0],STK_CBODEGA= 'EXTERNA').update(STK_NQTY = elemento[1])
 
             return JsonResponse({
                 'Estado':estado,
@@ -1808,6 +1834,43 @@ def obtener_mejor_producto(request,ov_nid):
         
 def notificaciones_correo():
     return
+
+def traspasar_stock(request):
+    #buscamos la totalidad de  stock ingresado 
+    STOCK_VENTA_EXTERNA = STOCK.objects.filter(STK_CBODEGA="EXTERNA",STK_NQTY__gt = 0)
+    if STOCK_VENTA_EXTERNA.count() > 0:
+        for venta_externa in STOCK_VENTA_EXTERNA:
+            id_producto = venta_externa.PC_NID_id
+            STOCK_VENTA_INTERNA = STOCK.objects.filter(STK_CBODEGA ="INTERNA",PC_NID =id_producto)
+            if STOCK_VENTA_INTERNA.count() == 0:
+                nuevo_stock = STOCK(
+                    PC_NID_id = id_producto,
+                    STK_NQTY = venta_externa.STK_NQTY,
+                    STK_CBODEGA = 'INTERNA'
+                )
+                nuevo_stock.save()
+                STOCK.objects.filter(PC_NID_id = id_producto,STK_CBODEGA="EXTERNA").update(STK_NQTY = 0)
+            else:
+                try:
+                    stock_interno = STOCK.objects.get(PC_NID_id = id_producto,STK_CBODEGA="INTERNA").STK_NQTY
+                    stock_externo = venta_externa.STK_NQTY
+                    #calculo de stock interno mas externo para traspasar al stock interno
+
+                    stock_final = stock_externo + stock_interno
+                    #STOCK INTERNO ACTUALIZADO CON EL STOCK EXTERNO
+                    STOCK.objects.filter(PC_NID_id = id_producto,STK_CBODEGA="INTERNA").update(STK_NQTY = stock_final)
+                    #STOCK EXTERNO ACTUALIZADO CON EL STOCK EN 0
+                    STOCK.objects.filter(PC_NID_id = id_producto,STK_CBODEGA="EXTERNA").update(STK_NQTY = 0)
+
+                except Exception as e:
+                    
+                    print("error al obtener datos del stock asociados al producto: ",e)
+
+        messages.success(request,'Stock traspasado correctamente')
+        return redirect('sy-stk_list')
+    else:
+        messages.warning(request,'No se encontraron productos con stock EXTERNO')
+        return redirect('sy-stk_list')
 
 #DIRECCION
 class direccion_create(CreateView):

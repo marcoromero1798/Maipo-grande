@@ -53,7 +53,8 @@ class formSTOCK(forms.ModelForm):
 	
         fields = [
         'PC_NID',
-        'STK_NQTY'
+        'STK_NQTY',
+        'STK_CBODEGA'
 
         ]
         labels = '__all__'

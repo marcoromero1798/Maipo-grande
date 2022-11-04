@@ -101,6 +101,12 @@
                         {% else %}
                             <td><span class="fw-bold">Sin stock asignado</span></td>
                         {% endif %}
+                        <th style="width: 10%;"><span class="fw-bold">Bodega:</span></th>
+                        {% if objeto.STK_CBODEGA != None%}
+                            <td><span class="fw-bold">{{ objeto.STK_CBODEGA }}</span></td>
+                        {% else %}
+                            <td><span class="fw-bold">Sin bodega asignada</span></td>
+                        {% endif %}
                     </tr>
                 </tbody>
             </table>

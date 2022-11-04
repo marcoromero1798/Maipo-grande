@@ -302,7 +302,7 @@ class STOCK(models.Model):
     STK_NID = models.BigAutoField(("ID"), primary_key=True) 
     PC_NID = models.ForeignKey(PRODUCTO,verbose_name="ID Item",on_delete=models.PROTECT)
     STK_NQTY = models.IntegerField(("Valor Transacción"))
-    STK_CBODEGA = models.CharField(("BODEGA"),max_length=100)
+    STK_CBODEGA = models.CharField(("BODEGA"),max_length=100,null=True,blank=True)
     class Meta:
         db_table = "STOCK"
     
@@ -402,6 +402,7 @@ class SUBASTA(models.Model):
     SU_PESO_TOTAL = models.DecimalField(("PRECIO"),max_digits=18,decimal_places=5) 
     SU_NREFRIGERACION = models.BooleanField(("REFRIGERACION"),default=False,null=True,blank=True)
     SU_NPROCESADO = models.BooleanField(("HABILITADO"),default=False,null=True,blank=True)    
+    SU_CTIPO_SOLICITUD = models.BooleanField(("HABILITADO"),default=False,null=True,blank=True)    
     SU_NESTADO = models.BooleanField(("HABILITADO"),default=False,null=True,blank=True)    
     SU_NTRANSPORTE_SELECCIONADO= models.ForeignKey(TRANSPORTE,on_delete=models.PROTECT,verbose_name="Documento origen",null = True,blank =True)
     class Meta:

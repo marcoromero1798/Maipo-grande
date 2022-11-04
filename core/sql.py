@@ -180,7 +180,8 @@ def stock_list_sql():
             "PRODUCTO"."PC_CCODIGO_PROD",
             "PRODUCTO"."PC_CDESCRIPCION",
             "STOCK"."STK_NQTY",	
-            "STOCK"."STK_NID"	
+            "STOCK"."STK_NID",	
+            "STOCK"."STK_CBODEGA"	
 
             FROM "PRODUCTO"
             LEFT JOIN "STOCK" ON "STOCK"."PC_NID_id" = "PRODUCTO"."PC_NID" 

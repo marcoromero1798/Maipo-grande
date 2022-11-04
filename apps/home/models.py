@@ -302,7 +302,7 @@ class STOCK(models.Model):
     STK_NID = models.BigAutoField(("ID"), primary_key=True) 
     PC_NID = models.ForeignKey(PRODUCTO,verbose_name="ID Item",on_delete=models.PROTECT)
     STK_NQTY = models.IntegerField(("Valor Transacción"))
-
+    STK_CBODEGA = models.CharField(("BODEGA"),max_length=100)
     class Meta:
         db_table = "STOCK"
     

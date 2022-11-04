@@ -37,9 +37,15 @@
 					</li>
 					{% if request.user.is_superuser == 1 or request.user.USER.UX_IS_ADMINISTRADOR == 1 %}
 						{% if object.OV_CESTADO == 'INICIADO' %}
-						<li>
-							<a class="nav-link text-info" href='#'onclick="obtener_mejor_producto('{{object.OV_NDOCUMENTO_ORIGEN}}','{{object.OV_NID}}')">Buscar mejores productos</a>
-						</li>
+							{% if object.OV_CTIPO_PROCESO == 'EXTERNO' %}
+							<li>
+								<a class="nav-link text-info" href='#'onclick="obtener_mejor_producto('{{object.OV_NDOCUMENTO_ORIGEN}}','{{object.OV_NID}}')">Buscar mejores productos</a>
+							</li>
+							{% else %}
+							<li>
+								<a class="nav-link text-info" href="{% url 'tr-orden_venta_subasta' object.OV_NID %}">Subastar Transporte</a>
+							</li>
+							{% endif %}
 						{% else %}
 							{% if object.OV_CESTADO == 'SELECCION' %}
 							<li>
@@ -168,6 +174,7 @@
 											<a class="nav-link text-uppercase" id="despacho-tab" data-toggle="tab" href="#despacho" role="tab" aria-controls="despacho" aria-selected="false">despacho</a>
 										</li> -->
 									</ul>
+									
 									<div class="tab-content" id="myTabContent">
 										<div class="tab-pane fade show active" id="solicitud" role="tabpanel" aria-labelledby="solicitud-tab">
 											<table class="table invoice-detail-table" id="simpletable1">
@@ -176,16 +183,24 @@
 													<th scope="row" class="border-0" >Linea</th>
 													<th scope="row" class="border-0" >Producto</th>
 													<th scope="row" class="border-0" >Cantidad</th>
+													{% if object.OV_CTIPO_PROCESO == 'EXTERNO' %}
 													<th scope="row" class="border-0" >Estado</th>
+													{% endif %}
 												</tr>
 												</thead>
 												<tbody>
 													{% for object in instancia_sc %}
 													<tr>
 														<td>{{object.SC_NLINEA}}</td>
+														{% if object.CP_NID %}
 														<td>{{object.CP_NID}}</td>
+														{% else %}
+														<td>{{object.PC_NID}}</td>
+														{% endif %}
 														<td>{{object.SCD_NQTY}}</td>
+														{% if CP_NID != None %}
 														<td>{{object.ESTADO_PEDIDO}}</td>
+														{% endif %}
 													</tr>
 													{% endfor %}
 												</tbody>

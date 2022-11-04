@@ -264,9 +264,11 @@ def stock_list(request):
                 request, 'Usuario no habiltado, contactese con un administrador')
             return render(request, 'home/sy-stk_list.html', context)
         else:
-            stock = stock_list_sql()
+            stock_externa = stock_list_sql_externa()
+            stock_interna = stock_list_sql_interna()
         context = {
-            'object_list': stock
+            'object_list_interna': stock_interna,
+            'object_list_externa': stock_externa
         }
         return render(request, 'home/sy-stk_list.html', context)
 
@@ -298,7 +300,11 @@ class stock_update(UpdateView):
     form_class = formSTOCK  # Formulario definido en forms.py
     template_name = 'home/sy-stk_create.html'  # html template en core
     success_url = reverse_lazy("sy-stk_list")
-
+    def form_valid(self, form, **kwargs):
+        # INDICA EL USUARIO ACTUAL
+        form.instance.STK_CBODEGA = 'EXTERNA'
+        retorno = super(UpdateView, self).form_valid(form)
+        return retorno
     def get_success_url(self, **kwargs):
         # if you are passing 'pk' from 'urls' to 'DeleteView' for company
         # capture that 'pk' as companyid and pass it to 'reverse_lazy()' function
@@ -1383,6 +1389,18 @@ class OV_Update(UpdateView):
     form_class = formOV
     template_name = 'home/tr-ov_create.html'  # html template en core
     success_url = reverse_lazy("tr-list")
+
+# class SC_Create( CreateView):
+#     model = SOLICITUD_COMPRA  # Modelo a utilizar
+#     form_class = formOV
+#     template_name = 'home/tr-ov_create.html'  # html template en core
+#     success_url = reverse_lazy("tr-list")
+
+# class OV_Update(UpdateView):
+#     model = ORDEN_VENTA  # Modelo a utilizar
+#     form_class = formOV
+#     template_name = 'home/tr-ov_create.html'  # html template en core
+#     success_url = reverse_lazy("tr-list")
 
 
 #PROCESOS

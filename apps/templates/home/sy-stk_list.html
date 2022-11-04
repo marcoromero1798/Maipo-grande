@@ -35,6 +35,17 @@
                 Nuevo
             </a>
         </div>
+        &nbsp
+        
+        {% if request.user.is_superuser == 1 or request.user.USER.UX_IS_ADMINISTRADOR == 1 %}
+                   
+            <div class="btn-toolbar mb-2 mb-md-0 float-right">
+                <a href="{% url 'sy-stk_traspaso' %}" class="btn btn-secondary ">
+                    <i class="feather icon-plus"></i> 
+                    Generar saldo
+                </a>
+            </div>
+        {% endif %}
         <!--DATOS DE LA TABLA-->
         <div class="card card-body border-0 shadow table-wrapper table-responsive">
             <table class="table table-hover" id="basic-btn">
@@ -42,6 +53,7 @@
                     <tr>
                             <th class="border-gray-200" scope="col">Codigo</th>
                             <th class="border-gray-200" scope="col">Descripcion</th>
+                            <th class="border-gray-200" scope="col">Bodega</th>
                             <th class="border-gray-200" scope="col">Cantidad</th>
                             <th class="border-gray-200" scope="col">Acciones</th>
                     </tr>
@@ -50,8 +62,13 @@
                     {% for objeto in object_list %}
                     
                     <tr>
-                        <th><span class="fw-normal">{{ objeto.1 }}</span></th>
                         <td><span class="fw-bold">{{ objeto.2 }}</span></td>
+                        <th><span class="fw-normal">{{ objeto.1 }}</span></th>
+                        {% if objeto.5 != None %}
+                            <td><span class="fw-bold">{{ objeto.3 }}</span></td>
+                        {% else %}
+                            <td><span class="fw-bold">Sin bodega asignado</span></td>
+                        {% endif %}    
                         {% if objeto.3 != None %}
                             <td><span class="fw-bold">{{ objeto.3 }}</span></td>
                         {% else %}

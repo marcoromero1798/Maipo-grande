@@ -35,52 +35,56 @@
         <div class="row">
             {% for objeto in object_list %}
                 {% if objeto.CP_NHABILITADO %}
-                <div class="col-md-6 col-xl-4">
-                    <div class="card">
-                        <div class="card-body">
-                            {% comment %} {% if objeto.PC_FOTO %}
-                            <img src="{{ objeto.PC_FOTO.url }}">
-                            {% endif %} {% endcomment %}
+                    <div class="col-md-6 col-xl-4">
+                        <div class="card">
+                            <div class="card-body">
+                                {% comment %} {% if objeto.PC_FOTO %}
+                                <img src="{{ objeto.PC_FOTO.url }}">
+                                {% endif %} {% endcomment %}
 
-                            <p class="card-text"> DESCRIPCION: {{ objeto.CP_CDESCRIPCION }}</p>
-                            <td>
-                                {% if user.is_authenticated %}
-                                <a class="btn btn-success" data-toggle="modal" data-target="#modal-shopping-cart{{ objeto.CP_NID|unlocalize }}"><i class="feather icon-shopping-cart"></i></a>
-                                {% endif %}
-                            </td>
+                                <p class="card-text">DESCRIPCION: {{ objeto.CP_CDESCRIPCION }}</p>
+                                <td>
+                                    {% if user.is_authenticated %}
+                                    <a class="btn btn-success" data-toggle="modal" data-target="#modal-shopping-cart{{ objeto.CP_NID|unlocalize }}"><i class="feather icon-shopping-cart"></i></a>
+                                    {% endif %}
+                                </td>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="modal fade" id="modal-shopping-cart{{ objeto.CP_NID|unlocalize }}" tabindex="-1" role="dialog"
-                aria-labelledby="modal-shopping-cart{{ objeto.CP_NID|unlocalize }}" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Agregar Tipo de producto al Carro</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                    aria-hidden="true">×</span></button>
 
-                        </div>
-                        <div class="modal-body">
-                            <p>
-                                Ingresar cantidad del producto: {{ objeto.CP_CDESCRIPCION|unlocalize }}?
-                            </p>
-                            <input id="cantidad_ingresada-'{{ objeto.CP_NID|unlocalize }}'" type="number" class="form-control" step="1">
-                        </div>
-                        <div class="modal-footer">
-                            <a onclick="envio_datos('{{ objeto.CP_NID|unlocalize }}')"  class="btn btn-success"
-                                type="button">Confirmar</a>
-                            <button type="button" class="btn  btn-secondary" data-dismiss="modal">Cerrar</button>
 
-                        </div>
-                    </div>
-                </div>
                 {% endif %}
                
             {% endfor %}
         </div>
     </div>
 </section>
+{% for objeto in object_list %}
+<div class="modal fade" id="modal-shopping-cart{{ objeto.CP_NID|unlocalize }}" tabindex="-1" role="dialog"
+aria-labelledby="modal-shopping-cart{{ objeto.CP_NID|unlocalize }}" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Agregar Tipo de producto al Carro</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                    aria-hidden="true">×</span></button>
+
+        </div>
+        <div class="modal-body">
+            <p>
+                Ingresar cantidad del producto: {{ objeto.CP_CDESCRIPCION|unlocalize }}?
+            </p>
+            <input id="cantidad_ingresada-'{{ objeto.CP_NID|unlocalize }}'" type="number" class="form-control" step="1">
+        </div>
+        <div class="modal-footer">
+            <a onclick="envio_datos('{{ objeto.CP_NID|unlocalize }}')"  class="btn btn-success"
+                type="button">Confirmar</a>
+            <button type="button" class="btn  btn-secondary" data-dismiss="modal">Cerrar</button>
+
+        </div>
+    </div>
+</div>
+{% endfor %}
 {% endblock content %}
 
 

@@ -87,6 +87,7 @@
                             <td><span class="fw-bold">{{ objeto.PR_NID.PR_CDESCRIPCION }}</span></td>
                             
                             <td>
+                                {% if user.is_superuser %}
                                 <a class="btn btn-secondary" href="{% url 'sy-pc_update' objeto.PC_NID|unlocalize %}"><i class="feather icon-edit"></i> </a>
                                 <a class="btn btn-info" href="{% url 'sy-pc_listone' objeto.PC_NID|unlocalize %}"><i class="feather icon-eye"></i> </a>
                                 <a class="btn btn-danger" data-toggle="modal" data-target="#modal-default{{ objeto.PC_NID|unlocalize }}"><i class="feather icon-x-square"></i></a>

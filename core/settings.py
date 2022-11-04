@@ -87,9 +87,9 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'Maipo_grande', 
+        'NAME': 'MG iteracion 2', 
         'USER': 'postgres', 
-        'PASSWORD': 'admin',
+        'PASSWORD': '12345',
         'HOST': '127.0.0.1', 
         'PORT': '5432',
     }

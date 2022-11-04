@@ -250,6 +250,35 @@ class formTRANSPORTE(forms.ModelForm):
             'TRA_NREFRIGERACION': forms.CheckboxInput(attrs={'class': 'form-control','type':'checkbox'}),
             
         }
+class formOVD(forms.ModelForm):
+    class Meta:
+        model = ORDEN_VENTA_DETALLE    	
+        fields = [
+        'PC_NID',
+        'OVD_NQTY',
+        'OVD_NPRECIO'
+        ]
+        labels = '__all__'
+        widgets = {        
+            'OVD_NQTY': forms.TextInput(attrs={'class': 'form-control','type':'number'}),
+            'OVD_NPRECIO': forms.TextInput(attrs={'class': 'form-control','type':'number'}),
+            'PC_NID': forms.Select(attrs={'class': 'form-control','type':'number'})
+           
+        }
+class formSUD(forms.ModelForm):
+    class Meta:
+        model = SUBASTA_DETALLE    	
+        fields = [
+        'TRA_NID',
+        'TR_NID',
+        'SUD_NCOBRO'
+        ]
+        labels = '__all__'
+        widgets = {        
+            'SUD_NCOBRO': forms.TextInput(attrs={'class': 'form-control','type':'number'}),
+            'TRA_NID': forms.Select(attrs={'class': 'form-control','type':'number'}),
+            'TR_NID': forms.Select(attrs={'class': 'form-control','type':'number'})      
+        }
 class formOV(forms.ModelForm):
     class Meta:
         model = ORDEN_VENTA  	

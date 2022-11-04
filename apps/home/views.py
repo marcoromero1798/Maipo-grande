@@ -1891,7 +1891,7 @@ class direccion_create(CreateView):
         historial_acciones = []        
         historial_acciones = LOG_ACCIONES(
                 US_NID_id = self.request.user.id,
-                LG_FFECHA_ACCION = date.datetime.now(), 
+                LG_FFECHA_ACCION = datetime.now(), 
                 LG_CSECCION = 'SISTEMA' ,
                 LG_CMODULO='DIRECCION',
                 LG_CACCION ='CREACION'
@@ -1912,7 +1912,7 @@ class direccion_update(UpdateView):
         historial_acciones = []        
         historial_acciones = LOG_ACCIONES(
                 US_NID_id = self.request.user.id,
-                LG_FFECHA_ACCION = date.datetime.now(), 
+                LG_FFECHA_ACCION = datetime.now(), 
                 LG_CSECCION = 'SISTEMA' ,
                 LG_CMODULO='DIRECCION',
                 LG_CACCION ='MODIFICACION'
@@ -1954,7 +1954,7 @@ def direccion_deshabilitar(request,pk):
     historial_acciones = []        
     historial_acciones = LOG_ACCIONES(
                 US_NID_id = request.user.id,
-                LG_FFECHA_ACCION = date.datetime.now(), 
+                LG_FFECHA_ACCION = datetime.now(), 
                 LG_CSECCION = 'SISTEMA' ,
                 LG_CMODULO='DIRECCION',
                 LG_CACCION ='DESHABILITADO'

@@ -33,6 +33,8 @@ urlpatterns = [
     path('sy-pc_listone/<int:pk>', login_required(views.producto_listone), name='sy-pc_listone'),
     path('sy-pc_update/<int:pk>', login_required(views.producto_update.as_view()), name='sy-pc_update'),
     path('sy-pc_deshabilitar/<int:pk>', login_required(views.producto_deshabilitar), name='sy-pc_deshabilitar'),
+    path('sy-pc_list_compra', login_required(views.producto_list_compra), name='sy-pc_list_compra'),
+
     #PRODUCTOR
     path('sy-pr_create', login_required(views.productor_create.as_view()), name='sy-pr_create'),
     path('sy-pr_list', login_required(views.productor_list), name='sy-pr_list'),
@@ -107,6 +109,7 @@ urlpatterns = [
     #TRASPASO
     path('tr-carro_solicitud/<int:us_nid>', login_required(views.generar_solicitud), name='tr-carro_solicitud'),
     path('tr-solicitud_orden_venta/<int:sc_nid>', login_required(views.generar_orden_venta), name='tr-solicitud_orden_venta'),
+    path('tr-solicitud_orden_venta_completa/<int:sc_nid>', login_required(views.generar_orden_venta_completa), name='tr-solicitud_orden_venta_completa'),
     path('tr-orden_venta_subasta/<int:ov_nid>', login_required(views.generar_subasta), name='tr-orden_venta_subasta'),
     #SELECCION DE PRODUCTOS
     path('buscar_productos/<int:ov_nid>', login_required(views.obtener_mejor_producto), name='buscar_productos'),

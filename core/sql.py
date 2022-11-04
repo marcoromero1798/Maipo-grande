@@ -67,18 +67,157 @@ def listarParametros(grupo, retValue, retDisplay):
         if resultado == None:
             return None
         return resultado
-
-
-def listarPerfil():
+def nextLine_OV(ov_nid):
     with connection.cursor() as cursor:
-        cquery = f''' SELECT "USERS_EXTENSION".id,"USERS_EXTENSION"."UX_CRUT",auth_user.email,"USERS_EXTENSION"."UX_CTELEFONO"  FROM "USERS_EXTENSION"
-                      INNER JOIN auth_user ON auth_user.id = "USERS_EXTENSION"."US_NID_id" WHERE "USERS_EXTENSION"."US_NID_id" = 1'''
+        cquery = f'select COALESCE(max("OVD_NLINEA"),0) + 1 from "ORDEN_VENTA_DETALLE" where "OV_NID_id" = {ov_nid}'
         cursor.execute(cquery)
-        rawData = cursor.fetchall()
-        result = []
-        for r in rawData:
-            result.append(list(r))
-        context = {'consultas': result}
-        
+        resultado = cursor.fetchone()
+        return resultado[0]
+
+def nextLine_SC(sc_nid):
+    with connection.cursor() as cursor:
+        cquery = f'select COALESCE(max("SC_NLINEA"),0) + 1 from "SOLICITUD_COMPRA_DETALLE" where "SC_NID_id" = {sc_nid}'
+        cursor.execute(cquery)
+        resultado = cursor.fetchone()
+        return resultado[0]
+
+def nextSC_NID():
+    with connection.cursor() as cursor:
+        cquery = f'select COALESCE(max("SC_NID"),0) + 1  from "SOLICITUD_COMPRA"'
+        cursor.execute(cquery)
+        resultado = cursor.fetchone()
+        return resultado[0]
+def nextOV_NID():
+    with connection.cursor() as cursor:
+        cquery = f'select COALESCE(max("OV_NID"),0) + 1  from "ORDEN_VENTA"'
+        cursor.execute(cquery)
+        resultado = cursor.fetchone()
+        return resultado[0]
+def nextSU_NID():
+    with connection.cursor() as cursor:
+        cquery = f'select COALESCE(max("SU_NID"),0) + 1  from "SUBASTA"'
+        cursor.execute(cquery)
+        resultado = cursor.fetchone()
+        return resultado[0]
+def resumen_carro(US_NID):
+    with connection.cursor() as cursor:
+        cquery = f'''
+        SELECT 
+		"CATEGORIA_PRODUCTO"."CP_CDESCRIPCION",
+        "CARRO_COMPRA"."CC_NQTY"
+        FROM "CARRO_COMPRA" 
+        LEFT JOIN "CATEGORIA_PRODUCTO" on "CATEGORIA_PRODUCTO"."CP_NID" = "CARRO_COMPRA"."CP_NID_id"
+        WHERE "CARRO_COMPRA"."CC_NESTADO" = TRUE 
+        AND "CARRO_COMPRA"."US_NID_id" = {US_NID}'''
+
+        cursor.execute(cquery)
+        resultado = cursor.fetchall()
+        if resultado == None:
+            return None
+        return resultado
+def detalle_carro(US_NID):
+    with connection.cursor() as cursor:
+        cquery = f'''
+        SELECT
+        "USERS_EXTENSION"."UX_CRUT",
+        "USERS_EXTENSION"."UX_CTELEFONO",
+        CASE 
+        WHEN "CLIENTE_INTERNO"."CLI_CCORREO" is NULL THEN "CLIENTE_EXTERNO"."CLE_CCORREO"
+        end as correo
 
 
+
+        FROM "USERS_EXTENSION"
+        LEFT JOIN "CLIENTE_EXTERNO" ON "CLIENTE_EXTERNO"."US_NID_id" = "USERS_EXTENSION"."US_NID_id"
+        LEFT JOIN "CLIENTE_INTERNO" ON "CLIENTE_INTERNO"."US_NID_id" = "USERS_EXTENSION"."US_NID_id"
+        WHERE "USERS_EXTENSION"."US_NID_id" = {US_NID}'''
+
+        cursor.execute(cquery)
+        resultado = cursor.fetchall()
+        if resultado == None:
+            return None
+        return resultado
+def detalle_solicitud(CP_NID,SC_NID):
+    with connection.cursor() as cursor:
+        cquery = f'''
+                SELECT 
+                    SUM(SD."SCD_NQTY") AS CANTIDAD_SC
+                FROM "SOLICITUD_COMPRA_DETALLE" AS SD
+                LEFT JOIN "CATEGORIA_PRODUCTO" AS CP ON CP."CP_NID" = SD."CP_NID_id"
+
+                WHERE CP."CP_NID" IS NOT NULL AND CP."CP_NID" = {CP_NID} AND SD."SC_NID_id" = {SC_NID}
+                GROUP BY CP."CP_NID",SD."SC_NID_id" '''
+
+        cursor.execute(cquery)
+        resultado = cursor.fetchone()
+        if resultado == None:
+            return None
+        return resultado[0]
+def detalle_ov(CP_NID,SC_NID):
+    with connection.cursor() as cursor:
+        cquery = f'''
+SELECT 
+
+SUM(OVD."OVD_NQTY") AS CANTIDAD_OV
+FROM "ORDEN_VENTA_DETALLE" AS OVD
+LEFT JOIN "ORDEN_VENTA" AS OV ON OV."OV_NID" = OVD."OV_NID_id"
+LEFT JOIN "PRODUCTO" AS PC ON OVD."PC_NID_id" = PC."PC_NID"
+LEFT JOIN "CATEGORIA_PRODUCTO" AS CP ON CP."CP_NID" = PC."CP_NID_id"
+WHERE OV."OV_NDOCUMENTO_ORIGEN_id" = {SC_NID} and CP."CP_NID" ={CP_NID}
+GROUP BY CP."CP_NID",OV."OV_NDOCUMENTO_ORIGEN_id"
+'''
+
+        cursor.execute(cquery)
+        resultado = cursor.fetchone()
+        if resultado == None:
+            return None
+        return resultado[0]
+def stock_list_sql():
+    with connection.cursor() as cursor:
+        cquery = f'''
+            SELECT 
+            "PRODUCTO"."PC_NID",
+            "PRODUCTO"."PC_CCODIGO_PROD",
+            "PRODUCTO"."PC_CDESCRIPCION",
+            "STOCK"."STK_NQTY",	
+            "STOCK"."STK_NID"	
+
+            FROM "PRODUCTO"
+            LEFT JOIN "STOCK" ON "STOCK"."PC_NID_id" = "PRODUCTO"."PC_NID" 
+            '''
+        cursor.execute(cquery)
+        resultado = cursor.fetchall()
+        if resultado == None:
+            return None
+        return resultado
+def data_clicle(us_nid,tabla):
+    if tabla == 'cle':
+        cquery = f'''
+        SELECT 
+        "CLE_NID", 
+        "CLE_CDESCRIPCION", 
+        "CLE_CCORREO", 
+        "CLE_NCONTACTO", 
+        "CLE_NHABILITADO",
+        "US_NID_id"
+        FROM auth_user
+        LEFT JOIN "CLIENTE_EXTERNO" AS "CLE" ON "CLE"."US_NID_id" = auth_user.id
+        WHERE auth_user.id = {us_nid}'''
+    else:
+        cquery = f'''
+        SELECT 
+        "CLI_NID", 
+        "CLI_CDESCRIPCION", 
+        "CLI_CCORREO", 
+        "CLI_NCONTACTO", 
+        "CLI_NHABILITADO",
+        "US_NID_id"
+        FROM auth_user
+        LEFT JOIN "CLIENTE_INTERNO" AS "CLI" ON "CLI"."US_NID_id" = auth_user.id
+        WHERE auth_user.id = {us_nid}'''
+    with connection.cursor() as cursor:
+        cursor.execute(cquery)
+        resultado = cursor.fetchone()
+        if resultado == None:
+            return None
+        return resultado

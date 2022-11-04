@@ -1,0 +1,291 @@
+{% extends "layouts/base.html" %}
+{% block title %} Lista de Productos {% endblock %}
+{% include 'includes/scripts.html' %}
+{% load crispy_forms_tags %}
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<link rel="stylesheet" href="/static/assets/css/plugins/dataTables.bootstrap4.min.css">
+{% endblock stylesheets %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% block content %}
+
+<section class="pcoded-main-container">
+    <div class="pcoded-content">
+        <div class="page-header">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <div class="col-md-12">
+                        <div class="page-header-title">
+                            <h5 class="m-b-10">Transacciones</h5>
+                        </div>
+                        <ul class="breadcrumb">
+
+                            <li class="breadcrumb-item"><a href="#!">Transacciones</a></li>
+                            <li class="breadcrumb-item"><a href="#!">Listado de Transacciones</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- <div class="btn-toolbar mb-1 mb-md-0 float-right">
+            <a href="{% url 'sy-pc_create' %}" class="btn btn-secondary ">
+                <i class="feather icon-plus"></i>
+                Nuevo
+            </a>
+        </div>
+        <div class="form-group col-md-4">
+            <label for="category">Buscar por Categoria</label>
+            <form method="POST">
+            {% csrf_token %}
+            <select id="category" class="form-control" name="category">
+              <option selected>Categoria...</option>
+              {% for cat in categorias %}
+              <option value="{{ cat.CP_NID }}">{{ cat.CP_CDESCRIPCION}}</option>
+              {% endfor %}
+            </select>
+            <br>
+            <button type="submit" class="btn btn-primary">Buscar</button>
+            </form>
+          </div>
+        <br> -->
+
+        <!--LISTA DE PRODUCTOS ECOMERCE-->
+        <div class="row">
+            <div class="col-sm-12">
+                <!-- SOLICITUDES DE COMPRA -->
+                <div class="card">
+
+                <!-- ORDENES DE VENTA -->
+
+                    <div class="card-body">
+                        <ul class="nav nav-tabs mb-3" id="myTab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active text-uppercase" id="solicitud-tab" data-toggle="tab" href="#solicitud" role="tab" aria-controls="solicitud" aria-selected="true">Solicitud de compra</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-uppercase" id="orden_venta-tab" data-toggle="tab" href="#orden_venta" role="tab" aria-controls="orden_venta" aria-selected="false">Orden de venta</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-uppercase" id="subasta-tab" data-toggle="tab" href="#subasta" role="tab" aria-controls="subasta" aria-selected="false">Subasta</a>
+                            </li>
+                            <!-- <li class="nav-item">
+                                <a class="nav-link text-uppercase" id="despacho-tab" data-toggle="tab" href="#despacho" role="tab" aria-controls="despacho" aria-selected="false">despacho</a>
+                            </li> -->
+                        </ul>
+                        <div class="tab-content" id="myTabContent">
+                            <div class="tab-pane fade show active" id="solicitud" role="tabpanel" aria-labelledby="solicitud-tab">
+                                <table class="table table-hover" id="basic-btn3">
+                                    <thead>
+                                        <th>Acciones</th>
+                                        <th>Nro. documento</th>
+                                        <th>Usuario</th>
+                                        <th>Tipo cambio</th>
+                                        <th>Fecha creación</th>
+                                        <th>Fecha procesamiento</th>
+                                        <th>Procesado</th>
+                                    </thead>
+                                    
+                                    <tbody>
+                                        {% for object in object_list_sc %}
+                                        <tr>
+                                            <td>
+                                                <a class="btn btn-info" href="{% url 'tr-sc_listone' object.SC_NID|unlocalize %}"><i class="feather icon-eye"></i> </a>          
+                                                <!-- <a class="btn btn-danger" data-toggle="modal" data-target="#modal-default{{ objeto.CON_NID|unlocalize }}"><i class="feather icon-x-square"></i></a> -->
+                                            </td>
+                                            <td>{{object.SC_NID}}</td>
+                                            <td>{{object.US_NID.username}}</td>
+                                            <td>{{object.TC_NID}}</td>
+                                            <td>{{object.SC_FFECHA_CREACION}}</td>
+                                            
+                                            {% if object.SC_FFECHA_PROCESAMIENTO != None %}
+                                                <td>{{object.SC_FFECHA_PROCESAMIENTO}}</td>
+                                            {% else %}
+                                                <td>Sin Procesar</td>
+                                            {% endif %}
+                                            {% if object.SC_NPROCESADO == True %}
+                                                <td>Procesado</td>
+                                            {% else %}
+                                                <td>Sin Procesar</td>
+                                            {% endif %}
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="tab-pane fade" id="orden_venta" role="tabpanel" aria-labelledby="orden_venta-tab">
+                                <table class="table table-hover" id="basic-btn2">
+                                    <thead>
+                                        <th>Acciones</th>
+                                        <th>Nro. Documento</th>
+                                        <th>Usuario</th>
+                                        <th>Tipo cambio</th>
+                                        <th>Fecha creación</th>
+                                        <th>Fecha procesamiento</th>
+                                        <th>Procesado</th>
+                                    </thead>
+                                    
+                                    <tbody>
+                                        {% for object in object_list_ov %}
+                                        <tr>
+                                            <td>
+                                                <a class="btn btn-info" href="{% url 'tr-ov_listone' object.OV_NID|unlocalize %}"><i class="feather icon-eye"></i> </a>                                                
+                                                <a class="btn btn-secondary" href="{% url 'tr-ov_update' object.OV_NID|unlocalize %}"><i class="feather icon-edit"></i> </a>                                                
+                                            </td>
+                                            <td>{{object.OV_NID}}</td>
+                                            <td>{{object.US_NID}}</td>
+                                            <td>{{object.TC_NID}}</td>
+                                            <td>{{object.OV_FFECHA_CREACION}}</td>
+                                            <td>{{object.OV_FFECHA_PROCESAMIENTO}}</td>
+                                            {% if object.OV_NPROCESADO == True %}
+                                                <td>Procesado</td>
+                                            {% else %}
+                                                <td>Sin Procesar</td>
+                                            {% endif %}
+                                            {% endfor %}
+                                        </tr>
+                                        </tbody>
+                                </table>
+                            </div>
+                            <div class="tab-pane fade" id="subasta" role="tabpanel" aria-labelledby="subasta-tab">
+                                <table class="table table-hover" id="basic-btn4">
+                                    <thead>
+                                        <th>Acciones</th>
+                                        <th>Nro. Documento</th>
+                                        <th>Usuario</th>
+                                        <th>Tipo cambio</th>
+                                        <th>Vigencia</th>
+                                        <th>Procesado</th>
+                                    </thead>
+                                    
+                                    <tbody>
+                                        {% for object in object_list_su %}
+                                        <tr>
+                                            <td>
+                                                <a class="btn btn-info" href="{% url 'tr-su_listone' object.SU_NID|unlocalize %}"><i class="feather icon-eye"></i> </a>                                               
+                                                 {% comment %} <a class="btn btn-danger" data-toggle="modal" data-target="#modal-default{{ objeto.CON_NID|unlocalize }}"><i class="feather icon-x-square"></i></a> {% endcomment %}
+                                            </td>
+                                            <td>{{object.SU_NID}}</td>
+                                            <td>{{object.US_NID}}</td>
+                                            <td>{{object.TC_NID}}</td>
+                                            <td>{{object.VIGENCIA}}</td>
+                                            {% if object.SU_NPROCESADO == True %}
+                                                <td>Procesado</td>
+                                            {% else %}
+                                                <td>Sin Procesar</td>
+                                            {% endif %}
+                                            {% endfor %}
+                                        </tr>
+                                        </tbody>
+                                </table>
+                            </div>
+                            <!-- <div class="tab-pane fade" id="despacho" role="tabpanel" aria-labelledby="despacho-tab">
+                                <table id="simpletable2">
+                                    <thead></thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div> -->
+                        </div>
+                    </div>
+                </div>
+        </div>
+
+        <!-- {% for objeto in object_list %}
+        <div class="modal fade" id="modal-default{{ objeto.PC_NID|unlocalize }}" tabindex="-1" role="dialog"
+            aria-labelledby="modal-default{{ objeto.PC_NID|unlocalize }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmar</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">×</span></button>
+
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            Esta Seguro que desea eliminar {{ objeto.PC_NID|unlocalize }}?
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="{% url 'sy-pc_deshabilitar' objeto.PC_NID|unlocalize %}" class="btn btn-danger"
+                            type="button">Eliminar</a>
+                        <button type="button" class="btn  btn-secondary" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% for objeto in object_list %}
+        <div class="modal fade" id="modal-shopping-cart{{ objeto.PC_NID|unlocalize }}" tabindex="-1" role="dialog"
+            aria-labelledby="modal-shopping-cart{{ objeto.PC_NID|unlocalize }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Agregar Producto al Carro</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">×</span></button>
+
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            Ingresar cantidad del producto: {{ objeto.PC_NID|unlocalize }}?
+                        </p>
+                        <input id="cantidad" type="number" class="form-control" step="1">
+                    </div>
+                    <div class="modal-footer">
+                        <a onclick="envio_datos('{{ objeto.PC_NID|unlocalize }}')" id="#send_btn" class="btn btn-success"
+                            type="button">Confirmar</a>
+                        <button type="button" class="btn  btn-secondary" data-dismiss="modal">Cerrar</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% endfor %} -->
+    </div>
+</section>
+{% endblock content %}
+
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>
+function envio_datos(pc_nid) {
+    var cantidad = $("#cantidad").val();
+    console.log(cantidad)
+    $.ajax({
+        url: "sy-envio_datos",
+        method: "POST",
+        data: {
+            cantidad_ingresada : cantidad,
+            id:pc_nid,
+            csrfmiddlewaretoken: '{{ csrf_token }}' 
+        },
+        success: function (response) {
+            location.reload();
+        }
+
+    })
+
+
+}
+
+
+</script>
+<!-- datatable Js -->
+<script src="/static/assets/js/plugins/jquery.dataTables.min.js"></script>
+<script src="/static/assets/js/plugins/dataTables.bootstrap4.min.js"></script>
+<script src="/static/assets/js/plugins/buttons.colVis.min.js"></script>
+<script src="/static/assets/js/plugins/buttons.print.min.js"></script>
+<script src="/static/assets/js/plugins/pdfmake.min.js"></script>
+<script src="/static/assets/js/plugins/jszip.min.js"></script>
+<script src="/static/assets/js/plugins/dataTables.buttons.min.js"></script>
+<script src="/static/assets/js/plugins/buttons.html5.min.js"></script>
+<script src="/static/assets/js/plugins/buttons.bootstrap4.min.js"></script>
+<script src="/static/assets/js/pages/data-export-custom.js"></script>
+
+
+{% endblock javascripts %}

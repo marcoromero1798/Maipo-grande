@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: )utf-8 -*-
 """
 Copyright (c) 2019 - present AppSeed.us
 """
@@ -24,12 +24,12 @@ urlpatterns = [
     #CATEGORIA
     path('sy-cp_create', login_required(views.categoria_create.as_view()), name='sy-cp_create'),
     path('sy-cp_list', login_required(views.categoria_list), name='sy-cp_list'),
+    path('sy-cp_list_compra', login_required(views.categoria_list_compra), name='sy-cp_list_compra'),
     path('sy-cp_update/<int:pk>', login_required(views.categoria_update.as_view()), name='sy-cp_update'),
     path('sy-cp_deshabilitar/<int:pk>', login_required(views.categoria_deshabilitar), name='sy-cp_deshabilitar'),
     #PRODUCTO
     path('sy-pc_create', login_required(views.producto_create.as_view()), name='sy-pc_create'),
     path('sy-pc_list', login_required(views.producto_list), name='sy-pc_list'),
-    path('sy-pc_carro', login_required(views.añadir_carro), name='sy-pc_carro'),
     path('sy-pc_listone/<int:pk>', login_required(views.producto_listone), name='sy-pc_listone'),
     path('sy-pc_update/<int:pk>', login_required(views.producto_update.as_view()), name='sy-pc_update'),
     path('sy-pc_deshabilitar/<int:pk>', login_required(views.producto_deshabilitar), name='sy-pc_deshabilitar'),
@@ -53,6 +53,12 @@ urlpatterns = [
     path('sy-tr_list', login_required(views.transportista_list), name='sy-tr_list'),
     path('sy-tr_update/<int:pk>', login_required(views.transportista_update.as_view()), name='sy-tr_update'),
     path('sy-tr_deshabilitar/<int:pk>', login_required(views.transportista_deshabilitar), name='sy-tr_deshabilitar'),
+    #TRANSPORTE
+    path('sy-tra_create/<int:tr_nid>', login_required(views.transporte_create.as_view()), name='sy-tra_create'),
+    path('sy-tra_update/<int:pk>', login_required(views.transporte_update.as_view()), name='sy-tra_update'),
+    path('sy-tra_list', login_required(views.transporte_list), name='sy-tra_list'),
+    path('sy-tra_deshabilitar/<int:pk>', login_required(views.transporte_deshabilitar), name='sy-tra_deshabilitar'),
+
     #CONSULTOR
     path('sy-con_create', login_required(views.consultor_create.as_view()), name='sy-con_create'),
     path('sy-con_list', login_required(views.consultor_list), name='sy-con_list'),
@@ -62,6 +68,47 @@ urlpatterns = [
     #LOG PROCESOS - LOG ACCIONES
     # path('sy-cp_create', login_required(views.categoria_create.as_view()), name='sy-cp_create'),
     # path('sy-cp_list', login_required(views.categoria_list), name='sy-cp_list'),
+    #STOCK
+    path('sy-stk_create', login_required(views.stock_create.as_view()), name='sy-stk_create'),
+    path('sy-stk_update/<int:pk>', login_required(views.stock_update.as_view()), name='sy-stk_update'),
+    path('sy-stk_list', login_required(views.stock_list), name='sy-stk_list'),
+    # path('sy-con_deshabilitar/<int:pk>', login_required(views.consultor_deshabilitar), name='sy-con_deshabilitar'),
+    # path('sy-envio_datos', login_required(views.carrito_compra), name='sy-envio_datos'),
+    #TRANSACCIONALES
+    path('tr-list', login_required(views.Transacciones_list), name='tr-list'),
+    # path('tr-carro_list', login_required(views.solicitud_compra_list), name='tr-carro_list'),
+    #CARRITO COMPRA
+    path('tr-carro_resumen/<int:us_nid>', login_required(views.carrito_compra_resumen), name='tr-carro_resumen'),
+    path('tr-carro_detalle', login_required(views.carrito_compra_listone), name='tr-carro_detalle'),
+    path('tr-carro_delete/<int:cc_nid>', login_required(views.carrito_compra_delete), name='tr-carro_delete'),
+
+
+    #SOLICITUD COMPRA
+    path('tr-sc_listone/<int:sc_nid>', login_required(views.solicitud_compra_listone), name='tr-sc_listone'),
+    # path('tr-sc_list', login_required(views.solicitud_compra_list), name='tr-sc_listone'),
+
+    #ORDEN DE VENTA
+    path('tr-ov_listone/<int:ov_nid>', login_required(views.orden_venta_listone), name='tr-ov_listone'),
+    path('tr-ov_create', login_required(views.OV_Create.as_view()), name='tr-ov_create'),
+    path('tr-ov_update/<int:pk>', login_required(views.OV_Update.as_view()), name='tr-ov_update'),
+    #ORDEN DE VENTA DETALLE
+    path('tr-ovd_create/<int:ov_nid>', login_required(views.orden_venta_detalle_create), name='tr-ovd_create'),
+    path('tr-ovd_update/<int:pk>', login_required(views.OVD_Update.as_view()), name='tr-ovd_update'),
+    path('tr-ovd_delete/<int:id>', login_required(views.orden_venta_detalle_delete), name='tr-ovd_delete'),
+    #SUBASTA 
+    path('tr-su_listone/<int:su_nid>', login_required(views.subasta_listone), name='tr-su_listone'),
+    path('tr-sud_create/<int:su_nid>', login_required(views.subasta_detalle_create), name='tr-sud_create'),
+    path('tr-sud_delete/<int:id>', login_required(views.subasta_detalle_delete), name='tr-sud_delete'),
+    path('tr-sud_update/<int:pk>', login_required(views.SUD_Update.as_view()), name='tr-sud_update'),
+    path('tr-sud_iniciar/<int:su_nid>', login_required(views.iniciar_subasta), name='tr-sud_iniciar'),
+    path('tr-sud_terminar/<int:su_nid>', login_required(views.terminar_subasta), name='tr-sud_terminar'),
+    
+    #TRASPASO
+    path('tr-carro_solicitud/<int:us_nid>', login_required(views.generar_solicitud), name='tr-carro_solicitud'),
+    path('tr-solicitud_orden_venta/<int:sc_nid>', login_required(views.generar_orden_venta), name='tr-solicitud_orden_venta'),
+    path('tr-orden_venta_subasta/<int:ov_nid>', login_required(views.generar_subasta), name='tr-orden_venta_subasta'),
+    #SELECCION DE PRODUCTOS
+    path('buscar_productos/<int:ov_nid>', login_required(views.obtener_mejor_producto), name='buscar_productos'),
     #DIRECCION
     path('sy-dir_create', login_required(views.direccion_create.as_view()), name='sy-dir_create'),
     path('sy-dir_list', login_required(views.direccion_list), name='sy-dir_list'),
@@ -73,6 +120,7 @@ urlpatterns = [
     path('user-profile.html', login_required(views.info_perfil), name='user-profile'),
 
     
+
     # Matches any html file
     re_path(r'^.*\.*', views.pages, name='pages'),
 

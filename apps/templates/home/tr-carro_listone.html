@@ -1,0 +1,152 @@
+{% extends "layouts/base.html" %}
+{% block title %} Detalle Orden de compra {% endblock %} 
+{% include 'includes/scripts.html' %}
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+<section class="pcoded-main-container">
+	
+
+    <div class="pcoded-content">
+        <div class="page-header">
+			<div class="page-block">
+				<div class="row align-items-center">
+					<div class="col-md-12">
+						<div class="page-header-title">
+							<h5 class="m-b-10">Detalle Carro de compra</h5>
+						</div>
+						<ul class="breadcrumb">
+							<li class="breadcrumb-item"><a href="/dashboard-sugerido"><i class="feather
+										icon-home"></i></a></li>
+							<li class="breadcrumb-item"><a href="/tr-oc_list">Carro de compra</a></li>
+							<li class="breadcrumb-item"><a href="#!" onclick="window.history.go(-1); return false;">Volver</a></li>						
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<!-- [ Invoice ] start -->
+			<div class="container" id="printTable">
+				<div>
+					<div class="card">
+						<div class="card-body">
+							<div class="row invoive-info">
+								<div class="col-md-4 col-sm-6">
+									<h6>Informacion de contacto:</h6>
+									<table class="table table-responsive invoice-table invoice-order table-borderless">
+										<tbody>
+											{% for object in object_list_user %}
+											<tr>
+												<th style="width: 10%;"><span class="fw-bold">Rut Cliente:</span></th>
+												<td>{{object.0}}</td>
+											</tr>
+											<tr>
+												<th style="width: 10%;"><span class="fw-bold">Teléfono :</span></th>
+												<td>{{object.1}}</td>
+											</tr>
+											<tr>
+												{% comment %} <th>Estado :</th>
+													{% if objeto.OC_NPENDIENTE == 0 %}
+                    								    <td><span class="fw-bold text-danger">Pendiente</span></td>
+                    								{% else %}
+                    								    <td><span class="fw-bold text-success">Listo</span></td>
+                    								{% endif %} {% endcomment %}
+											</tr>
+											<tr>
+												<th style="width: 10%;"><span class="fw-bold">Correo:</span></th>
+												{% if objeto.2 == None %}
+													<td><span class="fw-bold text-danger">Sin correo asignado</span></td>
+												{% else %}
+													<td><span class="fw-bold text-success">{{objeto.2}}</span></td>
+												{% endif %}
+											</tr>
+											{% endfor %}
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-sm-12">
+									<div class="table-responsive">
+										<table class="table invoice-detail-table" id="simpletable">
+											<thead>
+												<tr class="thead-default">
+													<th scope="row" class="border-0" >Accion</th>
+													<th scope="row" class="border-0" >Descripcion</th>
+													<th scope="row" class="border-0" >Cantidad</th>
+												</tr>
+											</thead>
+											<tbody>
+												{% for object_lines in object_list %}
+												<tr>
+													<td><a class="btn btn-danger" data-toggle="modal" data-target="#modal-default{{ objeto.CC_NID|unlocalize }}"><i class='feather icon-trash-2'></i></a>														
+													<td scope="row" class="text-left fw-bold h6"><span class="fw-normal">{{ object_lines.CP_NID.CP_CDESCRIPCION}}</span></td>
+													<td ><span class="fw-normal">{{ object_lines.CC_NQTY  }}</span></td>
+												</tr>
+												<div class="modal fade" id="modal-default{{ objeto.CC_NID|unlocalize }}" tabindex="-1" role="dialog" aria-labelledby="modal-default{{ objeto.CC_NID|unlocalize }}" aria-hidden="true">
+													<div class="modal-dialog modal-dialog-centered" role="document">
+														<div class="modal-content">
+															<div class="modal-header">
+																<h5 class="modal-title">Confirmar</h5>
+																<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+																
+															</div>
+															<div class="modal-body">
+																<p>
+																	Esta Seguro que desea eliminar {{ object_lines.CP_NID.CP_CDESCRIPCION }}?
+																</p>
+															</div>
+															<div class="modal-footer">
+																<a href="{% url 'tr-carro_delete' object_lines.CC_NID|unlocalize %}"
+																   class="btn btn-danger"
+																   type="button">Eliminar</a>
+																<button type="button" class="btn  btn-secondary" data-dismiss="modal">Cerrar</button>
+								
+															</div>
+														</div>
+													</div>
+												</div>
+												{% endfor %}
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-sm-12">
+									<table class="table table-responsive invoice-table invoice-total">
+										<tbody>
+											
+											<tr>
+												<th><a href="{% url 'tr-carro_solicitud' request.user.id %}" class="btn btn-info">Generar Solicitud de compra</a></th>
+													
+											</tr>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+
+						</div>
+					</div>
+					{% comment %} <div class="row text-center">
+						<div class="col-sm-12 invoice-btn-group text-center">
+							<button type="button" class="btn waves-effect waves-light btn-primary btn-print-invoice m-b-10">Print</button>
+						</div>
+					</div> {% endcomment %}
+				</div>
+			</div>
+        </div>
+    </div>
+</section>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}
+

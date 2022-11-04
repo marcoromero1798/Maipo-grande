@@ -1,0 +1,221 @@
+{% extends "layouts/base.html" %}
+{% block title %} Detalle Orden de compra {% endblock %} 
+{% include 'includes/scripts.html' %}
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<section class="pcoded-main-container">
+	
+{% for object in object_list %}
+    <div class="pcoded-content">
+        <div class="page-header">
+			<div class="page-block">
+				<div class="row align-items-center">
+					<div class="col-md-12">
+						<div class="page-header-title">
+							<h5 class="m-b-10">Detalle Orden de compra</h5>
+						</div>
+						<ul class="breadcrumb">
+							<li class="breadcrumb-item"><a href="/dashboard-sugerido"><i class="feather
+										icon-home"></i></a></li>
+							<li class="breadcrumb-item"><a href="/tr-oc_list">Orden de compra</a></li>
+							<li class="breadcrumb-item"><a href="#!" onclick="window.history.go(-1); return false;">Volver</a></li>						
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<!-- [ Invoice ] start -->
+			<div class="container" id="printTable">
+				<div>
+					<div class="card">
+						{% comment %} <div class="row invoice-contact">
+							<div class="col-md-8">
+								<div class="invoice-box row">
+									<div class="col-sm-12">
+										<table class="table table-responsive invoice-table table-borderless p-l-20">
+											<tbody>
+												<tr>
+													<td><a href="index.html" class="b-brand">
+															
+														</a>
+													</td>
+												</tr>
+												<tr>
+													<td>Hospitalia</td>
+												</tr>
+												<tr>
+													<td>Americo vespucion #1565, Quilicura </td>
+												</tr>
+												<tr>
+													<td><a class="text-secondary" href="#" target="_top">Correo pendiente</a></td>
+												</tr>
+												<tr>
+													<td>225706100</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-4"></div>
+						</div> {% endcomment %}
+						<div class="card-body">
+							<div class="row invoive-info">
+								<div class="col-md-4 col-sm-6">
+									<h6>Informacion de proveedor :</h6>
+									<table class="table table-responsive invoice-table invoice-order table-borderless">
+										<tbody>
+											<tr>
+												<th style="width: 10%;"><span class="fw-bold">Nombre Proveedor:</span></th>
+												<td>{{object.PV_NID.PV_CNOMBRE_PROVEEDOR}}</td>
+											</tr>
+											<tr>
+												<th style="width: 10%;"><span class="fw-bold">Cod Proveedor:</span></th>
+												<td>{{object.PV_NID.PV_CCOD_PROV}}</td>
+											</tr>
+											<tr>
+												{% comment %} <th>Estado :</th>
+													{% if objeto.OC_NPENDIENTE == 0 %}
+                    								    <td><span class="fw-bold text-danger">Pendiente</span></td>
+                    								{% else %}
+                    								    <td><span class="fw-bold text-success">Listo</span></td>
+                    								{% endif %} {% endcomment %}
+											</tr>
+											<tr>
+												<th style="width: 10%;"><span class="fw-bold">Planta de origen:</span></th>
+												<td>
+													{{object.PV_NID.PV_CPLANTAORIGEN}}
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+								<div class="col-md-4 col-sm-6">
+									<h6>Informacion OC :</h6>
+									<table class="table table-responsive invoice-table invoice-order table-borderless">
+										<tbody>
+											<tr>
+												<th style="width: 10%;"><span class="fw-bold">Nro OC:</span></th>
+												<td>
+													{{object.OC_CNRO_REF }}
+												</td>
+											</tr>
+											<tr>
+												<th style="width: 10%;"><span class="fw-bold">Fecha creacion:</span></th>
+												<td>{{object.OC_FFECHA_CREACION|date:"d-m-Y"}}</td>
+											</tr>
+
+											<tr>
+												{% comment %} <th>Estado :</th>
+													{% if objeto.OC_NPENDIENTE == 0 %}
+                    								    <td><span class="fw-bold text-danger">Pendiente</span></td>
+                    								{% else %}
+                    								    <td><span class="fw-bold text-success">Listo</span></td>
+                    								{% endif %} {% endcomment %}
+											</tr>
+											<tr>
+												<th style="width: 10%;"><span class="fw-bold">Moneda:</span></th>
+												<td>
+													{{object.OC_CMONEDA }}
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-sm-12">
+									<div class="table-responsive">
+										<table class="table invoice-detail-table">
+											<thead>
+												<tr class="thead-default">
+													<th scope="row" class="border-0" style="text-align:right">#</th>
+													<th scope="row" class="border-0" style="text-align:right">SKU</th>
+													<th scope="row" class="border-0" style="text-align:right">Cantidad</th>
+													<th scope="row" class="border-0" style="text-align:right">Cantidad Pendiente</th>
+													<th scope="row" class="border-0" style="text-align:right">Fech. Probable entrega</th>
+													<th scope="row" class="border-0" style="text-align:right">Fech. Real entrega</th>
+													<th scope="row" class="border-0" style="text-align:right">Precio Unitario</th>
+													<th scope="row" class="border-0" style="text-align:right">Unidad de compra</th>
+													<th scope="row" class="border-0" style="text-align:right">Total</th>
+													<th scope="row" class="border-0" style="text-align:right">Accion</th>
+												</tr>
+											</thead>
+											<tbody>
+												{% for object_lines in ocd %}
+												<tr>
+													<td scope="row" class="text-left fw-bold h6"><span class="fw-normal">{{ object_lines.id  }}</span></td>
+													<td style="text-align:right"><span class="fw-normal">{{ object_lines.IT_NID.IT_CSKU }}</span></td>
+													<td style="text-align:right"><span class="fw-normal">{{ object_lines.OD_NCANTIDAD  }}</span></td>
+													<td style="text-align:right"><span class="fw-normal">{{ object_lines.OD_NCANTIDAD_PENDIENTE|floatformat:0  }}</span></td>
+													<td style="text-align:right"><span class="fw-normal">{{ object_lines.OD_FFECHA_PROBABLE_ENTREGA|date:"d-m-Y"   }}</span></td>
+													{% ifequal object_lines.OD_FFECHA_REAL_ENTREGA None %}
+													<td style="text-align:right"><span class="fw-normal">Sin entregas</span></td>
+													{% else %}
+													<td style="text-align:right"><span class="fw-normal">{{ object_lines.OD_FFECHA_REAL_ENTREGA|date:"d-m-Y"  }}</span></td>
+													{% endifequal %}
+													<td style="text-align:right"><span class="fw-normal">{{ object_lines.OD_NPRECIO_UNITARIO|floatformat:2  }}</span></td>
+													<td style="text-align:left"><span class="fw-normal">{{ object_lines.OD_CUNIDAD_VENTA_INTERNA  }}</span></td>
+													<td style="text-align:right"><span class="fw-normal">{{ object_lines.OD_NPRECIO_TOTAL|floatformat:2 }}</span></td>
+													<td><a class="btn btn-secondary" href="{% url 'tr-oc_editar' object_lines.id  %}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+														<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+														<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+													  </svg></a>														
+												</tr>
+												{% endfor %}
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-sm-12">
+									<table class="table table-responsive invoice-table invoice-total">
+										<tbody>
+											
+											<tr>
+												<th>SUBTOTAL :</th>
+													<td>${{totales.0|floatformat:2}}</td>
+											</tr>
+											<tr>
+												<th>IVA:</th>
+												<td>${{totales.1|floatformat:2}}</td>
+											</tr>
+											<tr class="text-info">
+												<td>
+													<hr />
+													<h5 class="text-primary m-r-10">Total :</h5>
+												</td>
+												<td>
+													<hr />
+													<h5 class="text-primary">${{totales.2|floatformat:2}}</h5>
+												</td>
+												
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+
+						</div>
+					</div>
+					{% comment %} <div class="row text-center">
+						<div class="col-sm-12 invoice-btn-group text-center">
+							<button type="button" class="btn waves-effect waves-light btn-primary btn-print-invoice m-b-10">Print</button>
+						</div>
+					</div> {% endcomment %}
+				</div>
+			</div>
+        </div>
+    </div>
+</section>
+{% endfor %}
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}
+

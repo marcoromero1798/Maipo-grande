@@ -1,0 +1,204 @@
+{% extends "layouts/base.html" %}
+{% block title %} Lista de Productos {% endblock %}
+{% include 'includes/scripts.html' %}
+{% load crispy_forms_tags %}
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<link rel="stylesheet" href="/static/assets/css/plugins/dataTables.bootstrap4.min.css">
+{% endblock stylesheets %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% block content %}
+
+<section class="pcoded-main-container">
+    <div class="pcoded-content">
+        <div class="page-header">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <div class="col-md-12">
+                        <div class="page-header-title">
+                            <h5 class="m-b-10">Productos</h5>
+                        </div>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'home' %}"><i class="feather icon-home"></i></a>
+                            </li>
+                            <li class="breadcrumb-item"><a href="#!">Productos</a></li>
+                            <li class="breadcrumb-item"><a href="#!">Listar Productos</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% comment %} <div class="form-group col-md-4">
+            <label for="category">Buscar por Categoria</label>
+            <form method="POST">
+            {% csrf_token %}
+            <select id="category" class="form-control" name="category">
+              <option selected>Categoria...</option>
+              {% for cat in categorias %}
+              <option value="{{ cat.CP_NID }}">{{ cat.CP_CDESCRIPCION}}</option>
+              {% endfor %}
+            </select>
+            <br>
+            <button type="submit" class="btn btn-primary">Buscar</button>
+            </form>z
+          </div>
+        <br> {% endcomment %}
+
+        <!--LISTA DE PRODUCTOS ECOMERCE-->
+        <div class="row">
+            {% for objeto in object_list %}
+            <div class="card card-body border-0 shadow table-wrapper table-responsive">
+                <table class="table table-hover" id="basic-btn">
+                    <thead>
+                        <tr>
+                                <th class="border-gray-200" scope="col">#</th>
+                                <th class="border-gray-200" scope="col">DESCRIPCION</th>
+                                <th class="border-gray-200" scope="col">CCORREO</th>
+                                <th class="border-gray-200" scope="col">CONTACTO</th>
+                                <th class="border-gray-200" scope="col">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for objeto in object_list %}
+                            {% if objeto.PR_NHABILITADO %}
+                            <tr>
+                                <th><span class="fw-normal">{{ objeto.PR_NID }}</span></th>
+                                <td><span class="fw-bold">{{ objeto.PR_CDESCRIPCION }}</span></td>
+                                <td><span class="fw-bold">{{ objeto.PR_CCORREO }}</span></td>
+                                <td><span class="fw-bold">{{ objeto.PR_NCONTACTO }}</span></td>
+                                
+                                <td>
+                                    <a class="btn btn-secondary" href="{% url 'sy-pr_update' objeto.PR_NID|unlocalize %}"><i class="feather icon-edit"></i> </a>
+                                    {% comment %} <a class="btn btn-info" href="{% url 'sy-pr_listone' objeto.PR_NID|unlocalize %}"><i class="feather icon-edit"></i> </a>  {% endcomment %}
+                                    <a class="btn btn-danger" data-toggle="modal" data-target="#modal-default{{ objeto.PR_NID|unlocalize }}"><i class="feather icon-x-square"></i></a> 
+                                </td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                    {% for objeto in object_list %}
+                    <div class="modal fade" id="modal-default{{ objeto.PR_NID|unlocalize }}" tabindex="-1" role="dialog" aria-labelledby="modal-default{{ objeto.PR_NID|unlocalize }}" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Confirmar</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                    
+                                </div>
+                                <div class="modal-body">
+                                    <p>
+                                        Esta Seguro que desea eliminar {{ objeto.PR_NID|unlocalize }}?
+                                    </p>
+                                </div>
+                                <div class="modal-footer">
+                                    <a href="{% url 'sy-pr_deshabilitar' objeto.PR_NID|unlocalize %}"
+                                       class="btn btn-danger"
+                                       type="button">Eliminar</a>
+                                    <button type="button" class="btn  btn-secondary" data-dismiss="modal">Cerrar</button>
+    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </table>
+            </div>
+                <div class="modal fade" id="modal-default{{ objeto.PC_NID|unlocalize }}" tabindex="-1" role="dialog"
+                aria-labelledby="modal-default{{ objeto.PC_NID|unlocalize }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Confirmar</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                    aria-hidden="true">×</span></button>
+    
+                        </div>
+                        <div class="modal-body">
+                            <p>
+                                Esta Seguro que desea eliminar {{ objeto.PC_NID|unlocalize }}?
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                            <a href="{% url 'sy-pc_deshabilitar' objeto.PC_NID|unlocalize %}" class="btn btn-danger"
+                                type="button">Eliminar</a>
+                            <button type="button" class="btn  btn-secondary" data-dismiss="modal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="modal-shopping-cart{{ objeto.PC_NID|unlocalize }}" tabindex="-1" role="dialog"
+            aria-labelledby="modal-shopping-cart{{ objeto.PC_NID|unlocalize }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Agregar Producto al Carro</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">×</span></button>
+
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            Ingresar cantidad del producto: {{ objeto.PC_NID|unlocalize }}?
+                        </p>
+                        <input id="cantidad_ingresada-'{{ objeto.PC_NID|unlocalize }}'" type="number" class="form-control" step="1">
+                    </div>
+                    <div class="modal-footer">
+                        <a onclick="envio_datos('{{ objeto.PC_NID|unlocalize }}')" id="#send_btn" class="btn btn-success"
+                            type="button">Confirmar</a>
+                        <button type="button" class="btn  btn-secondary" data-dismiss="modal">Cerrar</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>
+function envio_datos(pc_nid) {
+    var str  = "cantidad_ingresada-'" + pc_nid +"'"
+    var cantidad = document.getElementById(str).value;
+    var cantidad2 = $('#cantidad_ingresada').val();
+    console.log(cantidad)
+    console.log(cantidad2)
+    $.ajax({
+        url: "sy-envio_datos",
+        method: "POST",
+        data: {
+            cantidad : cantidad,
+            id:pc_nid,
+            csrfmiddlewaretoken: '{{ csrf_token }}' 
+        },
+        success: function (response) {
+            location.reload();
+        }
+
+    })
+
+
+}
+
+
+</script>
+<!-- datatable Js -->
+<script src="/static/assets/js/plugins/jquery.dataTables.min.js"></script>
+<script src="/static/assets/js/plugins/dataTables.bootstrap4.min.js"></script>
+<script src="/static/assets/js/plugins/buttons.colVis.min.js"></script>
+<script src="/static/assets/js/plugins/buttons.print.min.js"></script>
+<script src="/static/assets/js/plugins/pdfmake.min.js"></script>
+<script src="/static/assets/js/plugins/jszip.min.js"></script>
+<script src="/static/assets/js/plugins/dataTables.buttons.min.js"></script>
+<script src="/static/assets/js/plugins/buttons.html5.min.js"></script>
+<script src="/static/assets/js/plugins/buttons.bootstrap4.min.js"></script>
+<script src="/static/assets/js/pages/data-export-custom.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+
+{% endblock javascripts %}

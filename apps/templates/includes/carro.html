@@ -30,16 +30,30 @@ $(document).ready(function() {
             var elemento = data.elementos_carro
             for (let i=0 ; i < elemento.length ; i++){
                 producto = elemento[i][0]
-                cantidad = elemento[i][1]
-                $("#carro").append( 
-                '<li class="notification">'+
-                    '<div class="media">'+
-                        '<div class="media-body">'+
-                            '<p><strong> Producto: '+producto+'</strong></p>'+
-                            '<p> Cantidad: '+cantidad+'</p>'
-                        +'</div>'+
-                    '</div>'+
-                '</li>')
+                categoria = elemento[i][1]
+                cantidad = elemento[i][2]
+                if (producto != null){
+                    $("#carro").append( 
+                        '<li class="notification">'+
+                            '<div class="media">'+
+                                '<div class="media-body">'+
+                                    '<p><strong> Producto: '+producto+'</strong></p>'+
+                                    '<p> Cantidad: '+cantidad+'</p>'
+                                +'</div>'+
+                            '</div>'+
+                        '</li>')
+                }else{
+                    $("#carro").append( 
+                        '<li class="notification">'+
+                            '<div class="media">'+
+                                '<div class="media-body">'+
+                                    '<p><strong> Producto: '+categoria+'</strong></p>'+
+                                    '<p> Cantidad: '+cantidad+'</p>'
+                                +'</div>'+
+                            '</div>'+
+                        '</li>')
+                }
+
             }
 
             

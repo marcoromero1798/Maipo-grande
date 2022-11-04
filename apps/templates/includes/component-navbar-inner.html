@@ -59,8 +59,13 @@
             <a href="#!" class="nav-link "><span class="pcoded-micon"><i class="feather icon-layout"></i></span><span class="pcoded-mtext">Proceso de venta</span></a>
             <ul class="pcoded-submenu">
                 <li><a href="/tr-list">Transaccionales</a></li>
+                
+                {% if request.user.is_superuser == 1 or request.user.USER.UX_IS_ADMINISTRADOR == 1 or request.user.USER.UX_IS_CLIENTEEXTERNO == 1%}
                 <li><a href="/sy-cp_list_compra">Comprar</a></li>
-
+                {% endif %}
+                {% if request.user.is_superuser == 1 or request.user.USER.UX_IS_ADMINISTRADOR == 1  or request.user.USER.UX_IS_CLIENTEINTERNO  == 1  %}
+                <li><a href="/sy-pc_list_compra">Comprar saldos</a></li>
+                {% endif %}
             </ul>
         </li>
 

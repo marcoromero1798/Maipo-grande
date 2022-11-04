@@ -280,6 +280,12 @@ class stock_create(CreateView):
     template_name = 'home/sy-stk_create.html'  # html template en core
     success_url = reverse_lazy("sy-stk_list")
 
+    def form_valid(self, form, **kwargs):
+        # INDICA EL USUARIO ACTUAL
+        form.instance.STK_CBODEGA = 'EXTERNA'
+        retorno = super(CreateView, self).form_valid(form)
+        return retorno
+
     def get_success_url(self, **kwargs):
         # if you are passing 'pk' from 'urls' to 'DeleteView' for company
         # capture that 'pk' as companyid and pass it to 'reverse_lazy()' function
@@ -1378,6 +1384,7 @@ class OV_Update(UpdateView):
     template_name = 'home/tr-ov_create.html'  # html template en core
     success_url = reverse_lazy("tr-list")
 
+
 #PROCESOS
 # CARRO ---> SOLICITUD
 def generar_solicitud(request,us_nid):
@@ -1402,7 +1409,8 @@ def generar_solicitud(request,us_nid):
                     #DR_NID = ?
                     #TC_NID = ?
                     SC_FFECHA_CREACION = datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    SC_NPROCESADO = False
+                    SC_NPROCESADO = False,
+                    SU_CTIPO_SOLICITUD = 'EXTERNO'
                 )
                 Nueva_cabecera.save()
             except Exception as e:

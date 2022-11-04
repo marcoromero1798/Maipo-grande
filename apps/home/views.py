@@ -64,7 +64,33 @@ def pages(request):
         return HttpResponse(html_template.render(context, request))
 
 # CONTRATO
+def dashboard(request):
+    #QUERYS
+    #################################
+    # VENTAS POR PRODUCTO - EXTERNO #
+    #################################
+    query_1 = ranking_productos_segun_vendidos_externo()
+    #################################
+    # VENTAS POR PRODUCTO - EXTERNO #
+    #################################
+    query_2 = ranking_productos_segun_vendidos_interno()
+    ###########################
+    # VENTAS TOTALES POR DIA  #
+    ###########################
+    query_3 = venta_por_productos_por_fecha()
+    ####################################################
+    # GRAFICO COMPARATIVO VENTAS EXTERNAS VS INTERNAS  #
+    ####################################################
+    query_4 = comparacion_venta_externa_interna()
 
+    context={
+        'query_1':query_1,
+        'query_2':query_2,
+        'query_3':query_3,
+        'query_4':query_4
+        
+    }
+    return render(request,'home/index.html',context)
 
 class contrato_create(CreateView):
     model = CONTRATO      # Modelo a utilizar
@@ -1713,32 +1739,47 @@ def terminar_subasta(request,su_nid):
             #OBTENEMOS DATOS DE LOS TRANSPORTES QUE CUMPLAN LAS NORMAS
             datos_transporte = TRANSPORTE.objects.get(id = transporte.TRA_NID_id)
             #FILTRAMOS
-            if datos_transporte.TRA_NREFRIGERACION == requiere_refrigeracion:
+            if requiere_refrigeracion == True:
+                if datos_transporte.TRA_NREFRIGERACION == requiere_refrigeracion:
+                    if datos_transporte.TRA_NCARGA >= peso_minimo_req:
+                        lista_aux.append(transporte.TRA_NID)        #id transporte
+                        lista_aux.append(transporte.id)             #id SU DETALLE 
+                        lista_aux.append(transporte.SUD_NCOBRO)     #PRECIO
+                        LISTA_TRANSPORTES_OPTIMOS.append(lista_aux)
+            else:
                 if datos_transporte.TRA_NCARGA >= peso_minimo_req:
                     lista_aux.append(transporte.TRA_NID)        #id transporte
                     lista_aux.append(transporte.id)             #id SU DETALLE 
                     lista_aux.append(transporte.SUD_NCOBRO)     #PRECIO
                     LISTA_TRANSPORTES_OPTIMOS.append(lista_aux)
-        #ORDENAMOS EL DF PARA SABER CUAL ES TRANSPORTE QUE TENGA MENOR COBRO, EN EL CASO DE QUE EL COBRO SEA EL MISMO SE ELEGIRA EN BASE AL ID DE SUBASTA DETALLE
-        dataframe = pd.DataFrame(LISTA_TRANSPORTES_OPTIMOS,columns=['id_transporte','id_subasta_id','precio'])
-        dataframe_ordenado = dataframe.sort_values(by=['id_subasta_id', 'precio'],ascending=[True,True])
-        #TRANSPORTE SELECCIONADO
-        #########################################################################################
-        ID_TRANSPORTE_SELECCIONADO =  dataframe_ordenado["id_transporte"].loc[0]                #
-        ID_DETALLE_SUBASTA_SELECCIONADO =  dataframe_ordenado["id_subasta_id"].loc[0]           #
-        #########################################################################################
+        if len(LISTA_TRANSPORTES_OPTIMOS) >0:
+            #ORDENAMOS EL DF PARA SABER CUAL ES TRANSPORTE QUE TENGA MENOR COBRO, EN EL CASO DE QUE EL COBRO SEA EL MISMO SE ELEGIRA EN BASE AL ID DE SUBASTA DETALLE
+            dataframe = pd.DataFrame(LISTA_TRANSPORTES_OPTIMOS,columns=['id_transporte','id_subasta_id','precio'])
+            dataframe_ordenado = dataframe.sort_values(by=['id_subasta_id', 'precio'],ascending=[True,True])
+            #TRANSPORTE SELECCIONADO
+            #########################################################################################
+            ID_TRANSPORTE_SELECCIONADO =  dataframe_ordenado["id_transporte"].loc[0]                #
+            ID_DETALLE_SUBASTA_SELECCIONADO =  dataframe_ordenado["id_subasta_id"].loc[0]           #
+            #########################################################################################
 
-        #####################################
-        # modificamos los campos necesarios # 
-        #####################################
-        SUBASTA_DETALLE.objects.filter(id = ID_DETALLE_SUBASTA_SELECCIONADO).update(SUD_NSELECCION = True)
-        SUBASTA.objects.filter(SU_NID = su_nid).update(SU_NTRANSPORTE_SELECCIONADO = ID_TRANSPORTE_SELECCIONADO,SU_NESTADO = True)
-        ORDEN_VENTA.objects.filter(OV_NID = ORDEN_VENTA_id).update(OV_CESTADO = 'ENTREGA')
-        #################
-        # notificacion ##
-        #################
-        messages.success(request,'Subasta concluida correctamente')
-        return redirect('tr-su_listone',su_nid) 
+            #####################################
+            # modificamos los campos necesarios # 
+            #####################################
+            SUBASTA_DETALLE.objects.filter(id = ID_DETALLE_SUBASTA_SELECCIONADO).update(SUD_NSELECCION = True)
+            SUBASTA.objects.filter(SU_NID = su_nid).update(SU_NTRANSPORTE_SELECCIONADO = ID_TRANSPORTE_SELECCIONADO,SU_NESTADO = True)
+            ORDEN_VENTA.objects.filter(OV_NID = ORDEN_VENTA_id).update(OV_CESTADO = 'ENTREGA')
+            #################
+            # notificacion ##
+            #################
+            #TRANSPORTISTA 
+            ov = SUBASTA.objects.get(SU_NID =su_nid).SU_NDOCUMENTO_ORIGEN
+            correo = TRANSPORTISTA.objects.get(TR_NID = TRANSPORTE.objects.get(id = ID_TRANSPORTE_SELECCIONADO.id).TR_NID_id).TR_CCORREO
+            send_email_notificacion_documentos(correo, mensaje_OV(request,ov))
+            messages.success(request,'Subasta concluida correctamente')
+            return redirect('tr-su_listone',su_nid) 
+        else:
+            messages.warning(request,'No hay transportes que cumplan con las condiciones de la subasta')
+            return redirect('tr-su_listone',su_nid)    
     else:
         messages.warning(request,'No hay transportes participando en la subasta')
         return redirect('tr-su_listone',su_nid)      
@@ -1903,147 +1944,6 @@ def obtener_mejor_producto(request,ov_nid):
                 'Estado':estado,
                 'mensaje':mensaje
             })
-# def mensaje_OV(request,solicitud,ov,nro_solicitud,nro_nv):
-#     if solicitud == True:
-#         texto = f'Su solicitud se genero con correctamente con la siguiente fecha {datetime.now().strftime("%d-%m-%Y")}, el numero de documento es {nro_solicitud}'
-#         boton =f'/localhost:8000/'
-#     mensaje = '''
-#             <!DOCTYPE html>
-#             <html>
-#             <head>
-#             <title></title>
-#             <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-#             <meta name="viewport" content="width=device-width, initial-scale=1">
-#             <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-#             <style type="text/css">
-#                 /* FONTS */
-#                 @media screen {
-#                     @font-face {
-#                     font-family: 'Lato';
-#                     font-style: normal;
-#                     font-weight: 400;
-#                     src: local('Lato Regular'), local('Lato-Regular'), url(https://fonts.gstatic.com/s/lato/v11/qIIYRU-oROkIk8vfvxw6QvesZW2xOQ-xsNqO47m55DA.woff) format('woff');
-#                     }
-                    
-#                     @font-face {
-#                     font-family: 'Lato';
-#                     font-style: normal;
-#                     font-weight: 700;
-#                     src: local('Lato Bold'), local('Lato-Bold'), url(https://fonts.gstatic.com/s/lato/v11/qdgUG4U09HnJwhYI-uK18wLUuEpTyoUstqEm5AMlJo4.woff) format('woff');
-#                     }
-                    
-#                     @font-face {
-#                     font-family: 'Lato';
-#                     font-style: italic;
-#                     font-weight: 400;
-#                     src: local('Lato Italic'), local('Lato-Italic'), url(https://fonts.gstatic.com/s/lato/v11/RYyZNoeFgb0l7W3Vu1aSWOvvDin1pK8aKteLpeZ5c0A.woff) format('woff');
-#                     }
-                    
-#                     @font-face {
-#                     font-family: 'Lato';
-#                     font-style: italic;
-#                     font-weight: 700;
-#                     src: local('Lato Bold Italic'), local('Lato-BoldItalic'), url(https://fonts.gstatic.com/s/lato/v11/HkF_qI1x_noxlxhrhMQYELO3LdcAZYWl9Si6vvxL-qU.woff) format('woff');
-#                     }
-#                 }
-                
-#                 /* CLIENT-SPECIFIC STYLES */
-#                 body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
-#                 table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
-#                 img { -ms-interpolation-mode: bicubic; }
-
-#                 /* RESET STYLES */
-#                 img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
-#                 table { border-collapse: collapse !important; }
-#                 body { height: 100% !important; margin: 0 !important; padding: 0 !important; width: 100% !important; }
-
-#                 /* iOS BLUE LINKS */
-#                 a[x-apple-data-detectors] {
-#                     color: inherit !important;
-#                     text-decoration: none !important;
-#                     font-size: inherit !important;
-#                     font-family: inherit !important;
-#                     font-weight: inherit !important;
-#                     line-height: inherit !important;
-#                 }
-                
-#                 /* MOBILE STYLES */
-#                 @media screen and (max-width:600px){
-#                     h1 {
-#                         font-size: 32px !important;
-#                         line-height: 32px !important;
-#                     }
-#                 }
-
-#                 /* ANDROID CENTER FIX */
-#                 div[style*="margin: 16px 0;"] { margin: 0 !important; }
-#             </style>
-
-#             </head>
-#             <body style="background-color: #f4f4f4; margin: 0 !important; padding: 0 !important;">
-
-#             <!-- HIDDEN PREHEADER TEXT -->
-
-#             <table border="0" cellpadding="0" cellspacing="0" width="100%">
-#                 <!-- LOGO -->
-#                 <tr>
-#                     <td bgcolor="#FFA73B" align="center">
-#                         <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;" >
-#                             <tr>
-#                                 <td align="center" valign="top" style="padding: 40px 10px 40px 10px;">
-
-#                                 </td>
-#                             </tr>
-#                         </table>
-
-#                     </td>
-#                 </tr>
-#                 <tr>
-#                     <td bgcolor="#FFA73B" align="center" style="padding: 0px 10px 0px 10px;">
-
-#                         <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;" >
-#                             <tr>
-#                                 <td bgcolor="#ffffff" align="center" valign="top" style="padding: 40px 20px 20px 20px; border-radius: 4px 4px 0px 0px; color: #111111; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 48px; font-weight: 400; letter-spacing: 4px; line-height: 48px;">
-#                                 <h1 style="font-size: 48px; font-weight: 400; margin: 0;">Hola!</h1>
-#                                 </td>
-#                             </tr>
-#                         </table>
-
-#                     </td>
-#                 </tr>
-#                 <tr>
-#                     <td bgcolor="#f4f4f4" align="center" style="padding: 0px 10px 0px 10px;">
-#                         <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;" >
-#                         <!-- COPY -->
-#                         <tr>
-#                             <td bgcolor="#ffffff" align="left" style="padding: 20px 30px 40px 30px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;" >'''
-#     mensaje = mensaje +f'''   <p style="margin: 0;">'''{}'''</p>'''
-#     mensaje = mensaje + '''</td>
-#                         </tr>
-#                         <tr>
-#                             <td bgcolor="#ffffff" align="left">
-#                             <table width="100%" border="0" cellspacing="0" cellpadding="0">
-#                                 <tr>
-#                                 <td bgcolor="#ffffff" align="center" style="padding: 20px 30px 60px 30px;">
-#                                     <table border="0" cellspacing="0" cellpadding="0">
-#                                     <tr>
-#                                         <td align="center" style="border-radius: 3px;" bgcolor="#000000"><a href="#" target="_blank" style="font-size: 20px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; color: #ffffff; text-decoration: none; padding: 15px 25px; border-radius: 2px; border: 1px solid #000000; display: inline-block;">Visualizar documento</a></td>
-#                                     </tr>
-#                                     </table>
-#                                 </td>
-#                                 </tr>
-#                             </table>
-#                             </td>
-#                         </tr>
-#                     </td>
-#                 </tr>
-#             </table>
-                
-#             </body>
-#             </html>
-# '''
-#     return
-
 def send_email_notificacion_documentos(correo_dest, message):
     try:
         msg = MIMEMultipart()
@@ -2098,3 +1998,574 @@ def traspasar_stock(request):
     else:
         messages.warning(request,'No se encontraron productos con stock EXTERNO')
         return redirect('sy-stk_list')
+def mensaje_OV(request,ov):
+    instancia_ov = ORDEN_VENTA.objects.get(OV_NID = ov.OV_NID)
+    instancia_ovd = ORDEN_VENTA_DETALLE.objects.filter(OV_NID_id = ov.OV_NID)
+    instancia_subasta = SUBASTA.objects.get(SU_NDOCUMENTO_ORIGEN = ov.OV_NID)
+    cobro_transporte = SUBASTA_DETALLE.objects.get(SU_NID_id = instancia_subasta.SU_NID, SUD_NSELECCION= True).SUD_NCOBRO
+    string_texto= ''
+    total = 0
+    for elemento in instancia_ovd:
+        total = total + round((elemento.OVD_NPRECIO * elemento.OVD_NQTY),0)
+
+
+
+    mensaje = '''
+                <!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+                <head>
+                <!--[if gte mso 9]>
+                <xml>
+                <o:OfficeDocumentSettings>
+                    <o:AllowPNG/>
+                    <o:PixelsPerInch>96</o:PixelsPerInch>
+                </o:OfficeDocumentSettings>
+                </xml>
+                <![endif]-->
+                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <meta name="x-apple-disable-message-reformatting">
+                <!--[if !mso]><!--><meta http-equiv="X-UA-Compatible" content="IE=edge"><!--<![endif]-->
+                <title></title>
+                
+                    <style type="text/css">
+                    @media only screen and (min-width: 620px) {
+                .u-row {
+                    width: 600px !important;
+                }
+                .u-row .u-col {
+                    vertical-align: top;
+                }
+
+                .u-row .u-col-31p67 {
+                    width: 190.02px !important;
+                }
+
+                .u-row .u-col-33p33 {
+                    width: 199.98px !important;
+                }
+
+                .u-row .u-col-35 {
+                    width: 210px !important;
+                }
+
+                .u-row .u-col-50 {
+                    width: 300px !important;
+                }
+
+                .u-row .u-col-66p67 {
+                    width: 400.02px !important;
+                }
+
+                .u-row .u-col-100 {
+                    width: 600px !important;
+                }
+
+                }
+
+                @media (max-width: 620px) {
+                .u-row-container {
+                    max-width: 100% !important;
+                    padding-left: 0px !important;
+                    padding-right: 0px !important;
+                }
+                .u-row .u-col {
+                    min-width: 320px !important;
+                    max-width: 100% !important;
+                    display: block !important;
+                }
+                .u-row {
+                    width: calc(100% - 40px) !important;
+                }
+                .u-col {
+                    width: 100% !important;
+                }
+                .u-col > div {
+                    margin: 0 auto;
+                }
+                .no-stack .u-col {
+                    min-width: 0 !important;
+                    display: table-cell !important;
+                }
+
+                .no-stack .u-col-31p67 {
+                    width: 31.67% !important;
+                }
+
+                .no-stack .u-col-33p33 {
+                    width: 33.33% !important;
+                }
+
+                .no-stack .u-col-35 {
+                    width: 35% !important;
+                }
+
+                .no-stack .u-col-50 {
+                    width: 50% !important;
+                }
+
+                .no-stack .u-col-66p67 {
+                    width: 66.67% !important;
+                }
+
+                }
+                body {
+                margin: 0;
+                padding: 0;
+                }
+
+                table,
+                tr,
+                td {
+                vertical-align: top;
+                border-collapse: collapse;
+                }
+
+                .ie-container table,
+                .mso-container table {
+                table-layout: fixed;
+                }
+
+                * {
+                line-height: inherit;
+                }
+
+                a[x-apple-data-detectors='true'] {
+                color: inherit !important;
+                text-decoration: none !important;
+                }
+
+                table, td { color: #000000; } @media (max-width: 480px) { #u_content_image_4 .v-container-padding-padding { padding: 20px 5px 5px !important; } #u_content_image_4 .v-src-width { width: auto !important; } #u_content_image_4 .v-src-max-width { max-width: 49% !important; } #u_content_image_5 .v-container-padding-padding { padding: 20px 5px 5px !important; } #u_content_image_5 .v-src-width { width: auto !important; } #u_content_image_5 .v-src-max-width { max-width: 30% !important; } #u_content_heading_3 .v-container-padding-padding { padding: 10px 10px 39px !important; } #u_content_image_6 .v-container-padding-padding { padding: 21px 5px 5px !important; } #u_content_image_6 .v-src-width { width: auto !important; } #u_content_image_6 .v-src-max-width { max-width: 46% !important; } #u_content_heading_4 .v-container-padding-padding { padding: 14px 10px 39px !important; } #u_content_heading_5 .v-container-padding-padding { padding: 10px !important; } #u_content_heading_5 .v-font-size { font-size: 14px !important; } #u_content_heading_6 .v-container-padding-padding { padding: 10px !important; } #u_content_heading_6 .v-font-size { font-size: 14px !important; } #u_content_heading_7 .v-container-padding-padding { padding: 10px !important; } #u_content_heading_7 .v-font-size { font-size: 14px !important; } #u_content_heading_10 .v-container-padding-padding { padding: 10px !important; } #u_content_heading_11 .v-container-padding-padding { padding: 40px 10px 39px !important; } #u_content_heading_12 .v-container-padding-padding { padding: 40px 10px 39px !important; } #u_content_heading_22 .v-container-padding-padding { padding: 11px 10px 10px !important; } #u_content_heading_23 .v-container-padding-padding { padding: 40px 10px 39px !important; } #u_content_heading_24 .v-container-padding-padding { padding: 40px 10px 39px !important; } #u_content_heading_19 .v-container-padding-padding { padding: 10px !important; } #u_content_heading_20 .v-container-padding-padding { padding: 40px 10px 39px !important; } #u_content_heading_21 .v-container-padding-padding { padding: 40px 10px 39px !important; } #u_content_heading_17 .v-container-padding-padding { padding: 40px 10px 39px !important; } #u_content_heading_18 .v-container-padding-padding { padding: 40px 10px 39px !important; } #u_content_heading_14 .v-container-padding-padding { padding: 40px 10px !important; } #u_content_heading_30 .v-container-padding-padding { padding: 40px 10px 39px !important; } #u_content_heading_31 .v-container-padding-padding { padding: 33px 10px 31px 22px !important; } #u_content_heading_15 .v-container-padding-padding { padding: 20px 10px !important; } }
+                    </style>
+                
+                
+
+                <!--[if !mso]><!--><link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet" type="text/css"><!--<![endif]-->
+
+                </head>
+
+                <body class="clean-body u_body" style="margin: 0;padding: 0;-webkit-text-size-adjust: 100%;background-color: #e7e7e7;color: #000000">
+                <!--[if IE]><div class="ie-container"><![endif]-->
+                <!--[if mso]><div class="mso-container"><![endif]-->
+                <table style="border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;min-width: 320px;Margin: 0 auto;background-color: #e7e7e7;width:100%" cellpadding="0" cellspacing="0">
+                <tbody>
+                <tr style="vertical-align: top">
+                    <td style="word-break: break-word;border-collapse: collapse !important;vertical-align: top">
+                    <!--[if (mso)|(IE)]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" style="background-color: #e7e7e7;"><![endif]-->
+                    
+
+                <div class="u-row-container" style="padding: 0px;background-image: url('https://i.postimg.cc/xTPbNXWQ/image-3.png');background-repeat: no-repeat;background-position: center top;background-color: transparent">
+                <div class="u-row" style="Margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;">
+                    <div style="border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;">
+                    <!--[if (mso)|(IE)]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding: 0px;background-image: url('images/image-3.png');background-repeat: no-repeat;background-position: center top;background-color: transparent;" align="center"><table cellpadding="0" cellspacing="0" border="0" style="width:600px;"><tr style="background-color: transparent;"><![endif]-->
+                    
+                <!--[if (mso)|(IE)]><td align="center" width="600" style="width: 600px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;" valign="top"><![endif]-->
+                <div class="u-col u-col-100" style="max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;">
+                <div style="height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;">
+                <!--[if (!mso)&(!IE)]><!--><div style="height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;"><!--<![endif]-->
+                
+                <table style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
+                <tbody>
+                    <tr>
+                    <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:30px 10px 251px 30px;font-family:arial,helvetica,sans-serif;" align="left">
+                        
+                <h1 class="v-font-size" style="margin: 0px; color: #1b1c4a; line-height: 140%; text-align: left; word-wrap: break-word; font-weight: normal; font-family: 'Montserrat',sans-serif; font-size: 40px;">
+                    <strong>Orden de venta</strong>
+                </h1>
+
+                    </td>
+                    </tr>
+                </tbody>
+                </table>
+
+                <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
+                </div>
+                </div>
+                <!--[if (mso)|(IE)]></td><![endif]-->
+                    <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->
+                    </div>
+                </div>
+                </div>
+
+
+
+                <div class="u-row-container" style="padding: 0px;background-color: transparent">
+                <div class="u-row no-stack" style="Margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;">
+                    <div style="border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;">
+                    <!--[if (mso)|(IE)]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding: 0px;background-color: transparent;" align="center"><table cellpadding="0" cellspacing="0" border="0" style="width:600px;"><tr style="background-color: transparent;"><![endif]-->
+                    
+                <!--[if (mso)|(IE)]><td align="center" width="199" style="background-color: #ffffff;width: 199px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;" valign="top"><![endif]-->
+                <div class="u-col u-col-33p33" style="max-width: 320px;min-width: 199.98px;display: table-cell;vertical-align: top;">
+                <div style="background-color: #ffffff;height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;">
+                <!--[if (!mso)&(!IE)]><!--><div style="height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;"><!--<![endif]-->
+                
+                <table id="u_content_image_4" style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
+                <tbody>
+                    <tr>
+                    <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:40px 5px 5px;font-family:arial,helvetica,sans-serif;" align="left">
+                        
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                    <td style="padding-right: 0px;padding-left: 0px;" align="center">
+                    
+                    <img align="center" border="0" src="https://i.postimg.cc/bJQvXMPP/image-2.png" alt="Barcode " title="Barcode " style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 27%;max-width: 51.29px;" width="51.29" class="v-src-width v-src-max-width"/>
+                    
+                    </td>
+                </tr>
+                </table>
+
+                    </td>
+                    </tr>
+                </tbody>
+                </table>
+
+                <table style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
+                <tbody>
+                    <tr>
+                    <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:12px 10px 38px;font-family:arial,helvetica,sans-serif;" align="left">
+                        
+                <h1 class="v-font-size" style="margin: 0px; line-height: 140%; text-align: center; word-wrap: break-word; font-weight: normal; font-family: 'Montserrat',sans-serif; font-size: 14px;">
+                '''    
+    mensaje = mensaje + f'''Orden de venta NO: <strong>{ov.OV_NID}</strong> '''
+    mensaje = mensaje +'''  </h1>
+
+                    </td>
+                    </tr>
+                </tbody>
+                </table>
+
+                <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
+                </div>
+                </div>
+                <!--[if (mso)|(IE)]></td><![endif]-->
+                <!--[if (mso)|(IE)]><td align="center" width="210" style="background-color: #ffffff;width: 210px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;" valign="top"><![endif]-->
+                <div class="u-col u-col-35" style="max-width: 320px;min-width: 210px;display: table-cell;vertical-align: top;">
+                <div style="background-color: #ffffff;height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;">
+                <!--[if (!mso)&(!IE)]><!--><div style="height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;"><!--<![endif]-->
+                
+                <table id="u_content_image_5" style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
+                <tbody>
+                    <tr>
+                    <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:40px 5px 5px;font-family:arial,helvetica,sans-serif;" align="left">
+                        
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                    <td style="padding-right: 0px;padding-left: 0px;" align="center">
+                    
+                    <img align="center" border="0" src="https://i.postimg.cc/8kmCtqwB/image-4.png" alt="Calendar " title="Calendar " style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 17%;max-width: 34px;" width="34" class="v-src-width v-src-max-width"/>
+                    
+                    </td>
+                </tr>
+                </table>
+
+                    </td>
+                    </tr>
+                </tbody>
+                </table>
+
+                <table id="u_content_heading_3" style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
+                <tbody>
+                    <tr>
+                    <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:10px 10px 38px;font-family:arial,helvetica,sans-serif;" align="left">
+                        
+                <h1 class="v-font-size" style="margin: 0px; line-height: 140%; text-align: center; word-wrap: break-word; font-weight: normal; font-family: 'Montserrat',sans-serif; font-size: 14px;">''' 
+    mensaje = mensaje + f'''Fecha: <strong>{datetime.now().strftime("%d-%m-%Y")}</strong> '''
+    mensaje = mensaje + '''
+            </h1>
+
+                </td>
+                </tr>
+            </tbody>
+            </table>
+
+            <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
+            </div>
+            </div>
+            <!--[if (mso)|(IE)]></td><![endif]-->
+            <!--[if (mso)|(IE)]><td align="center" width="190" style="background-color: #ffffff;width: 190px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;" valign="top"><![endif]-->
+            <div class="u-col u-col-31p67" style="max-width: 320px;min-width: 190.02px;display: table-cell;vertical-align: top;">
+            <div style="background-color: #ffffff;height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;">
+            <!--[if (!mso)&(!IE)]><!--><div style="height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;"><!--<![endif]-->
+            
+            <table id="u_content_image_6" style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
+            <tbody>
+                <tr>
+                <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:41px 5px 5px;font-family:arial,helvetica,sans-serif;" align="left">
+                    
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td style="padding-right: 0px;padding-left: 0px;" align="center">
+                
+                <img align="center" border="0" src="https://i.postimg.cc/FRq1VmD9/image-1.png" alt="Dollar " title="Dollar " style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 28%;max-width: 50.41px;" width="50.41" class="v-src-width v-src-max-width"/>
+                
+                </td>
+            </tr>
+            </table>
+
+                </td>
+                </tr>
+            </tbody>
+            </table>
+
+            <table id="u_content_heading_4" style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
+            <tbody>
+                <tr>
+                <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:12px 10px 38px;font-family:arial,helvetica,sans-serif;" align="left">
+                    
+            <h1 class="v-font-size" style="margin: 0px; line-height: 140%; text-align: center; word-wrap: break-word; font-weight: normal; font-family: 'Montserrat',sans-serif; font-size: 14px;">'''
+    mensaje = mensaje + f'''Total transporte: <strong>{round(cobro_transporte,0)}</strong>'''
+    mensaje = mensaje + '''</h1>
+
+                        </td>
+                        </tr>
+                    </tbody>
+                    </table>
+
+                    <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
+                    </div>
+                    </div>
+                    <!--[if (mso)|(IE)]></td><![endif]-->
+                        <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->
+                        </div>
+                    </div>
+                    </div>
+
+
+
+                <div class="u-row-container" style="padding: 0px;background-color: transparent">
+                <div class="u-row no-stack" style="Margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;">
+                    <div style="border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;">
+                    <!--[if (mso)|(IE)]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding: 0px;background-color: transparent;" align="center"><table cellpadding="0" cellspacing="0" border="0" style="width:600px;"><tr style="background-color: transparent;"><![endif]-->
+                    
+                <!--[if (mso)|(IE)]><td align="center" width="200" style="background-color: #1b1c4a;width: 200px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;" valign="top"><![endif]-->
+                <div class="u-col u-col-33p33" style="max-width: 320px;min-width: 200px;display: table-cell;vertical-align: top;">
+                <div style="background-color: #1b1c4a;height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;">
+                <!--[if (!mso)&(!IE)]><!--><div style="height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;"><!--<![endif]-->
+                
+                <table id="u_content_heading_5" style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
+                <tbody>
+                    <tr>
+                    <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:arial,helvetica,sans-serif;" align="left">
+                        
+                <h1 class="v-font-size" style="margin: 0px; color: #ffffff; line-height: 140%; text-align: center; word-wrap: break-word; font-weight: normal; font-family: 'Montserrat',sans-serif; font-size: 18px;">
+                    <strong>Codigo producto</strong>
+                </h1>
+
+                    </td>
+                    </tr>
+                </tbody>
+                </table>
+
+                <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
+                </div>
+                </div>
+                <!--[if (mso)|(IE)]></td><![endif]-->
+                <!--[if (mso)|(IE)]><td align="center" width="200" style="background-color: #1b1c4a;width: 200px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;" valign="top"><![endif]-->
+                <div class="u-col u-col-33p33" style="max-width: 320px;min-width: 200px;display: table-cell;vertical-align: top;">
+                <div style="background-color: #1b1c4a;height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;">
+                <!--[if (!mso)&(!IE)]><!--><div style="height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;"><!--<![endif]-->
+                
+                <table id="u_content_heading_6" style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
+                <tbody>
+                    <tr>
+                    <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:arial,helvetica,sans-serif;" align="left">
+                        
+                <h1 class="v-font-size" style="margin: 0px; color: #ffffff; line-height: 140%; text-align: center; word-wrap: break-word; font-weight: normal; font-family: 'Montserrat',sans-serif; font-size: 18px;">
+                    <strong>Cantidad</strong>
+                </h1>
+
+                    </td>
+                    </tr>
+                </tbody>
+                </table>
+
+                <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
+                </div>
+                </div>
+                <!--[if (mso)|(IE)]></td><![endif]-->
+                <!--[if (mso)|(IE)]><td align="center" width="200" style="background-color: #1b1c4a;width: 200px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;" valign="top"><![endif]-->
+                <div class="u-col u-col-33p33" style="max-width: 320px;min-width: 200px;display: table-cell;vertical-align: top;">
+                <div style="background-color: #1b1c4a;height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;">
+                <!--[if (!mso)&(!IE)]><!--><div style="height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;"><!--<![endif]-->
+                
+                <table id="u_content_heading_7" style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
+                <tbody>
+                    <tr>
+                    <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:arial,helvetica,sans-serif;" align="left">
+                        
+                <h1 class="v-font-size" style="margin: 0px; color: #ffffff; line-height: 140%; text-align: center; word-wrap: break-word; font-weight: normal; font-family: 'Montserrat',sans-serif; font-size: 18px;">
+                    <strong>Total</strong>
+                </h1>
+
+                    </td>
+                    </tr>
+                </tbody>
+                </table>
+
+                <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
+                </div>
+                </div>
+                <!--[if (mso)|(IE)]></td><![endif]-->
+                    <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->
+                    </div>
+                </div>
+                </div> '''
+
+    for elemento in instancia_ovd:
+
+        string_texto =  string_texto + '''<div class="u-row-container" style="padding: 0px;background-color: transparent">
+                <div class="u-row no-stack" style="Margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;">
+                    <div style="border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;">
+                    <!--[if (mso)|(IE)]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding: 0px;background-color: transparent;" align="center"><table cellpadding="0" cellspacing="0" border="0" style="width:600px;"><tr style="background-color: transparent;"><![endif]-->
+                    
+                <!--[if (mso)|(IE)]><td align="center" width="200" style="background-color: #ffffff;width: 200px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;" valign="top"><![endif]-->
+                <div class="u-col u-col-33p33" style="max-width: 320px;min-width: 200px;display: table-cell;vertical-align: top;">
+                <div style="background-color: #ffffff;height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;">
+                <!--[if (!mso)&(!IE)]><!--><div style="height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;"><!--<![endif]-->
+                
+                <table id="u_content_heading_10" style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
+                <tbody>
+                    <tr>
+                    <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:10px 10px 11px;font-family:arial,helvetica,sans-serif;" align="left">     
+                    <h1 class="v-font-size" style="margin: 0px; line-height: 140%; text-align: center; word-wrap: break-word; font-weight: normal; font-family: 'Montserrat',sans-serif; font-size: 14px;">'''
+        string_texto =  string_texto + elemento.PC_NID.PC_CCODIGO_PROD
+        string_texto =  string_texto + '''</h1>
+                    </td>
+                    </tr>
+                </tbody>
+                </table>
+
+                <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
+                </div>
+                </div>
+                <!--[if (mso)|(IE)]></td><![endif]-->
+                <!--[if (mso)|(IE)]><td align="center" width="200" style="background-color: #ffffff;width: 200px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;" valign="top"><![endif]-->
+                <div class="u-col u-col-33p33" style="max-width: 320px;min-width: 200px;display: table-cell;vertical-align: top;">
+                <div style="background-color: #ffffff;height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;">
+                <!--[if (!mso)&(!IE)]><!--><div style="height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;"><!--<![endif]-->
+                
+<table id="u_content_heading_11" style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
+  <tbody>
+    <tr>
+      <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:20px 10px;font-family:arial,helvetica,sans-serif;" align="left">
+        
+  <h1 class="v-font-size" style="margin: 0px; line-height: 140%; text-align: center; word-wrap: break-word; font-weight: normal; font-family: 'Montserrat',sans-serif; font-size: 14px;">
+'''
+        string_texto =  string_texto +  f'''<strong>{elemento.OVD_NQTY}</strong>'''
+        string_texto =  string_texto + '''  </h1>
+
+                        </td>
+                        </tr>
+                    </tbody>
+                    </table>
+
+                    <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
+                    </div>
+                    </div>
+                    <!--[if (mso)|(IE)]></td><![endif]-->
+                    <!--[if (mso)|(IE)]><td align="center" width="200" style="background-color: #ffffff;width: 200px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;" valign="top"><![endif]-->
+                    <div class="u-col u-col-33p33" style="max-width: 320px;min-width: 200px;display: table-cell;vertical-align: top;">
+                    <div style="background-color: #ffffff;height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;">
+                    <!--[if (!mso)&(!IE)]><!--><div style="height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;"><!--<![endif]-->
+                    
+                    <table id="u_content_heading_12" style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
+                    <tbody>
+                        <tr>
+                        <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:20px 10px;font-family:arial,helvetica,sans-serif;" align="left">
+                            
+                    <h1 class="v-font-size" style="margin: 0px; line-height: 140%; text-align: center; word-wrap: break-word; font-weight: normal; font-family: 'Montserrat',sans-serif; font-size: 14px;">'''
+        string_texto =  string_texto + f'''<strong>{round((elemento.OVD_NQTY * elemento.OVD_NPRECIO),0)}</strong>'''
+        string_texto =  string_texto +  '''
+        </h1>
+
+            </td>
+            </tr>
+        </tbody>
+        </table>
+
+        <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
+        </div>
+        </div>
+        <!--[if (mso)|(IE)]></td><![endif]-->
+            <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->
+            </div>
+        </div>
+        </div>
+
+
+
+
+        <div class="u-row-container" style="padding: 0px;background-color: transparent">
+        <div class="u-row no-stack" style="Margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;">
+            <div style="border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;">
+            <!--[if (mso)|(IE)]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding: 0px;background-color: transparent;" align="center"><table cellpadding="0" cellspacing="0" border="0" style="width:600px;"><tr style="background-color: transparent;"><![endif]-->
+            
+        <!--[if (mso)|(IE)]><td align="center" width="400" style="background-color: #ffffff;width: 400px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;" valign="top"><![endif]-->
+        <div class="u-col u-col-66p67" style="max-width: 320px;min-width: 400px;display: table-cell;vertical-align: top;">
+        <div style="background-color: #ffffff;height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;">
+        <!--[if (!mso)&(!IE)]><!--><div style="height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;"><!--<![endif]-->
+        '''
+    mensaje= mensaje + string_texto + '''
+<table id="u_content_heading_31" style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
+  <tbody>
+    <tr>
+      <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:20px 10px 20px 270px;font-family:arial,helvetica,sans-serif;" align="left">
+        
+  <h1 class="v-font-size" style="margin: 0px; color: #1b1c4a; line-height: 140%; text-align: left; word-wrap: break-word; font-weight: normal; font-family: 'Montserrat',sans-serif; font-size: 20px;">
+
+        <strong>TOTAL</strong>
+  </h1>
+
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
+  </div>
+</div>
+<!--[if (mso)|(IE)]></td><![endif]-->
+<!--[if (mso)|(IE)]><td align="center" width="200" style="background-color: #1b1c4a;width: 200px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;" valign="top"><![endif]-->
+<div class="u-col u-col-33p33" style="max-width: 320px;min-width: 200px;display: table-cell;vertical-align: top;">
+  <div style="background-color: #1b1c4a;height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;">
+  <!--[if (!mso)&(!IE)]><!--><div style="height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;"><!--<![endif]-->
+  
+<table id="u_content_heading_15" style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
+  <tbody>
+    <tr>
+      <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:20px 10px;font-family:arial,helvetica,sans-serif;" align="left">
+        
+  <h1 class="v-font-size" style="margin: 0px; color: #ffffff; line-height: 140%; text-align: center; word-wrap: break-word; font-weight: normal; font-family: 'Montserrat',sans-serif; font-size: 18px;">'''
+    mensaje= mensaje + f'''<strong>{total}</strong>''''''
+  </h1>
+
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
+  </div>
+</div>
+<!--[if (mso)|(IE)]></td><![endif]-->
+      <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->
+    </div>
+  </div>
+</div>
+
+
+
+
+    <!--[if (mso)|(IE)]></td></tr></table><![endif]-->
+    </td>
+  </tr>
+  </tbody>
+  </table>
+  <!--[if mso]></div><![endif]-->
+  <!--[if IE]></div><![endif]-->
+</body>
+
+</html>
+
+'''
+    return mensaje

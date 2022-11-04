@@ -12,7 +12,7 @@ from django.conf.urls.static import static
 urlpatterns = [
 
     # The home page
-    path('', views.index, name='home'),
+    path('', views.dashboard, name='home'),
     ################
     # MANTENEDORES #
     ################

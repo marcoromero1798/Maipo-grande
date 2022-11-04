@@ -103,12 +103,14 @@ def resumen_carro(US_NID):
     with connection.cursor() as cursor:
         cquery = f'''
         SELECT 
-		"CATEGORIA_PRODUCTO"."CP_CDESCRIPCION",
-        "CARRO_COMPRA"."CC_NQTY"
+		"PRODUCTO"."PC_CDESCRIPCION",
+        "CATEGORIA_PRODUCTO"."CP_CDESCRIPCION",
+		"CARRO_COMPRA"."CC_NQTY"
         FROM "CARRO_COMPRA" 
         LEFT JOIN "CATEGORIA_PRODUCTO" on "CATEGORIA_PRODUCTO"."CP_NID" = "CARRO_COMPRA"."CP_NID_id"
-        WHERE "CARRO_COMPRA"."CC_NESTADO" = TRUE 
-        AND "CARRO_COMPRA"."US_NID_id" = {US_NID}'''
+        LEFT JOIN "PRODUCTO" ON "PRODUCTO"."PC_NID" = "CARRO_COMPRA"."PC_NID_id"
+		WHERE "CARRO_COMPRA"."CC_NESTADO" = TRUE 
+        AND "CARRO_COMPRA"."US_NID_id" =  {US_NID}'''
 
         cursor.execute(cquery)
         resultado = cursor.fetchall()

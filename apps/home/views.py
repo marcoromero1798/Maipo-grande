@@ -5,6 +5,9 @@ Copyright (c) 2019 - present AppSeed.us
 
 
 
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import smtplib
 from django import template
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
@@ -336,6 +339,25 @@ def categoria_list_compra(request):
     except Exception as e:
         print("Error listar categoria: ", e)
         return render(request, 'home/sy-cp_list_compra.html', context)
+def producto_list_compra(request):
+    try:
+        context = {}
+        user = []
+        producto = []
+        user = USERS_EXTENSION.objects.get(US_NID=request.user.id)
+        if user.UX_NHABILITADO == 0:
+            messages.info(
+                request, 'Usuario no habiltado, contactese con un administrador')
+            return render(request, 'home/sy-pc_list_compra.html', context)
+        else:
+            producto = STOCK.objects.filter(STK_CBODEGA = 'INTERNA',STK_NQTY__gt = 0)
+        context = {
+            'object_list': producto
+        }
+        return render(request, 'home/sy-pc_list_compra.html', context)
+    except Exception as e:
+        print("Error listar producto: ", e)
+        return render(request, 'home/sy-pc_list_compra.html', context)
 def categoria_deshabilitar(request, pk):
     instancia = []
     try:
@@ -1131,13 +1153,14 @@ def carrito_compra(request):
     estado = True
     cantidad = request.POST.get('cantidad', 0)
     cp_nid = request.POST.get('id')
+    pc_nid = request.POST.get('pc_id')
     # precio = instancia_producto.PC_NPRECIO
     # monto_total = float(precio) * int(cantidad)
     try:
         carrito_compra = []
         carrito_compra = CARRO_COMPRA(
                     US_NID_id=request.user.id,
-                    # PC_NID_id=pc_nid,
+                    PC_NID_id=pc_nid,
                     CP_NID_id=cp_nid,
                     # CC_NMONTO_TOTAL=monto_total,
                     # CC_NPRECIO=precio,
@@ -1184,6 +1207,7 @@ def carrito_compra_delete(request,cc_nid):
 def carrito_compra_resumen(request,us_nid):
     lista_elementos = []
     lista_elementos = resumen_carro(us_nid)
+
     return JsonResponse({
         'elementos_carro': lista_elementos
     })
@@ -1410,11 +1434,6 @@ class OV_Update(UpdateView):
 #     template_name = 'home/tr-ov_create.html'  # html template en core
 #     success_url = reverse_lazy("tr-list")
 
-# class OV_Update(UpdateView):
-#     model = ORDEN_VENTA  # Modelo a utilizar
-#     form_class = formOV
-#     template_name = 'home/tr-ov_create.html'  # html template en core
-#     success_url = reverse_lazy("tr-list")
 
 
 #PROCESOS
@@ -1442,7 +1461,7 @@ def generar_solicitud(request,us_nid):
                     #TC_NID = ?
                     SC_FFECHA_CREACION = datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     SC_NPROCESADO = False,
-                    SU_CTIPO_SOLICITUD = 'EXTERNO'
+                    SC_CTIPO_SOLICITUD = 'EXTERNO'
                 )
                 Nueva_cabecera.save()
             except Exception as e:
@@ -1458,7 +1477,7 @@ def generar_solicitud(request,us_nid):
                     lista_aux=[]
                     Detalle = SOLICITUD_COMPRA_DETALLE(
                         SC_NID_id = SC_NID,
-                        # PC_NID = elemento.PC_NID,
+                        PC_NID_id = elemento.PC_NID_id,
                         CP_NID_id = elemento.CP_NID_id,
                         SC_NLINEA = linea,
                         SCD_NQTY = elemento.CC_NQTY
@@ -1526,6 +1545,73 @@ def generar_orden_venta(request,sc_nid):
         return reverse_lazy('tr-carro_detalle',kwargs = {'sc_nid':sc_nid})
     messages.success(request,f"Orden de venta creada correctamente, Nro Orden de venta :{OV_NID}")
     return  redirect('tr-list')
+# PROCESO EXTERNO   
+def generar_orden_venta_completa(request,sc_nid):
+    try:
+        #definicion de variables
+        estado = True
+
+        #definicion de instancias
+        instancia_queryset_solicitud_compra = []
+        #obtencion de datos de la bd
+        instancia_queryset_solicitud_compra = SOLICITUD_COMPRA.objects.filter(SC_NID =sc_nid)
+        instancia_queryset_solicitud_detalle = SOLICITUD_COMPRA_DETALLE.objects.filter(SC_NID_id =sc_nid)
+        #pk que se usara en el detalle
+        OV_NID = nextOV_NID()
+        #creamos la cabecera de solicitud de compra
+        try:
+            Nueva_cabecera = ORDEN_VENTA(
+                OV_NID = OV_NID,
+                OV_NDOCUMENTO_ORIGEN_id = sc_nid,
+                OV_CESTADO = 'INICIADO',
+                OV_CTIPO_PROCESO = 'INTERNO',
+                OV_NPROCESADO = False,
+                OV_FFECHA_CREACION = datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                US_NID_id= request.user.id,
+                #DR_NID = ?
+                #TC_NID = ?
+                OV_FFECHA_PROCESAMIENTO= None,
+                OV_COBSERVACIONES = ''
+            )
+            Nueva_cabecera.save()
+        except Exception as e:
+            print("error al generar la cabecera de ov:",e)
+            estado == False
+        linea = nextLine_OV(OV_NID)
+        try:
+            lista_datos = []
+            try:
+                for elemento in instancia_queryset_solicitud_detalle:
+                    precio_prod = elemento.PC_NID.PC_NPRECIO_REF
+                    lista_aux=[]
+                    Detalle = ORDEN_VENTA_DETALLE(
+                        OV_NID_id = OV_NID,
+                        PC_NID_id = elemento.PC_NID_id,
+                        CP_NID_id = elemento.CP_NID_id,
+                        OVD_NLINEA = linea,
+                        OVD_NQTY = elemento.SCD_NQTY,
+                        OVD_NPRECIO = precio_prod
+                    )
+                    lista_datos.append(Detalle)
+                    linea +=1
+                ORDEN_VENTA_DETALLE.objects.bulk_create(lista_datos)
+            except Exception as e:
+                print("Error al generar detalle de OV: ",e)
+                estado = False
+
+        except Exception as e:
+            print("error al generar el detalle de solicitud:",e)
+            estado == False
+        #obtenemos la nueva cabecera para ingresarla en el detalle
+        if estado == True:
+            instancia_queryset_solicitud_compra.update(SC_NPROCESADO = True,SC_FFECHA_PROCESAMIENTO = datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+            return redirect('tr-list')
+    except Exception as e:
+        print("error traspaso de solicitud de compra a orden de venta: ",e)
+        messages.warning(request,'Error al traspasar la solicitud de compra a orden de venta, contactese con un administrador')
+        return redirect('tr-list')
+    messages.success(request,f"Orden de venta creada correctamente, Nro Orden de venta :{OV_NID}")
+    return  redirect('tr-list')
 # OV ---> SUBASTA:
 def generar_subasta(request,ov_nid):
     estado = True
@@ -1538,11 +1624,11 @@ def generar_subasta(request,ov_nid):
     #obtencion de datos de la bd
     instancia_queryset_orden_venta = ORDEN_VENTA.objects.get(OV_NID = ov_nid)
     instancia_queryset_orden_venta_detalle = ORDEN_VENTA_DETALLE.objects.filter(OV_NID_id =ov_nid)
-
+    peso_acum = 0
     #pk que se usara en el detalle
     for elemento in instancia_queryset_orden_venta_detalle:
         id_producto = elemento.PC_NID_id
-        peso_acum = 0
+
         try:
             instancia_producto = PRODUCTO.objects.get(PC_NID = id_producto)
         except Exception as e:
@@ -1831,10 +1917,165 @@ def obtener_mejor_producto(request,ov_nid):
                 'Estado':estado,
                 'mensaje':mensaje
             })
-        
-def notificaciones_correo():
-    return
+# def mensaje_OV(request,solicitud,ov,nro_solicitud,nro_nv):
+#     if solicitud == True:
+#         texto = f'Su solicitud se genero con correctamente con la siguiente fecha {datetime.now().strftime("%d-%m-%Y")}, el numero de documento es {nro_solicitud}'
+#         boton =f'/localhost:8000/'
+#     mensaje = '''
+#             <!DOCTYPE html>
+#             <html>
+#             <head>
+#             <title></title>
+#             <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+#             <meta name="viewport" content="width=device-width, initial-scale=1">
+#             <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+#             <style type="text/css">
+#                 /* FONTS */
+#                 @media screen {
+#                     @font-face {
+#                     font-family: 'Lato';
+#                     font-style: normal;
+#                     font-weight: 400;
+#                     src: local('Lato Regular'), local('Lato-Regular'), url(https://fonts.gstatic.com/s/lato/v11/qIIYRU-oROkIk8vfvxw6QvesZW2xOQ-xsNqO47m55DA.woff) format('woff');
+#                     }
+                    
+#                     @font-face {
+#                     font-family: 'Lato';
+#                     font-style: normal;
+#                     font-weight: 700;
+#                     src: local('Lato Bold'), local('Lato-Bold'), url(https://fonts.gstatic.com/s/lato/v11/qdgUG4U09HnJwhYI-uK18wLUuEpTyoUstqEm5AMlJo4.woff) format('woff');
+#                     }
+                    
+#                     @font-face {
+#                     font-family: 'Lato';
+#                     font-style: italic;
+#                     font-weight: 400;
+#                     src: local('Lato Italic'), local('Lato-Italic'), url(https://fonts.gstatic.com/s/lato/v11/RYyZNoeFgb0l7W3Vu1aSWOvvDin1pK8aKteLpeZ5c0A.woff) format('woff');
+#                     }
+                    
+#                     @font-face {
+#                     font-family: 'Lato';
+#                     font-style: italic;
+#                     font-weight: 700;
+#                     src: local('Lato Bold Italic'), local('Lato-BoldItalic'), url(https://fonts.gstatic.com/s/lato/v11/HkF_qI1x_noxlxhrhMQYELO3LdcAZYWl9Si6vvxL-qU.woff) format('woff');
+#                     }
+#                 }
+                
+#                 /* CLIENT-SPECIFIC STYLES */
+#                 body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+#                 table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+#                 img { -ms-interpolation-mode: bicubic; }
 
+#                 /* RESET STYLES */
+#                 img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+#                 table { border-collapse: collapse !important; }
+#                 body { height: 100% !important; margin: 0 !important; padding: 0 !important; width: 100% !important; }
+
+#                 /* iOS BLUE LINKS */
+#                 a[x-apple-data-detectors] {
+#                     color: inherit !important;
+#                     text-decoration: none !important;
+#                     font-size: inherit !important;
+#                     font-family: inherit !important;
+#                     font-weight: inherit !important;
+#                     line-height: inherit !important;
+#                 }
+                
+#                 /* MOBILE STYLES */
+#                 @media screen and (max-width:600px){
+#                     h1 {
+#                         font-size: 32px !important;
+#                         line-height: 32px !important;
+#                     }
+#                 }
+
+#                 /* ANDROID CENTER FIX */
+#                 div[style*="margin: 16px 0;"] { margin: 0 !important; }
+#             </style>
+
+#             </head>
+#             <body style="background-color: #f4f4f4; margin: 0 !important; padding: 0 !important;">
+
+#             <!-- HIDDEN PREHEADER TEXT -->
+
+#             <table border="0" cellpadding="0" cellspacing="0" width="100%">
+#                 <!-- LOGO -->
+#                 <tr>
+#                     <td bgcolor="#FFA73B" align="center">
+#                         <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;" >
+#                             <tr>
+#                                 <td align="center" valign="top" style="padding: 40px 10px 40px 10px;">
+
+#                                 </td>
+#                             </tr>
+#                         </table>
+
+#                     </td>
+#                 </tr>
+#                 <tr>
+#                     <td bgcolor="#FFA73B" align="center" style="padding: 0px 10px 0px 10px;">
+
+#                         <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;" >
+#                             <tr>
+#                                 <td bgcolor="#ffffff" align="center" valign="top" style="padding: 40px 20px 20px 20px; border-radius: 4px 4px 0px 0px; color: #111111; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 48px; font-weight: 400; letter-spacing: 4px; line-height: 48px;">
+#                                 <h1 style="font-size: 48px; font-weight: 400; margin: 0;">Hola!</h1>
+#                                 </td>
+#                             </tr>
+#                         </table>
+
+#                     </td>
+#                 </tr>
+#                 <tr>
+#                     <td bgcolor="#f4f4f4" align="center" style="padding: 0px 10px 0px 10px;">
+#                         <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;" >
+#                         <!-- COPY -->
+#                         <tr>
+#                             <td bgcolor="#ffffff" align="left" style="padding: 20px 30px 40px 30px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;" >'''
+#     mensaje = mensaje +f'''   <p style="margin: 0;">'''{}'''</p>'''
+#     mensaje = mensaje + '''</td>
+#                         </tr>
+#                         <tr>
+#                             <td bgcolor="#ffffff" align="left">
+#                             <table width="100%" border="0" cellspacing="0" cellpadding="0">
+#                                 <tr>
+#                                 <td bgcolor="#ffffff" align="center" style="padding: 20px 30px 60px 30px;">
+#                                     <table border="0" cellspacing="0" cellpadding="0">
+#                                     <tr>
+#                                         <td align="center" style="border-radius: 3px;" bgcolor="#000000"><a href="#" target="_blank" style="font-size: 20px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; color: #ffffff; text-decoration: none; padding: 15px 25px; border-radius: 2px; border: 1px solid #000000; display: inline-block;">Visualizar documento</a></td>
+#                                     </tr>
+#                                     </table>
+#                                 </td>
+#                                 </tr>
+#                             </table>
+#                             </td>
+#                         </tr>
+#                     </td>
+#                 </tr>
+#             </table>
+                
+#             </body>
+#             </html>
+# '''
+#     return
+
+def send_email_notificacion_documentos(correo_dest, message):
+    try:
+        msg = MIMEMultipart()
+        password = 'fwgrosbdtqoleqgf'
+        msg['From'] = 'sender.neuronia@gmail.com'
+        msg['To'] = correo_dest
+        msg['Subject'] = f'Notificicacion de pedido'
+
+        msg.attach(MIMEText(message, _subtype='html'))
+        server = smtplib.SMTP(f'{"smtp.gmail.com"}:{587}')
+        server.starttls()
+        server.login(msg['From'], password)
+        server.sendmail(msg['From'], msg['To'], msg.as_string())
+        server.quit()
+
+        print("mensaje enviado correctamente")
+    except Exception as e:
+        print(e)
 def traspasar_stock(request):
     #buscamos la totalidad de  stock ingresado 
     STOCK_VENTA_EXTERNA = STOCK.objects.filter(STK_CBODEGA="EXTERNA",STK_NQTY__gt = 0)

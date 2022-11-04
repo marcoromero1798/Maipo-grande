@@ -321,6 +321,8 @@ class SOLICITUD_COMPRA(models.Model):
     SC_FFECHA_CREACION = models.DateTimeField(("FECHA CREACION"))
     SC_FFECHA_PROCESAMIENTO = models.DateTimeField(("FECHA PROCESAMIENTO"),null=True,blank=True)
     SC_NPROCESADO = models.BooleanField(("Habilitado"),default=False,null=True,blank=True)
+    SC_CTIPO_SOLICITUD =models.CharField(("Observaciones"),max_length=100,null=True,blank=True)
+
     # SCD_NMONTO_TOTAL = models.DecimalField(("MONTO TOTAL"),max_digits=18,decimal_places=5)   
 
     class Meta:
@@ -403,7 +405,6 @@ class SUBASTA(models.Model):
     SU_PESO_TOTAL = models.DecimalField(("PRECIO"),max_digits=18,decimal_places=5) 
     SU_NREFRIGERACION = models.BooleanField(("REFRIGERACION"),default=False,null=True,blank=True)
     SU_NPROCESADO = models.BooleanField(("HABILITADO"),default=False,null=True,blank=True)    
-    SU_CTIPO_SOLICITUD = models.BooleanField(("HABILITADO"),default=False,null=True,blank=True)    
     SU_NESTADO = models.BooleanField(("HABILITADO"),default=False,null=True,blank=True)    
     SU_NTRANSPORTE_SELECCIONADO= models.ForeignKey(TRANSPORTE,on_delete=models.PROTECT,verbose_name="Documento origen",null = True,blank =True)
     class Meta:
@@ -411,8 +412,9 @@ class SUBASTA(models.Model):
 
     @property
     def VIGENCIA(self):
-        fecha_consulta = datetime.now(self.SU_FFECHA_TERMINO.tzinfo)
+        
         if self.SU_FFECHA_TERMINO != None:
+            fecha_consulta = datetime.now(self.SU_FFECHA_TERMINO.tzinfo)
             fecha_termino = self.SU_FFECHA_TERMINO
             if fecha_consulta >= fecha_termino:
                 return 'TERMINADA'

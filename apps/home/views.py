@@ -646,6 +646,7 @@ class transporte_update(UpdateView):
 
 def transporte_list(request):
     user = USERS_EXTENSION.objects.get(US_NID=request.user.id)
+    transporte = []
     if user.UX_NHABILITADO == 0:
         messages.info(
             request, 'Usuario no habiltado, contactese con un administrador')
@@ -1267,7 +1268,7 @@ def Transacciones_list(request):
         instancia_ov = ORDEN_VENTA.objects.filter(US_NID_id = request.user.id)
         instancia_sc = SOLICITUD_COMPRA.objects.filter(US_NID_id = request.user.id)
         if instancia_usuario.UX_IS_TRANSPORTISTA == True:
-            instancia_su = SUBASTA.objects.filter(US_NID_id = request.user.id)
+            instancia_su = SUBASTA.objects.all()
 
     context = {
         'object_list_ov': instancia_ov,

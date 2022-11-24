@@ -41,7 +41,11 @@
 							<li>
 								<a class="nav-link text-info" href='#'onclick="obtener_mejor_producto('{{object.OV_NDOCUMENTO_ORIGEN}}','{{object.OV_NID}}')">Buscar mejores productos</a>
 							</li>
+							<li>
+								<a class="nav-link text-info" href="{% url 'tr-ov_update' object.OV_NID %}">Editar datos Orden de venta</a>
+							</li>
 							{% else %}
+							
 							<li>
 								<a class="nav-link text-info" href="{% url 'tr-orden_venta_subasta' object.OV_NID %}">Subastar Transporte</a>
 							</li>
@@ -53,17 +57,12 @@
 							</li>
 							{% endif %}
 						{% endif %}
-					{% endif %}
-					{% if request.user.is_superuser == 1 or request.user.USER.UX_IS_ADMINISTRADOR == 1 %}
-					<li>
-						<a class="nav-link text-info" href="{% url 'tr-ov_update' object.OV_NID %}">Editar datos Orden de venta</a>
-					</li>
-                    {% endif %}
-					{% if request.user.is_superuser == 1 or request.user.USER.UX_IS_ADMINISTRADOR == 1 or request.user.USER.UX_IS_PRODUCTOR == 1%}
+					{% elif request.user.USER.UX_IS_PRODUCTOR == 1 %}
 					<li>
 						<a class="nav-link text-info" href="{% url 'tr-ovd_create' object.OV_NID %}">Agregar producto</a>
 					</li>
-                    {% endif %}
+					{% endif %}
+
 
 				</ul>
 

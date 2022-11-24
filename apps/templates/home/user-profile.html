@@ -13,305 +13,6 @@
 
 {% block content %}	
 
-	<!-- [ chat user list ] start -->
-	<section class="header-user-list">
-		<a href="#!" class="h-close-text"><i class="feather icon-x"></i></a>
-		<ul class="nav nav-tabs" id="chatTab" role="tablist">
-			<li class="nav-item">
-				<a class="nav-link active text-uppercase border-0" id="chat-tab" data-toggle="tab" href="#chat" role="tab" aria-controls="chat" aria-selected="true"><i class="feather icon-message-circle mr-2"></i>Chat</a>
-			</li>
-			<li class="nav-item">
-				<a class="nav-link text-uppercase border-0" id="user-tab" data-toggle="tab" href="#user" role="tab" aria-controls="user" aria-selected="false"><i class="feather icon-users mr-2"></i>User</a>
-			</li>
-			<li class="nav-item">
-				<a class="nav-link text-uppercase border-0" id="setting-tab" data-toggle="tab" href="#setting" role="tab" aria-controls="setting" aria-selected="false"><i class="feather icon-settings mr-2"></i>Setting</a>
-			</li>
-		</ul>
-		<div class="tab-content" id="chatTabContent">
-			<div class="tab-pane fade show active" id="chat" role="tabpanel" aria-labelledby="chat-tab">
-				<div class="h-list-header">
-					<div class="input-group">
-						<input type="text" id="search-friends" class="form-control" placeholder="Search Friend . . .">
-					</div>
-				</div>
-				<div class="h-list-body">
-					<div class="main-friend-cont scroll-div">
-						<div class="main-friend-list">
-							<div class="media userlist-box" data-id="1" data-status="online" data-username="Josephin Doe">
-								<a class="media-left" href="#!"><img class="media-object img-radius" src="/static/assets/images/user/avatar-1.jpg" alt="Generic placeholder image ">
-									<div class="live-status">3</div>
-								</a>
-								<div class="media-body">
-									<h6 class="chat-header">Josephin Doe<small class="d-block text-c-green">Typing . . </small></h6>
-								</div>
-							</div>
-							<div class="media userlist-box" data-id="2" data-status="online" data-username="Lary Doe">
-								<a class="media-left" href="#!"><img class="media-object img-radius" src="/static/assets/images/user/avatar-2.jpg" alt="Generic placeholder image">
-									<div class="live-status">1</div>
-								</a>
-								<div class="media-body">
-									<h6 class="chat-header">Lary Doe<small class="d-block text-c-green">online</small></h6>
-								</div>
-							</div>
-							<div class="media userlist-box" data-id="3" data-status="online" data-username="Alice">
-								<a class="media-left" href="#!"><img class="media-object img-radius" src="/static/assets/images/user/avatar-3.jpg" alt="Generic placeholder image"></a>
-								<div class="media-body">
-									<h6 class="chat-header">Alice<small class="d-block text-c-green">online</small></h6>
-								</div>
-							</div>
-							<div class="media userlist-box" data-id="4" data-status="offline" data-username="Alia">
-								<a class="media-left" href="#!"><img class="media-object img-radius" src="/static/assets/images/user/avatar-1.jpg" alt="Generic placeholder image">
-									<div class="live-status">1</div>
-								</a>
-								<div class="media-body">
-									<h6 class="chat-header">Alia<small class="d-block text-muted">10 min ago</small></h6>
-								</div>
-							</div>
-							<div class="media userlist-box" data-id="5" data-status="offline" data-username="Suzen">
-								<a class="media-left" href="#!"><img class="media-object img-radius" src="/static/assets/images/user/avatar-4.jpg" alt="Generic placeholder image"></a>
-								<div class="media-body">
-									<h6 class="chat-header">Suzen<small class="d-block text-muted">15 min ago</small></h6>
-								</div>
-							</div>
-							<div class="media userlist-box" data-id="1" data-status="online" data-username="Josephin Doe">
-								<a class="media-left" href="#!"><img class="media-object img-radius" src="/static/assets/images/user/avatar-1.jpg" alt="Generic placeholder image ">
-									<div class="live-status">3</div>
-								</a>
-								<div class="media-body">
-									<h6 class="chat-header">Josephin Doe<small class="d-block text-c-green">Typing . . </small></h6>
-								</div>
-							</div>
-							<div class="media userlist-box" data-id="2" data-status="online" data-username="Lary Doe">
-								<a class="media-left" href="#!"><img class="media-object img-radius" src="/static/assets/images/user/avatar-2.jpg" alt="Generic placeholder image">
-									<div class="live-status">1</div>
-								</a>
-								<div class="media-body">
-									<h6 class="chat-header">Lary Doe<small class="d-block text-c-green">online</small></h6>
-								</div>
-							</div>
-							<div class="media userlist-box" data-id="3" data-status="online" data-username="Alice">
-								<a class="media-left" href="#!"><img class="media-object img-radius" src="/static/assets/images/user/avatar-3.jpg" alt="Generic placeholder image"></a>
-								<div class="media-body">
-									<h6 class="chat-header">Alice<small class="d-block text-c-green">online</small></h6>
-								</div>
-							</div>
-							<div class="media userlist-box" data-id="4" data-status="offline" data-username="Alia">
-								<a class="media-left" href="#!"><img class="media-object img-radius" src="/static/assets/images/user/avatar-1.jpg" alt="Generic placeholder image">
-									<div class="live-status">1</div>
-								</a>
-								<div class="media-body">
-									<h6 class="chat-header">Alia<small class="d-block text-muted">10 min ago</small></h6>
-								</div>
-							</div>
-							<div class="media userlist-box" data-id="5" data-status="offline" data-username="Suzen">
-								<a class="media-left" href="#!"><img class="media-object img-radius" src="/static/assets/images/user/avatar-4.jpg" alt="Generic placeholder image"></a>
-								<div class="media-body">
-									<h6 class="chat-header">Suzen<small class="d-block text-muted">15 min ago</small></h6>
-								</div>
-							</div>
-							<div class="media userlist-box" data-id="1" data-status="online" data-username="Josephin Doe">
-								<a class="media-left" href="#!"><img class="media-object img-radius" src="/static/assets/images/user/avatar-1.jpg" alt="Generic placeholder image ">
-									<div class="live-status">3</div>
-								</a>
-								<div class="media-body">
-									<h6 class="chat-header">Josephin Doe<small class="d-block text-c-green">Typing . . </small></h6>
-								</div>
-							</div>
-							<div class="media userlist-box" data-id="2" data-status="online" data-username="Lary Doe">
-								<a class="media-left" href="#!"><img class="media-object img-radius" src="/static/assets/images/user/avatar-2.jpg" alt="Generic placeholder image">
-									<div class="live-status">1</div>
-								</a>
-								<div class="media-body">
-									<h6 class="chat-header">Lary Doe<small class="d-block text-c-green">online</small></h6>
-								</div>
-							</div>
-							<div class="media userlist-box" data-id="3" data-status="online" data-username="Alice">
-								<a class="media-left" href="#!"><img class="media-object img-radius" src="/static/assets/images/user/avatar-3.jpg" alt="Generic placeholder image"></a>
-								<div class="media-body">
-									<h6 class="chat-header">Alice<small class="d-block text-c-green">online</small></h6>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="tab-pane fade" id="user" role="tabpanel" aria-labelledby="user-tab">
-				<div class="h-list-body">
-					<div class="main-friend-cont scroll-div">
-						<div class="main-friend-list">
-							<div class="media px-3 d-flex align-items-center mt-3">
-								<a class="media-left m-r-15" href="#!">
-									<div class="hei-50 wid-50 bg-primary img-radius d-flex text-white f-22 align-items-center justify-content-center"><i class="icon feather icon-users"></i></div>
-								</a>
-								<div class="media-body">
-									<p class="chat-header f-w-600 mb-0">New Group</p>
-								</div>
-							</div>
-							<div class="media p-3 d-flex align-items-center">
-								<a class="media-left m-r-15" href="#!">
-									<div class="hei-50 wid-50 bg-primary img-radius d-flex text-white f-22 align-items-center justify-content-center"><i class="icon feather icon-user-plus"></i></div>
-								</a>
-								<div class="media-body">
-									<p class="chat-header f-w-600 mb-0">New Contact</p>
-								</div>
-							</div>
-							<div class="media userlist-box" data-id="1" data-status="online" data-username="Josephin Doe">
-								<a class="media-left" href="#!"><img class="media-object img-radius" src="/static/assets/images/user/avatar-1.jpg" alt="Generic placeholder image "></a>
-								<div class="media-body">
-									<p class="chat-header">Josephin Doe<small class="d-block">i am not what happened . .</small></p>
-								</div>
-							</div>
-							<div class="media userlist-box" data-id="2" data-status="online" data-username="Lary Doe">
-								<a class="media-left" href="#!"><img class="media-object img-radius" src="/static/assets/images/user/avatar-2.jpg" alt="Generic placeholder image"></a>
-								<div class="media-body">
-									<h6 class="chat-header">Lary Doe<small class="d-block">Avalable</small></h6>
-								</div>
-							</div>
-							<div class="media userlist-box" data-id="3" data-status="online" data-username="Alice">
-								<a class="media-left" href="#!"><img class="media-object img-radius" src="/static/assets/images/user/avatar-3.jpg" alt="Generic placeholder image"></a>
-								<div class="media-body">
-									<h6 class="chat-header">Alice<small class="d-block">hear using Elite able</small></h6>
-								</div>
-							</div>
-							<div class="media userlist-box" data-id="4" data-status="offline" data-username="Alia">
-								<a class="media-left" href="#!">
-									<div class="hei-50 wid-50 img-radius bg-success d-flex text-white f-22 align-items-center justify-content-center">A</div>
-								</a>
-								<div class="media-body">
-									<h6 class="chat-header">Alia<small class="d-block text-muted">Avalable</small></h6>
-								</div>
-							</div>
-							<div class="media userlist-box" data-id="5" data-status="offline" data-username="Suzen">
-								<a class="media-left" href="#!"><img class="media-object img-radius" src="/static/assets/images/user/avatar-4.jpg" alt="Generic placeholder image"></a>
-								<div class="media-body">
-									<h6 class="chat-header">Suzen<small class="d-block text-muted">Avalable</small></h6>
-								</div>
-							</div>
-							<div class="media userlist-box" data-id="1" data-status="online" data-username="Josephin Doe">
-								<a class="media-left" href="#!">
-									<div class="hei-50 wid-50 bg-danger img-radius d-flex text-white f-22 align-items-center justify-content-center">JD</div>
-								</a>
-								<div class="media-body">
-									<h6 class="chat-header">Josephin Doe<small class="d-block text-muted">Don't send me image</small></h6>
-								</div>
-							</div>
-							<div class="media userlist-box" data-id="2" data-status="online" data-username="Lary Doe">
-								<a class="media-left" href="#!"><img class="media-object img-radius" src="/static/assets/images/user/avatar-2.jpg" alt="Generic placeholder image"></a>
-								<div class="media-body">
-									<h6 class="chat-header">Lary Doe<small class="d-block text-muted">not send free msg</small></h6>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="tab-pane fade" id="setting" role="tabpanel" aria-labelledby="setting-tab">
-				<div class="p-4 main-friend-cont scroll-div">
-					<h6 class="mt-2"><i class="feather icon-monitor mr-2"></i>Desktop settings</h6>
-					<hr>
-					<div class="form-group mb-0">
-						<div class="switch switch-primary d-inline m-r-10">
-							<input type="checkbox" id="cn-p-1" checked>
-							<label for="cn-p-1" class="cr"></label>
-						</div>
-						<label class="f-w-600">Allow desktop notification</label>
-					</div>
-					<p class="text-muted ml-5">you get lettest content at a time when data will updated</p>
-					<div class="form-group mb-0">
-						<div class="switch switch-primary d-inline m-r-10">
-							<input type="checkbox" id="cn-p-5">
-							<label for="cn-p-5" class="cr"></label>
-						</div>
-						<label class="f-w-600">Store Cookie</label>
-					</div>
-					<h6 class="mb-0 mt-5"><i class="feather icon-layout mr-2"></i>Application settings</h6>
-					<hr>
-					<div class="form-group mb-0">
-						<div class="switch switch-primary d-inline m-r-10">
-							<input type="checkbox" id="cn-p-3" checked>
-							<label for="cn-p-3" class="cr"></label>
-						</div>
-						<label class="f-w-600">Backup Storage</label>
-					</div>
-					<p class="text-muted mb-0 ml-5">Automaticaly take backup as par schedule</p>
-					<div class="form-group mb-4">
-						<div class="switch switch-primary d-inline m-r-10">
-							<input type="checkbox" id="cn-p-4" checked>
-							<label for="cn-p-4" class="cr"></label>
-						</div>
-						<label class="f-w-600">Allow guest to print file</label>
-					</div>
-					<h6 class="mb-0 mt-5"><i class="feather icon-globe mr-2"></i>System settings</h6>
-					<hr>
-					<div class="form-group mb-0">
-						<div class="switch switch-primary d-inline m-r-10">
-							<input type="checkbox" id="cn-p-2">
-							<label for="cn-p-2" class="cr"></label>
-						</div>
-						<label class="f-w-600">View other user chat</label>
-					</div>
-					<p class="text-muted ml-5">Allow to show public user message</p>
-				</div>
-			</div>
-		</div>
-	</section>
-	<!-- [ chat user list ] end -->
-
-	<!-- [ chat message ] start -->
-	<section class="header-chat">
-		<div class="h-list-header">
-			<h6>Josephin Doe</h6>
-			<a href="#!" class="h-back-user-list"><i class="feather icon-chevron-left"></i></a>
-		</div>
-		<div class="h-list-body">
-			<div class="main-chat-cont scroll-div">
-				<div class="main-friend-chat">
-					<div class="media chat-messages">
-						<a class="media-left photo-table" href="#!"><img class="media-object img-radius img-radius m-t-5" src="/static/assets/images/user/avatar-2.jpg" alt="Generic placeholder image"></a>
-						<div class="media-body chat-menu-content">
-							<div class="">
-								<p class="chat-cont">hello tell me something</p>
-								<p class="chat-cont">about yourself?</p>
-							</div>
-							<p class="chat-time">8:20 a.m.</p>
-						</div>
-					</div>
-					<div class="media chat-messages">
-						<div class="media-body chat-menu-reply">
-							<div class="">
-								<p class="chat-cont">Ohh! very nice</p>
-							</div>
-							<p class="chat-time">8:22 a.m.</p>
-						</div>
-						<a class="media-right photo-table" href="#!"><img class="media-object img-radius img-radius m-t-5" src="/static/assets/images/user/avatar-1.jpg" alt="Generic placeholder image"></a>
-					</div>
-					<div class="media chat-messages">
-						<a class="media-left photo-table" href="#!"><img class="media-object img-radius img-radius m-t-5" src="/static/assets/images/user/avatar-2.jpg" alt="Generic placeholder image"></a>
-						<div class="media-body chat-menu-content">
-							<div class="">
-								<p class="chat-cont">can you help me?</p>
-							</div>
-							<p class="chat-time">8:20 a.m.</p>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="h-list-footer">
-			<div class="input-group">
-				<input type="file" class="chat-attach" style="display:none">
-				<a href="#!" class="input-group-prepend btn btn-success btn-attach">
-					<i class="feather icon-paperclip"></i>
-				</a>
-				<input type="text" name="h-chat-text" class="form-control h-auto h-send-chat" placeholder="Write hear . . ">
-				<button type="submit" class="input-group-append btn-send btn btn-primary">
-					<i class="feather icon-message-circle"></i>
-				</button>
-			</div>
-		</div>
-	</section>
-	<!-- [ chat message ] end -->
-
 <!-- [ Main Content ] start -->
 <div class="pcoded-main-container">
 	<div class="pcoded-content">
@@ -321,18 +22,6 @@
 			<div class="card-header border-0 p-0 pb-0">
 				<div class="cover-img-block">
 					<img src="/static/assets/images/profile/cover.jpg" alt="" class="img-fluid">
-					<div class="overlay"></div>
-					<div class="change-cover">
-						<div class="dropdown">
-							<a class="drp-icon dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="icon feather icon-camera"></i></a>
-							<div class="dropdown-menu">
-								<a class="dropdown-item" href="#"><i class="feather icon-upload-cloud mr-2"></i>upload new</a>
-								<a class="dropdown-item" href="#"><i class="feather icon-image mr-2"></i>from photos</a>
-								<a class="dropdown-item" href="#"><i class="feather icon-film mr-2"></i> upload video</a>
-								<a class="dropdown-item" href="#"><i class="feather icon-trash-2 mr-2"></i>remove</a>
-							</div>
-						</div>
-					</div>
 				</div>
 			</div>
 			<div class="card-body py-0">
@@ -346,60 +35,37 @@
 											<div class="position-relative d-inline-block">
 												<img class="img-radius img-fluid wid-100" src="/static/assets/images/user/avatar-5.jpg" alt="User image">
 											</div>
-											<div class="overlay">
-												<span>change</span>
-											</div>
 										</div>
 										<div class="certificated-badge">
 											<i class="fas fa-certificate text-c-blue bg-icon"></i>
 											<i class="fas fa-check front-icon text-white"></i>
 										</div>
 									</a>
-									<div class="dropdown-menu">
-										<a class="dropdown-item" href="#"><i class="feather icon-upload-cloud mr-2"></i>upload new</a>
-										<a class="dropdown-item" href="#"><i class="feather icon-image mr-2"></i>from photos</a>
-										<a class="dropdown-item" href="#"><i class="feather icon-shield mr-2"></i>Protact</a>
-										<a class="dropdown-item" href="#"><i class="feather icon-trash-2 mr-2"></i>remove</a>
-									</div>
 								</div>
 							</div>
-							<h5 class="mb-1">Lary Doe</h5>
-							<p class="mb-2 text-muted">UI/UX Designer</p>
+							<h5 class="mb-1">NOMBRE</h5>
+							<p class="mb-2 text-muted">TIPO USUARIO</p>
 						</div>
 						<div class="col-md-8 mt-md-4">
 							<div class="row">
 								<div class="col-md-6">
 									<a href="#!" class="mb-1 text-muted d-flex align-items-end text-h-primary"><i class="feather icon-globe mr-2 f-18"></i>www.Codedthemes.net</a>
 									<div class="clearfix"></div>
-									<a href="mailto:demo@domain.com" class="mb-1 text-muted d-flex align-items-end text-h-primary"><i class="feather icon-mail mr-2 f-18"></i>demo@domain.com</a>
+									<a href="mailto:demo@domain.com" class="mb-1 text-muted d-flex align-items-end text-h-primary"><i class="feather icon-mail mr-2 f-18"></i>CORREO</a>
 									<div class="clearfix"></div>
-									<a href="#!" class="mb-1 text-muted d-flex align-items-end text-h-primary"><i class="feather icon-phone mr-2 f-18"></i>+1 9999-999-999</a>
+									<a href="#!" class="mb-1 text-muted d-flex align-items-end text-h-primary"><i class="feather icon-phone mr-2 f-18"></i>+TELEFONO</a>
 								</div>
 								<div class="col-md-6">
 									<div class="media">
 										<i class="feather icon-map-pin mr-2 mt-1 f-18"></i>
 										<div class="media-body">
-											<p class="mb-0 text-muted">4289 Calvin Street</p>
-											<p class="mb-0 text-muted">Baltimore, near MD Tower Maryland,</p>
-											<p class="mb-0 text-muted">Maryland (21201)</p>
+											<p class="mb-0 text-muted">DIRECCION</p>
+
 										</div>
 									</div>
 								</div>
 							</div>
-							<ul class="nav nav-tabs profile-tabs nav-fill" id="myTab" role="tablist">
-								<li class="nav-item">
-									<a class="nav-link text-reset active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true"><i class="feather icon-home mr-2"></i>Home</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link text-reset" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false"><i class="feather icon-user mr-2"></i>Profile</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link text-reset" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false"><i class="feather icon-phone mr-2"></i>My Contacts</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link text-reset" id="gallery-tab" data-toggle="tab" href="#gallery" role="tab" aria-controls="gallery" aria-selected="false"><i class="feather icon-image mr-2"></i>Gallery</a>
-								</li>
-							</ul>
+
 						</div>
 					</div>
 				</div>
@@ -1129,12 +795,7 @@
 						<ul class="list-inline">
 							<li class="list-inline-item"><a href="#!"><img src="/static/assets/images/user/avatar-1.jpg" alt="user image" class="img-radius mb-2 wid-50" data-toggle="tooltip" title="Joseph William"></a></li>
 							<li class="list-inline-item"><a href="#!"><img src="/static/assets/images/user/avatar-2.jpg" alt="user image" class="img-radius mb-2 wid-50" data-toggle="tooltip" title="Sara Soudein"></a></li>
-							<li class="list-inline-item"><a href="#!"><img src="/static/assets/images/user/avatar-3.jpg" alt="user image" class="img-radius mb-2 wid-50" data-toggle="tooltip" title="John Doe"></a></li>
-							<li class="list-inline-item"><a href="#!"><img src="/static/assets/images/user/avatar-4.jpg" alt="user image" class="img-radius mb-2 wid-50" data-toggle="tooltip" title="Joseph William"></a></li>
-							<li class="list-inline-item"><a href="#!"><img src="/static/assets/images/user/avatar-5.jpg" alt="user image" class="img-radius wid-50" data-toggle="tooltip" title="Sara Soudein"></a></li>
-							<li class="list-inline-item"><a href="#!"><img src="/static/assets/images/user/avatar-1.jpg" alt="user image" class="img-radius wid-50" data-toggle="tooltip" title="Joseph William"></a></li>
-							<li class="list-inline-item"><a href="#!"><img src="/static/assets/images/user/avatar-2.jpg" alt="user image" class="img-radius wid-50" data-toggle="tooltip" title="Sara Soudein"></a></li>
-							<li class="list-inline-item"><a href="#!"><img src="/static/assets/images/user/avatar-3.jpg" alt="user image" class="img-radius wid-50" data-toggle="tooltip" title="John Doe"></a></li>
+							
 						</ul>
 					</div>
 				</div>
@@ -1205,36 +866,6 @@
 									</a>
 									<p class="m-b-0">stay hungry!</p>
 									<span class="status active"></span>
-								</div>
-							</div>
-							<div class="align-middle m-b-25">
-								<img src="/static/assets/images/user/avatar-1.jpg" alt="user image" class="img-radius align-top m-r-15">
-								<div class="d-inline-block">
-									<a href="#!">
-										<h6>John Doue</h6>
-									</a>
-									<p class="m-b-0">Cheers!</p>
-									<span class="status active"></span>
-								</div>
-							</div>
-							<div class="align-middle m-b-25">
-								<img src="/static/assets/images/user/avatar-2.jpg" alt="user image" class="img-radius align-top m-r-15">
-								<div class="d-inline-block">
-									<a href="#!">
-										<h6>Jon Alex</h6>
-									</a>
-									<p class="m-b-0">stay hungry!</p>
-									<span class="status active"></span>
-								</div>
-							</div>
-							<div class="align-middle m-b-0">
-								<img src="/static/assets/images/user/avatar-3.jpg" alt="user image" class="img-radius align-top m-r-15">
-								<div class="d-inline-block">
-									<a href="#!">
-										<h6>John Doue</h6>
-									</a>
-									<p class="m-b-0">Cheers!</p>
-									<span class="status deactive">10 min ago</span>
 								</div>
 							</div>
 						</div>

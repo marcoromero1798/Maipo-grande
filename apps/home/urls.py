@@ -16,6 +16,9 @@ urlpatterns = [
     ################
     # MANTENEDORES #
     ################
+    #
+    path('perfil', login_required(views.contrato_create.as_view()), name='sy-ct_create'),
+
     #CONTRATO
     path('sy-ct_create', login_required(views.contrato_create.as_view()), name='sy-ct_create'),
     path('sy-ct_list', login_required(views.contrato_list), name='sy-ct_list'),

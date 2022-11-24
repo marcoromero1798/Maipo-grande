@@ -132,7 +132,7 @@
                                     
                                     <tbody>
                                         {% for object in object_list_ov %}
-                                            {% if object.OV_CESTADO != 'PAGADO' %}
+                                            {% if object.OV_CESTADO != 'PAGADO' and object.OV_CESTADO != 'COMPLETADO' %}
                                                 <tr>
                                                     <td>
                                                         <a class="btn btn-info" href="{% url 'tr-ov_listone' object.OV_NID|unlocalize %}"><i class="feather icon-eye"></i> </a>                                                

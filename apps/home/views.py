@@ -2579,6 +2579,10 @@ def mensaje_OV(request,ov):
 
 '''
     return mensaje
+def perfil(request,us_nid):
+    
+    return render(request, 'home/user-profile.html')
+
 
 def distribuir_pago(request,ov_nid):
     try:

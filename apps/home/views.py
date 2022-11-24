@@ -2686,9 +2686,11 @@ def pagar(request,ov_nid):
     #     preference_data['payer']["name"] = data_cliente[0]
     #     preference_data['payer']["surname"]= data_cliente[1]
     #     preference_data['payer']["email"]= data_cliente[2]
-    url_notifaction = PARAMETRO.objects.get(PM_CGRUPO = 'URL',PM_CCODIGO = 'API-PAGO').PM_CVALOR1
-
-    preference_data['notification_url']= url_notifaction
+    try:
+        url_notifaction = PARAMETRO.objects.get(PM_CGRUPO = 'URL',PM_CCODIGO = 'PAGO').PM_CVALOR1
+    except Exception as e:
+        print("error queryset url api pago: ",e)
+    preference_data['notification_url']= url_notifaction +'/pago/'
     preference_data['external_reference']= ov_nid
     
 

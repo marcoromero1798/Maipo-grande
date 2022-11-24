@@ -2581,7 +2581,7 @@ def mensaje_OV(request,ov):
 '''
     return mensaje
 def perfil(request,us_nid):
-    
+
     return render(request, 'home/user-profile.html')
 
 
@@ -2687,8 +2687,9 @@ def pagar(request,ov_nid):
     #     preference_data['payer']["name"] = data_cliente[0]
     #     preference_data['payer']["surname"]= data_cliente[1]
     #     preference_data['payer']["email"]= data_cliente[2]
+    url_notifaction = PARAMETRO.objects.get(PM_CGRUPO = 'URL',PM_CCODIGO = 'API-PAGO').PM_CVALOR1
 
-    preference_data['notification_url']= 'https://727b-186-104-217-85.sa.ngrok.io/pago/'
+    preference_data['notification_url']= url_notifaction
     preference_data['external_reference']= ov_nid
     
 

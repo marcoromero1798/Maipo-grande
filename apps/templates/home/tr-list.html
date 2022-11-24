@@ -70,12 +70,15 @@
                             <li class="nav-item">
                                 <a class="nav-link text-uppercase" id="subasta-tab" data-toggle="tab" href="#subasta" role="tab" aria-controls="subasta" aria-selected="false">Subasta</a>
                             </li>
-                            <!-- <li class="nav-item">
-                                <a class="nav-link text-uppercase" id="despacho-tab" data-toggle="tab" href="#despacho" role="tab" aria-controls="despacho" aria-selected="false">despacho</a>
-                            </li> -->
+                            <li class="nav-item">
+                                <a class="nav-link text-uppercase" id="pagado-tab" data-toggle="tab" href="#pagado" role="tab" aria-controls="pagado" aria-selected="false">Pagado</a>
+                            </li> 
+                            <li class="nav-item">
+                                <a class="nav-link text-uppercase" id="completado-tab" data-toggle="tab" href="#completado" role="tab" aria-controls="completado" aria-selected="false">Completado</a>
+                            </li> 
                         </ul>
                         <div class="tab-content" id="myTabContent">
-                            <div class="tab-pane fade show active" id="solicitud" role="tabpanel" aria-labelledby="solicitud-tab">
+                            <div class="tab-pane fade show active overflow-auto" id="solicitud" role="tabpanel" aria-labelledby="solicitud-tab">
                                 <table class="table table-hover" id="basic-btn3">
                                     <thead>
                                         <th>Acciones</th>
@@ -114,13 +117,14 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="tab-pane fade" id="orden_venta" role="tabpanel" aria-labelledby="orden_venta-tab">
+                            <div class="tab-pane fade overflow-auto" id="orden_venta" role="tabpanel" aria-labelledby="orden_venta-tab">
                                 <table class="table table-hover" id="basic-btn2">
                                     <thead>
                                         <th>Acciones</th>
                                         <th>Nro. Documento</th>
                                         <th>Usuario</th>
                                         <th>Tipo cambio</th>
+                                        <th>Estado</th>
                                         <th>Fecha creación</th>
                                         <th>Fecha procesamiento</th>
                                         <th>Procesado</th>
@@ -128,27 +132,31 @@
                                     
                                     <tbody>
                                         {% for object in object_list_ov %}
-                                        <tr>
-                                            <td>
-                                                <a class="btn btn-info" href="{% url 'tr-ov_listone' object.OV_NID|unlocalize %}"><i class="feather icon-eye"></i> </a>                                                
-                                                <a class="btn btn-secondary" href="{% url 'tr-ov_update' object.OV_NID|unlocalize %}"><i class="feather icon-edit"></i> </a>                                                
-                                            </td>
-                                            <td>{{object.OV_NID}}</td>
-                                            <td>{{object.US_NID}}</td>
-                                            <td>{{object.TC_NID}}</td>
-                                            <td>{{object.OV_FFECHA_CREACION}}</td>
-                                            <td>{{object.OV_FFECHA_PROCESAMIENTO}}</td>
-                                            {% if object.OV_NPROCESADO == True %}
-                                                <td>Procesado</td>
-                                            {% else %}
-                                                <td>Sin Procesar</td>
+                                            {% if object.OV_CESTADO != 'PAGADO' and object.OV_CESTADO != 'COMPLETADO' %}
+                                                <tr>
+                                                    <td>
+                                                        <a class="btn btn-info" href="{% url 'tr-ov_listone' object.OV_NID|unlocalize %}"><i class="feather icon-eye"></i> </a>                                                
+                                                        <a class="btn btn-secondary" href="{% url 'tr-ov_update' object.OV_NID|unlocalize %}"><i class="feather icon-edit"></i> </a>                                                
+                                                    </td>
+                                                    <td>{{object.OV_NID}}</td>
+                                                    <td>{{object.US_NID}}</td>
+                                                    <td>{{object.TC_NID}}</td>
+                                                    <td>{{object.OV_CESTADO}}</td>
+                                                    <td>{{object.OV_FFECHA_CREACION}}</td>
+                                                    <td>{{object.OV_FFECHA_PROCESAMIENTO}}</td>
+                                                    {% if object.OV_NPROCESADO == True %}
+                                                        <td>Procesado</td>
+                                                    {% else %}
+                                                        <td>Sin Procesar</td>
+                                                    {% endif %}
+                                                    
+                                                </tr>
                                             {% endif %}
-                                            {% endfor %}
-                                        </tr>
+                                        {% endfor %}
                                         </tbody>
                                 </table>
                             </div>
-                            <div class="tab-pane fade" id="subasta" role="tabpanel" aria-labelledby="subasta-tab">
+                            <div class="tab-pane fade overflow-auto" id="subasta" role="tabpanel" aria-labelledby="subasta-tab">
                                 <table class="table table-hover" id="basic-btn4">
                                     <thead>
                                         <th>Acciones</th>
@@ -177,6 +185,77 @@
                                             {% endif %}
                                             {% endfor %}
                                         </tr>
+                                        </tbody>
+                                </table>
+                            </div>
+                            <div class="tab-pane fade overflow-auto" id="pagado" role="tabpanel" aria-labelledby="pagado-tab">
+                                <table class="table table-hover" id="basic-btn1">
+                                    <thead>
+                                        <th>Acciones</th>
+                                        <th>Nro. Documento</th>
+                                        <th>Usuario</th>
+                                        <th>Tipo cambio</th>
+                                        <th>Fecha creación</th>
+                                        <th>Fecha procesamiento</th>
+                                        <th>Procesado</th>
+                                    </thead>
+                                    
+                                    <tbody>
+                                        {% for object in object_list_ov %}
+                                            {% if object.OV_CESTADO == 'PAGADO' %}
+                                            <tr>
+                                                <td>
+                                                    <a class="btn btn-info" href="{% url 'tr-ov_listone' object.OV_NID|unlocalize %}"><i class="feather icon-eye"></i> </a>                                                
+                                                    <a class="btn btn-secondary" href="{% url 'distribuir' object.OV_NID|unlocalize %}">Distribuir Pago</a>                                                
+                                                </td>
+                                                <td>{{object.OV_NID}}</td>
+                                                <td>{{object.US_NID}}</td>
+                                                <td>{{object.TC_NID}}</td>
+                                                <td>{{object.OV_FFECHA_CREACION}}</td>
+                                                <td>{{object.OV_FFECHA_PROCESAMIENTO}}</td>
+                                                {% if object.OV_NPROCESADO == True %}
+                                                    <td>Procesado</td>
+                                                {% else %}
+                                                    <td>Sin Procesar</td>
+                                                {% endif %}
+                                            </tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                        </tbody>
+                                </table>
+                            </div>
+                            <div class="tab-pane fade" id="completado" role="tabpanel" aria-labelledby="completado-tab">
+                                <table class="table table-hover" id="basic-btn5">
+                                    <thead>
+                                        <th>Acciones</th>
+                                        <th>Nro. Documento</th>
+                                        <th>Usuario</th>
+                                        <th>Tipo cambio</th>
+                                        <th>Fecha creación</th>
+                                        <th>Fecha procesamiento</th>
+                                        <th>Procesado</th>
+                                    </thead>
+                                    
+                                    <tbody>
+                                        {% for object in object_list_ov %}
+                                            {% if object.OV_CESTADO == 'COMPLETADO' %}
+                                            <tr>
+                                                <td>
+                                                    <a class="btn btn-info" href="{% url 'tr-ov_listone' object.OV_NID|unlocalize %}"><i class="feather icon-eye"></i> </a>                                                                                              
+                                                </td>
+                                                <td>{{object.OV_NID}}</td>
+                                                <td>{{object.US_NID}}</td>
+                                                <td>{{object.TC_NID}}</td>
+                                                <td>{{object.OV_FFECHA_CREACION}}</td>
+                                                <td>{{object.OV_FFECHA_PROCESAMIENTO}}</td>
+                                                {% if object.OV_NPROCESADO == True %}
+                                                    <td>Procesado</td>
+                                                {% else %}
+                                                    <td>Sin Procesar</td>
+                                                {% endif %}
+                                            </tr>
+                                            {% endif %}
+                                        {% endfor %}
                                         </tbody>
                                 </table>
                             </div>

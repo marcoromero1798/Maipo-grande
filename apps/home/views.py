@@ -1263,6 +1263,20 @@ def solicitud_compra_listone(request, sc_nid):
         'object_lines': instancia_detalle
     }
     return render(request, 'home/tr-sc_listone.html', context)
+def info_perfil(request):
+    context={}
+    user=[]
+    perfil=[]
+    user = USERS_EXTENSION.objects.get(US_NID = request.user.id)
+    if user.UX_NHABILITADO == 0:
+            messages.info(request,'Usuario no habiltado, contactese con un administrador')
+            return render (request, 'home/user-profile.html', context)
+    else:
+        perfil = USERS_EXTENSION.objects.filter(US_NID = request.user.id)
+        context ={
+         'object_list':perfil,
+    }
+    return render (request, 'home/user-profile.html', context)
 
 
 # ORDEN DE VENTA
@@ -2008,6 +2022,103 @@ def traspasar_stock(request):
     else:
         messages.warning(request,'No se encontraron productos con stock EXTERNO')
         return redirect('sy-stk_list')
+
+
+#DIRECCION
+class direccion_create(CreateView):
+    model = DIRECCION      # Modelo a utilizar
+    form_class = formDIRECCION  # Formulario definido en forms.py
+    template_name = 'home/sy-dir_create.html'  # html template en core
+    success_url = reverse_lazy("sy-dir_list") 
+    def form_valid(self, form, **kwargs):
+        # INDICA EL USUARIO ACTUAL
+
+        form.instance.DR_NHABILITADO = True
+        retorno = super(CreateView, self).form_valid(form)
+        return retorno
+    def get_success_url(self, **kwargs):
+        # if you are passing 'pk' from 'urls' to 'DeleteView' for company
+        # capture that 'pk' as companyid and pass it to 'reverse_lazy()' function
+        context = super(CreateView, self).get_context_data(**kwargs)
+        historial_acciones = []        
+        historial_acciones = LOG_ACCIONES(
+                US_NID_id = self.request.user.id,
+                LG_FFECHA_ACCION = datetime.now(), 
+                LG_CSECCION = 'SISTEMA' ,
+                LG_CMODULO='DIRECCION',
+                LG_CACCION ='CREACION'
+                )   
+        historial_acciones.save() 
+        return reverse_lazy('sy-dir_list')
+
+
+class direccion_update(UpdateView):
+    model = DIRECCION      # Modelo a utilizar
+    form_class = formDIRECCION  # Formulario definido en forms.py
+    template_name = 'home/sy-dir_create.html'  # html template en core
+    success_url = reverse_lazy("home/sy-dir_list") 
+    def get_success_url(self, **kwargs):
+        # if you are passing 'pk' from 'urls' to 'DeleteView' for company
+        # capture that 'pk' as companyid and pass it to 'reverse_lazy()' function
+        context = super(UpdateView, self).get_context_data(**kwargs)
+        historial_acciones = []        
+        historial_acciones = LOG_ACCIONES(
+                US_NID_id = self.request.user.id,
+                LG_FFECHA_ACCION = datetime.now(), 
+                LG_CSECCION = 'SISTEMA' ,
+                LG_CMODULO='DIRECCION',
+                LG_CACCION ='MODIFICACION'
+                )   
+        historial_acciones.save() 
+        return reverse_lazy('sy-dir_list')
+
+
+def direccion_list(request):
+    try:
+        context={}
+        user=[]
+        direccion=[]
+        user = USERS_EXTENSION.objects.get(US_NID = request.user.id)
+        if user.UX_NHABILITADO == 0:
+            messages.info(request,'Usuario no habiltado, contactese con un administrador')
+            return render(request,'home/sy-dir_list.html',context)
+        else:
+            direccion = DIRECCION.objects.all()
+        context ={
+            'object_list':direccion
+        }
+        return render(request,'home/sy-dir_list.html',context)
+
+    except Exception as e:
+        print("Error listar direccion: ",e)
+        return render(request,'home/sy-dir_list.html',context)
+
+
+def direccion_deshabilitar(request,pk):
+    instancia = []
+    try:
+        instancia = DIRECCION.objects.filter(DR_NID = pk).update(DR_NHABILITADO = False)
+    except  Exception as e:
+        print("error al deshabilitar :",e)
+        messages.warning(request,"Hubo un error al deshabilitar,contactese con un administrador")
+        return redirect("sy-dir_list")  
+    messages.success(request,"DIRECCION Deshabilitada correctamente")
+    historial_acciones = []        
+    historial_acciones = LOG_ACCIONES(
+                US_NID_id = request.user.id,
+                LG_FFECHA_ACCION = datetime.now(), 
+                LG_CSECCION = 'SISTEMA' ,
+                LG_CMODULO='DIRECCION',
+                LG_CACCION ='DESHABILITADO'
+                )   
+    historial_acciones.save() 
+    return redirect("sy-dir_list") 
+
+
+
+
+
+=======
 def mensaje_OV(request,ov):
     instancia_ov = ORDEN_VENTA.objects.get(OV_NID = ov.OV_NID)
     instancia_ovd = ORDEN_VENTA_DETALLE.objects.filter(OV_NID_id = ov.OV_NID)
@@ -2710,4 +2821,5 @@ def pagar(request,ov_nid):
         
     }
     return render(request, 'home/tr-ov_listone_pagar.html', context)
+
 

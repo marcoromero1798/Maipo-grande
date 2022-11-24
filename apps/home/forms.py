@@ -250,8 +250,6 @@ class formTRANSPORTE(forms.ModelForm):
             'TRA_NREFRIGERACION': forms.CheckboxInput(attrs={'class': 'form-control','type':'checkbox'}),
             
         }
-
-
 class formOVD(forms.ModelForm):
     class Meta:
         model = ORDEN_VENTA_DETALLE    	
@@ -302,5 +300,42 @@ class formOV(forms.ModelForm):
             'TC_NID': forms.Select(attrs={'class': 'form-control','type':'number'}),
             'US_NID': forms.Select(attrs={'class': 'form-control','type':'number'}),
             'OV_COBSERVACIONES': forms.Textarea(attrs={'class': 'form-control','type':'text','placeholder':'escriba sus observaciones'}),
+           
+        }
+
+
+
+class formDIRECCION(forms.ModelForm):
+    class Meta:
+        model = DIRECCION     
+        # DR_NID
+        # US_NID
+        # DR_CNOMBRE
+        # DR_CCALLE
+        # DR_CNUMERO
+        # DR_CTELEFONO1
+        # DR_CTELEFONO2
+        # DR_NHABILITADO
+	
+        fields = [
+        'US_NID',
+        'DR_CNOMBRE',
+        'DR_CCALLE',
+        'DR_CNUMERO',
+        'DR_CTELEFONO1',
+        'DR_CTELEFONO2'
+
+
+        ]
+        labels = '__all__'
+        widgets = {        
+            'US_NID': forms.Select(attrs={'class': 'form-control','type':'number'}),
+            'DR_CNOMBRE': forms.TextInput(attrs={'class': 'form-control','type':'text'}),
+            'DR_CCALLE': forms.TextInput(attrs={'class': 'form-control','type':'text'}),
+            'DR_CNUMERO': forms.TextInput(attrs={'class': 'form-control','type':'number'}),
+            'DR_CTELEFONO1': forms.TextInput(attrs={'class': 'form-control','type':'number'}),
+            'DR_CTELEFONO2': forms.TextInput(attrs={'class': 'form-control','type':'number'}),
+            
+
            
         }

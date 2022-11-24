@@ -7,6 +7,8 @@ Copyright (c) 2019 - present AppSeed.us
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import json
+from decimal import *
 import smtplib
 from django import template
 from django.contrib.auth.decorators import login_required
@@ -28,7 +30,15 @@ import datetime as date
 from .filters import ListingFilter
 from datetime import date, datetime, timedelta, timezone
 import pandas as pd
-
+import mercadopago
+# Agrega credenciales
+sdk = mercadopago.SDK("TEST-3941599614411264-110822-6557afb20b7a8e41f42eb08f4c7f8989-340820109")
+#API
+# from rest_framework.response import Response
+# from rest_framework.views import APIView
+# from rest_framework.response import Response
+# from .serializers import PostSerializers
+# from rest_framework import status
 
 @login_required(login_url="/login/")
 def index(request):
@@ -2569,3 +2579,132 @@ def mensaje_OV(request,ov):
 
 '''
     return mensaje
+def perfil(request,us_nid):
+    
+    return render(request, 'home/user-profile.html')
+
+
+def distribuir_pago(request,ov_nid):
+    try:
+        OV_DATA = ORDEN_VENTA.objects.get(OV_NID = ov_nid)
+        OV_DETALLE = ORDEN_VENTA_DETALLE.objects.filter(OV_NID_id = ov_nid)
+        #PARA DISTRUIR EL PAGO PRIMERO DETERMINAMOS EN UNA LISTA CON SUB LISTAS CUAL ES EL PRODUCTOR Y CUALES SON SUS PRODUCTOS
+        lista_distribucion = []
+        lista_insercion = []
+        #PARA ALMACENAR LOS DATOS 
+
+
+
+        for linea_detalle in OV_DETALLE:
+
+            ################################
+            cantidad = 0
+            precio = 0
+            productor = 0
+            detalle = []
+            ################################
+            precio = linea_detalle.OVD_NPRECIO
+            productor = linea_detalle.PC_NID.PR_NID.US_NID_id
+            cantidad = linea_detalle.OVD_NQTY
+            #################################
+            detalle = PAGO_CUENTA(
+                US_NID_id = productor,
+                PCA_FFECHA = datetime.now(),
+                PCA_NQTY = cantidad,
+                PCA_NPRECIO = precio,
+                PCA_OV_ORIGEN_id = ov_nid
+            )
+            lista_insercion.append(detalle)
+        PAGO_CUENTA.objects.bulk_create(lista_insercion)
+        # ACTUALIZAMOS EL ESTADO DE LA ORDEN DE VENTA
+        ORDEN_VENTA.objects.filter(OV_NID = ov_nid).update(OV_CESTADO = 'COMPLETADO')
+        messages.success(request,"Pagos distribuidos correctamente")
+        return redirect("tr-list")
+    except Exception as e: 
+        print("error al distribuir el pago :",e)
+        messages.warning(request,"Error al distribuir el pago")
+        return redirect("tr-list")
+def pagar(request,ov_nid):
+    data_cliente = []
+    instancia_ov = ORDEN_VENTA.objects.filter(OV_NID=ov_nid)
+    try:
+        usuario_ov = ORDEN_VENTA.objects.get(OV_NID=ov_nid)
+    except Exception as e:
+        print(e)
+    SC_NID = ORDEN_VENTA.objects.get(OV_NID=ov_nid).OV_NDOCUMENTO_ORIGEN
+    instancia_ovd = ORDEN_VENTA_DETALLE.objects.filter(OV_NID_id=ov_nid)
+    try:
+        if CLIENTE_EXTERNO.objects.filter(US_NID_id = usuario_ov.US_NID).count() > 0:
+            data_cliente.append(request.user.first_name)
+            data_cliente.append(request.user.last_name)
+            data_cliente.append(CLIENTE_EXTERNO.objects.get(US_NID_id = usuario_ov.US_NID).CLE_CCORREO)        
+        else:
+            data_cliente.append(request.user.first_name)
+            data_cliente.append(request.user.last_name)
+            data_cliente.append(CLIENTE_INTERNO.objects.get(US_NID_id = usuario_ov.US_NID).CLI_CCORREO) 
+    except Exception as e :
+        print("Error al obtener usuarios",e)
+    total_iva = 0
+    sub_total = 0
+    for elemento in instancia_ovd:
+        total_iva =total_iva + (int(elemento.OVD_NQTY) * float(elemento.OVD_NPRECIO)) * 1.19
+        sub_total =sub_total + (int(elemento.OVD_NQTY) * float(elemento.OVD_NPRECIO))
+
+    instancia_sc = SOLICITUD_COMPRA_DETALLE.objects.filter(SC_NID_id=SC_NID)
+
+    instancia_su = SUBASTA.objects.get(SU_NDOCUMENTO_ORIGEN = ov_nid)
+    instancia_sud = SUBASTA_DETALLE.objects.get(SU_NID_id = instancia_su.SU_NID,SUD_NSELECCION = True)
+
+    transportista = TRANSPORTISTA.objects.get(TR_NID = instancia_sud.TR_NID_id).TR_CDESCRIPCION
+    iva = sub_total*0.19
+    preference_data = {
+        "items" : [],
+        "payer": {
+            "name":'',
+            "surname":'',
+            "email":''
+        },
+        "external_reference": 0
+    }
+    for linea in instancia_ovd:
+        producto = PRODUCTO.objects.get(PC_NID = linea.PC_NID_id)
+        preference_data['items'].append(
+            {
+            "title": f"{producto.PC_CCODIGO_PROD} {producto.PC_CDESCRIPCION}",
+            "quantity": linea.OVD_NQTY,
+            "unit_price": int(linea.OVD_NPRECIO),
+            }
+        ) 
+    #agregamos datos del camion y su cobro
+    preference_data['items'].append({
+            "title": f"Courier: {transportista}",
+            "quantity": 1,
+            "unit_price": int(instancia_sud.SUD_NCOBRO),
+            })
+    # Crea un ítem en la preferencia
+    # if data_cliente != None:
+    #     preference_data['payer']["name"] = data_cliente[0]
+    #     preference_data['payer']["surname"]= data_cliente[1]
+    #     preference_data['payer']["email"]= data_cliente[2]
+
+    preference_data['notification_url']= 'https://727b-186-104-217-85.sa.ngrok.io/pago/'
+    preference_data['external_reference']= ov_nid
+    
+
+   
+    # preference_json = json.dumps(preference_data)
+    preference_response = sdk.preference().create(preference_data)
+    preference = preference_response["response"]
+    
+
+    context = {
+        'instancia_ov': instancia_ov,
+        'instancia_ovd': instancia_ovd,
+        'instancia_sc':instancia_sc,
+        'total_iva':total_iva,
+        'sub_total':sub_total,
+        'iva':iva,
+        
+    }
+    return render(request, 'home/tr-ov_listone_pagar.html', context)
+

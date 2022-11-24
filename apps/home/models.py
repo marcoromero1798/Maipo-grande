@@ -433,3 +433,25 @@ class SUBASTA_DETALLE(models.Model):
     SUD_NSELECCION =  models.BooleanField(("Seleccion"),default=False,null=True,blank=True)    
     class Meta:
         db_table = 'SUBASTA_DETALLE'
+
+
+class PAGO(models.Model):
+    US_NID = models.ForeignKey(User, verbose_name='Usuario', on_delete=models.PROTECT,null = True,blank =True)
+    PA_OV_ORIGEN = models.IntegerField(("CANTIDAD"),null=True,blank=True)
+    PA_FFECHA = models.DateTimeField(("FECHA INICIO"),null=True,blank=True) 
+    PA_NPAGADO =  models.BooleanField(("Seleccion"),default=False,null=True,blank=True) 
+    PA_CCODIGO  =models.CharField(("codigo"),max_length=100,null=True,blank=True)
+
+    class Meta:
+        db_table = 'PAGO'
+
+class PAGO_CUENTA(models.Model):
+    US_NID = models.ForeignKey(User, verbose_name='Usuario', on_delete=models.PROTECT,null = True,blank =True)
+    PCA_FFECHA = models.DateTimeField(("FECHA INICIO"),null=True,blank=True) 
+    PCA_NPRECIO = models.DecimalField(("PRECIO"),max_digits=18,decimal_places=5)
+    PCA_NQTY   = models.IntegerField(("CANTIDAD"))
+    PCA_OV_ORIGEN = models.ForeignKey(ORDEN_VENTA, verbose_name='Orden de venta', on_delete=models.PROTECT,null = True,blank =True)
+
+    class Meta:
+        db_table = 'PAGO_CUENTA'
+

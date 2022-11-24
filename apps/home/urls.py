@@ -12,10 +12,13 @@ from django.conf.urls.static import static
 urlpatterns = [
 
     # The home page
-    path('', views.index, name='home'),
+    path('', views.dashboard, name='home'),
     ################
     # MANTENEDORES #
     ################
+    #
+    path('perfil', login_required(views.contrato_create.as_view()), name='sy-ct_create'),
+
     #CONTRATO
     path('sy-ct_create', login_required(views.contrato_create.as_view()), name='sy-ct_create'),
     path('sy-ct_list', login_required(views.contrato_list), name='sy-ct_list'),
@@ -124,6 +127,10 @@ urlpatterns = [
     path('user-profile.html', login_required(views.info_perfil), name='user-profile'),
 
     
+
+    path('pagar/<int:ov_nid>', login_required(views.pagar), name='pagar'),
+    #DISTRIBUCION DE PRODUCTOS 
+    path('distribuir/<int:ov_nid>', login_required(views.distribuir_pago), name='distribuir'),
 
     # Matches any html file
     re_path(r'^.*\.*', views.pages, name='pages'),

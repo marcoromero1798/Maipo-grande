@@ -35,35 +35,27 @@
 					<li class="nav-item f-text active">
 						<a class="nav-link text-secondary" >Opciones documento:</a>
 					</li>
-					{% if request.user.is_superuser == 1 or request.user.USER.UX_IS_ADMINISTRADOR == 1 %}
-						{% if object.OV_CESTADO == 'INICIADO' %}
-							{% if object.OV_CTIPO_PROCESO == 'EXTERNO' %}
-							<li>
-								<a class="nav-link text-info" href='#'onclick="obtener_mejor_producto('{{object.OV_NDOCUMENTO_ORIGEN}}','{{object.OV_NID}}')">Buscar mejores productos</a>
-							</li>
-							<li>
-								<a class="nav-link text-info" href="{% url 'tr-ov_update' object.OV_NID %}">Editar datos Orden de venta</a>
-							</li>
-							{% else %}
-							
-							<li>
-								<a class="nav-link text-info" href="{% url 'tr-orden_venta_subasta' object.OV_NID %}">Subastar Transporte</a>
-							</li>
-							{% endif %}
-						{% else %}
-							{% if object.OV_CESTADO == 'SELECCION' %}
-							<li>
-								<a class="nav-link text-info" href="{% url 'tr-orden_venta_subasta' object.OV_NID %}">Subastar Transporte</a>
-							</li>
-							{% endif %}
-						{% endif %}
-					{% elif request.user.USER.UX_IS_PRODUCTOR == 1 %}
-					<li>
-						<a class="nav-link text-info" href="{% url 'tr-ovd_create' object.OV_NID %}">Agregar producto</a>
-					</li>
+					{% if object.OV_CESTADO != 'PAGADO' %}
+						<li>
+							<div  class="cho-container"></div>
+						</li>
 					{% endif %}
-
-
+					<script src="https://sdk.mercadopago.com/js/v2"></script>
+					<script>
+					const mp = new MercadoPago('TEST-ecec2f46-c18a-4a3a-8649-7629b22d652e', {
+						locale: 'es-CL'
+					});
+					console.log('{{preference}}')
+					mp.checkout({
+						preference: {
+						id: '{{preference|safe}}'
+						},
+						render: {
+						container: '.cho-container',
+						label: 'Pagar',
+						}
+					});
+					</script>
 				</ul>
 
 			</nav>
@@ -162,55 +154,10 @@
 							</div>
 							<div class="row">
 								<div class="col-sm-12">
-									<ul class="nav nav-tabs mb-3" id="myTab" role="tablist">
-										<li class="nav-item">
-											<a class="nav-link active text-uppercase" id="solicitud-tab" data-toggle="tab" href="#solicitud" role="tab" aria-controls="solicitud" aria-selected="true">Solicitud de compra</a>
-										</li>
-										<li class="nav-item">
-											<a class="nav-link text-uppercase" id="orden_venta-tab" data-toggle="tab" href="#orden_venta" role="tab" aria-controls="orden_venta" aria-selected="false">Orden de venta</a>
-										</li>
-										<!-- <li class="nav-item">
-											<a class="nav-link text-uppercase" id="despacho-tab" data-toggle="tab" href="#despacho" role="tab" aria-controls="despacho" aria-selected="false">despacho</a>
-										</li> -->
-									</ul>
-									
-									<div class="tab-content" id="myTabContent">
-										<div class="tab-pane fade show active" id="solicitud" role="tabpanel" aria-labelledby="solicitud-tab">
-											<table class="table invoice-detail-table" id="simpletable1">
-												<thead>
-												<tr class="thead-default">
-													<th scope="row" class="border-0" >Linea</th>
-													<th scope="row" class="border-0" >Producto</th>
-													<th scope="row" class="border-0" >Cantidad</th>
-													{% if object.OV_CTIPO_PROCESO == 'EXTERNO' %}
-													<th scope="row" class="border-0" >Estado</th>
-													{% endif %}
-												</tr>
-												</thead>
-												<tbody>
-													{% for object in instancia_sc %}
-													<tr>
-														<td>{{object.SC_NLINEA}}</td>
-														{% if object.CP_NID %}
-														<td>{{object.CP_NID}}</td>
-														{% else %}
-														<td>{{object.PC_NID}}</td>
-														{% endif %}
-														<td>{{object.SCD_NQTY}}</td>
-														{% if CP_NID != None %}
-														<td>{{object.ESTADO_PEDIDO}}</td>
-														{% endif %}
-													</tr>
-													{% endfor %}
-												</tbody>
-											</table>
-										</div>
-										<div class="tab-pane fade" id="orden_venta" role="tabpanel" aria-labelledby="orden_venta-tab">
-			
+										<div class="card-body" id="orden_venta" role="tabpanel" >
 											<table class="table invoice-detail-table" id="simpletable2">
 												<thead>
 													<tr class="thead-default">
-			
 														<th scope="row" class="border-0" >Acciones</th>
 														<th scope="row" class="border-0" >#</th>
 														<th scope="row" class="border-0" >producto</th>
@@ -235,7 +182,7 @@
 												</tbody>
 											</table>
 										</div>
-									</div>
+									
 								</div>
 							</div>
 							<div class="row">
@@ -289,6 +236,60 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+<script>
+
+function pagar(ov_nid){
+	var url = "/pagar/" + ov_nid
+	$.ajax({
+		url: url,
+		method: "POST",
+		data: {
+			csrfmiddlewaretoken: '{{ csrf_token }}' 
+		},
+		success: function (response) {
+			if(response.Estado == true){
+				console.log(response.mensaje)
+				if(response.mensaje != 'correcto' ){
+					Swal.fire({
+						title: '<strong><u>Advertencia</u></strong>',
+						icon: 'info',
+						html: 'Pago generado correctamente',
+						showCloseButton: true,
+						focusConfirm: true,
+						confirmButtonText:
+							'<i class="fa fa-thumbs-up"></i> Entendido!'
+						}).then((result) => {
+							if (result.isConfirmed) {
+								window.location.reload()
+							}
+					})
+
+				}else{
+					Swal.fire({
+						title: '<strong><u>Éxito!</u></strong>',
+						icon: 'success',
+						html: 'Productos seleccionados correctamente',
+						showCloseButton: true,
+						focusConfirm: true,
+						confirmButtonText:
+							'<i class="fa fa-thumbs-up"></i> Entendido!'
+						}).then((result) => {
+							if (result.isConfirmed) {
+								window.location.reload()
+							}
+					})
+					
+				}
+			}
+		}
+
+	})
+}
+</script>
+
+<script>
+
+</script>
 <script>
 	function obtener_mejor_producto(sc_nid,ov_nid) {
 			var url = "/buscar_productos/" + ov_nid
@@ -356,6 +357,6 @@
 <script src="/static/assets/js/plugins/jquery.dataTables.min.js"></script>
 <script src="/static/assets/js/plugins/dataTables.bootstrap4.min.js"></script>
 <script src="/static/assets/js/pages/data-basic-custom.js"></script>
-<script src="https://sdk.mercadopago.com/js/v2"></script>
+
 {% endblock javascripts %}
 

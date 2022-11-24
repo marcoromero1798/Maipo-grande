@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'apps.home',  # Enable the inner home (home)
     'django_filters',
     'crispy_forms',
+    'rest_framework'
     
 
 ]

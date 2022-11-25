@@ -1,10 +1,10 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <title>
-        Maipo Grande| {% block title %}{% endblock %} 
-    </title> 
+        Maipo Grande| {% block title %}{% endblock %}
+    </title>
     <!-- HTML5 Shim and Respond.js IE11 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 11]>
@@ -23,24 +23,39 @@
     <link type="text/css" href="/static/assets/sweetalert2/dist/sweetalert2.min.css" rel="stylesheet">
 
     <!-- Specific CSS goes HERE -->
-    {% block stylesheets %}{% endblock stylesheets %}    
+    {% block stylesheets %}{% endblock stylesheets %}
 
     <!-- vendor css -->
     <link rel="stylesheet" href="/static/assets/css/style.css">
-    
-</head>
-<body class="">
+    <link rel="manifest" href="/static/assets/json/manifest.json">
 
-	<!-- [ Pre-loader ] start -->
-	<div class="loader-bg">
-		<div class="loader-track">
-			<div class="loader-fill"></div>
-		</div>
-	</div>
+</head>
+
+<body class="">
+    <script type="text/javascript">
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/static/assets/js/serviceworker.js').then(function (registration) {
+                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            }).catch(function (err) {
+                //registration failed :(
+                console.log('ServiceWorker registration failed: ', err);
+            });
+        } else {
+            console.log('No serviceworker on this browser');
+        }
+
+    </script>
+
+    <!-- [ Pre-loader ] start -->
+    <div class="loader-bg">
+        <div class="loader-track">
+            <div class="loader-fill"></div>
+        </div>
+    </div>
     <!-- [ Pre-loader ] End -->
-    
+
     {% include 'includes/sidebar.html' %}
-    
+
     {% include 'includes/navigation.html' %}
 
     {% block content %}{% endblock content %}
@@ -52,33 +67,34 @@
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     {% if messages%}
     {% for m in messages %}
-        {% if m.tags == "error" %}
-        <script>
-            Swal.fire({
-                title: 'Error!',
-                text: "{{m}}",
-                icon: 'error'
-            })
-        </script>
-        {% elif m.tags == "success" %}
-        <script>
-            Swal.fire({
-                title: 'Listo!',
-                text: "{{m}}",
-                icon: 'success'
-            })
-        </script>
-        {% else %}
-        <script>
-            Swal.fire({
-                title: 'Atencion!',
-                text: "{{m}}",
-                icon: 'warning'
-            })
-        </script>
-        {% endif %}>
-        {% endfor %}
-        {% endif %}
+    {% if m.tags == "error" %}
+    <script>
+        Swal.fire({
+            title: 'Error!',
+            text: "{{m}}",
+            icon: 'error'
+        })
+    </script>
+    {% elif m.tags == "success" %}
+    <script>
+        Swal.fire({
+            title: 'Listo!',
+            text: "{{m}}",
+            icon: 'success'
+        })
+    </script>
+    {% else %}
+    <script>
+        Swal.fire({
+            title: 'Atencion!',
+            text: "{{m}}",
+            icon: 'warning'
+        })
+    </script>
+    {% endif %}>
+    {% endfor %}
+    {% endif %}
 
 </body>
+
 </html>

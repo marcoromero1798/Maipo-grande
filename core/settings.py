@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'pwa',
     'khipu',
-    'rest_framework'
+    'rest_framework',
     
 
 ]

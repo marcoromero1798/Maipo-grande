@@ -3,7 +3,7 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 
-from django.urls import path, re_path
+from django.urls import path, include, re_path
 from apps.home import views
 from django.contrib.auth.views import login_required
 from django.conf import settings

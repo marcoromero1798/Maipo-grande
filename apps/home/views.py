@@ -2023,7 +2023,6 @@ def traspasar_stock(request):
         messages.warning(request,'No se encontraron productos con stock EXTERNO')
         return redirect('sy-stk_list')
 
-
 #DIRECCION
 class direccion_create(CreateView):
     model = DIRECCION      # Modelo a utilizar
@@ -2118,7 +2117,8 @@ def direccion_deshabilitar(request,pk):
 
 
 
-=======
+
+
 def mensaje_OV(request,ov):
     instancia_ov = ORDEN_VENTA.objects.get(OV_NID = ov.OV_NID)
     instancia_ovd = ORDEN_VENTA_DETALLE.objects.filter(OV_NID_id = ov.OV_NID)
@@ -2821,5 +2821,4 @@ def pagar(request,ov_nid):
         
     }
     return render(request, 'home/tr-ov_listone_pagar.html', context)
-
 

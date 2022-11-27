@@ -1896,7 +1896,7 @@ def obtener_mejor_producto(request,ov_nid):
             listado_productos = []
             #DEFINO LA LINEA INICIAL, UNA OV VACIA INICIA CON LINEA 0 sino inicia con la ultima linea ingresada
             #OBTENGO LOS PRODUCTOS ASOCIADOS A LA CATEGORIA ORDENADOS POR LA CALIDAD
-            productos = PRODUCTO.objects.filter(CP_NID = categoria,PC_NHABILITADO = True).order_by('-PC_NCALIDAD')
+            productos = PRODUCTO.objects.filter(CP_NID_id = categoria.CP_NID,PC_NHABILITADO = True).order_by('-PC_NCALIDAD')
             #RECORRO LA LISTA DE PRODUCTOS ASOCIADOS A LA CATEGORIA
             for valor in productos:
                 lista_aux=[]
@@ -1987,7 +1987,7 @@ def obtener_mejor_producto(request,ov_nid):
             #SE ACTUALIZA EL ESTADO DE CADA LINEA DE LA SOLICITUD PARA NOTIFICAR SI UN PRODUCTO ESTA PENDIENTE EN EL SISTEMA
 
             if stock_necesario >= 0:
-                print("no se pudo cubrir la totalidad de la demanda con productos de buena calidad")
+                print("no se pudo cubrir la totalidad de la demanda con productos de buena calidad:",categoria.CP_CDESCRIPCION)
                 
                 mensaje = mensaje + f'''{categoria.CP_CDESCRIPCION} <br>'''
                 SOLICITUD_COMPRA_DETALLE.objects.filter(CP_NID_id= categoria.CP_NID,SC_NID_id = sc_nid).update(SCD_NESTADO = False)

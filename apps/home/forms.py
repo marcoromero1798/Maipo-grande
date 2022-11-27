@@ -60,7 +60,9 @@ class formSTOCK(forms.ModelForm):
         labels = '__all__'
         widgets = {        
             'PC_NID': forms.Select(attrs={'class': 'form-control','type':'text'}),
-            'STK_NQTY': forms.TextInput(attrs={'class': 'form-control','type':'number'}),
+            'STK_NQTY': forms.TextInput(attrs={'class': 'form-control','type':'number','min':'1'}),
+            'STK_CBODEGA' : forms.Select(choices=[('INTERNA','INTERNA'),('EXTERNA','EXTERNA')],attrs={'class': 'form-control','type':'text'}),
+
         }
 class formPRODUCTOR(forms.ModelForm):
     class Meta:

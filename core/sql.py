@@ -324,3 +324,104 @@ def comparacion_venta_externa_interna():
         if resultado == None:
             return None
         return resultado
+def producto_mas_vendido(MESAÑO):
+    with connection.cursor() as cursor:
+        cquery = f'''
+            SELECT "PRODUCTO"."PC_CDESCRIPCION",SUM("ORDEN_VENTA_DETALLE"."OVD_NQTY")
+            FROM "ORDEN_VENTA"
+            LEFT JOIN "ORDEN_VENTA_DETALLE" ON "ORDEN_VENTA_DETALLE"."OV_NID_id" = "ORDEN_VENTA"."OV_NID"
+            LEFT JOIN "PRODUCTO" ON "PRODUCTO"."PC_NID" = "ORDEN_VENTA_DETALLE"."PC_NID_id"
+            LEFT JOIN "CATEGORIA_PRODUCTO" ON "CATEGORIA_PRODUCTO"."CP_NID" = "PRODUCTO"."CP_NID_id"
+            WHERE TO_CHAR("ORDEN_VENTA"."OV_FFECHA_PROCESAMIENTO",'mmyyyy') ='{MESAÑO}' 
+            and "ORDEN_VENTA"."OV_CESTADO" = 'COMPLETADO'
+            GROUP BY "PRODUCTO"."PC_CDESCRIPCION"
+            ORDER BY SUM("ORDEN_VENTA_DETALLE"."OVD_NQTY") DESC
+            LIMIT 1
+            '''
+        cursor.execute(cquery)
+        resultado = cursor.fetchone()
+        if resultado == None:
+            return None
+        return resultado[0]
+def categoria_mas_vendida(MESAÑO):
+    with connection.cursor() as cursor:
+        cquery = f'''
+        SELECT "CATEGORIA_PRODUCTO"."CP_CDESCRIPCION",SUM("ORDEN_VENTA_DETALLE"."OVD_NQTY")
+        FROM "ORDEN_VENTA"
+        LEFT JOIN "ORDEN_VENTA_DETALLE" ON "ORDEN_VENTA_DETALLE"."OV_NID_id" = "ORDEN_VENTA"."OV_NID"
+        LEFT JOIN "PRODUCTO" ON "PRODUCTO"."PC_NID" = "ORDEN_VENTA_DETALLE"."PC_NID_id"
+        LEFT JOIN "CATEGORIA_PRODUCTO" ON "CATEGORIA_PRODUCTO"."CP_NID" = "PRODUCTO"."CP_NID_id"
+        WHERE TO_CHAR("ORDEN_VENTA"."OV_FFECHA_PROCESAMIENTO",'mmyyyy') ='{MESAÑO}' 
+        and "ORDEN_VENTA"."OV_CESTADO" = 'COMPLETADO'
+        GROUP BY "CATEGORIA_PRODUCTO"."CP_CDESCRIPCION"
+        ORDER BY SUM("ORDEN_VENTA_DETALLE"."OVD_NQTY") DESC
+        LIMIT 1
+        ;
+            '''
+        cursor.execute(cquery)
+        resultado = cursor.fetchone()
+        if resultado == None:
+            return None
+        return resultado[0]
+def productor_con_mas_ventas(MESAÑO):
+    with connection.cursor() as cursor:
+        cquery = f'''
+        SELECT "PRODUCTOR"."PR_CDESCRIPCION",SUM("ORDEN_VENTA_DETALLE"."OVD_NQTY")
+        FROM "ORDEN_VENTA"
+        LEFT JOIN "ORDEN_VENTA_DETALLE" ON "ORDEN_VENTA_DETALLE"."OV_NID_id" = "ORDEN_VENTA"."OV_NID"
+        LEFT JOIN "PRODUCTO" ON "PRODUCTO"."PC_NID" = "ORDEN_VENTA_DETALLE"."PC_NID_id"
+        LEFT JOIN "PRODUCTOR" ON "PRODUCTOR"."PR_NID" = "PRODUCTO"."PR_NID_id"
+        LEFT JOIN "CATEGORIA_PRODUCTO" ON "CATEGORIA_PRODUCTO"."CP_NID" = "PRODUCTO"."CP_NID_id"
+        WHERE TO_CHAR("ORDEN_VENTA"."OV_FFECHA_PROCESAMIENTO",'mmyyyy') ='{MESAÑO}' 
+        and "ORDEN_VENTA"."OV_CESTADO" = 'COMPLETADO'
+        GROUP BY "PRODUCTOR"."PR_CDESCRIPCION"
+        ORDER BY SUM("ORDEN_VENTA_DETALLE"."OVD_NQTY") DESC
+        LIMIT 1
+        ;
+            '''
+        cursor.execute(cquery)
+        resultado = cursor.fetchone()
+        if resultado == None:
+            return None
+        return resultado[0]
+def cantidad_ventas_completadas(MESAÑO):
+    with connection.cursor() as cursor:
+        cquery = f'''
+        SELECT SUM("ORDEN_VENTA"."OV_NID")
+        FROM "ORDEN_VENTA"
+        LEFT JOIN "ORDEN_VENTA_DETALLE" ON "ORDEN_VENTA_DETALLE"."OV_NID_id" = "ORDEN_VENTA"."OV_NID"
+        LEFT JOIN "PRODUCTO" ON "PRODUCTO"."PC_NID" = "ORDEN_VENTA_DETALLE"."PC_NID_id"
+        LEFT JOIN "PRODUCTOR" ON "PRODUCTOR"."PR_NID" = "PRODUCTO"."PR_NID_id"
+        LEFT JOIN "CATEGORIA_PRODUCTO" ON "CATEGORIA_PRODUCTO"."CP_NID" = "PRODUCTO"."CP_NID_id"
+        WHERE TO_CHAR("ORDEN_VENTA"."OV_FFECHA_PROCESAMIENTO",'mmyyyy') ='{MESAÑO}' 
+        and "ORDEN_VENTA"."OV_CESTADO" = 'COMPLETADO'
+        GROUP BY TO_CHAR("ORDEN_VENTA"."OV_FFECHA_PROCESAMIENTO",'mmyyyy')
+        ORDER BY SUM("ORDEN_VENTA_DETALLE"."OVD_NQTY") DESC
+        LIMIT 1
+        ;
+            '''
+        cursor.execute(cquery)
+        resultado = cursor.fetchone()
+        if resultado == None:
+            return None
+        return resultado[0]
+def comparacion_estado_ordenes(MESAÑO):
+    with connection.cursor() as cursor:
+        cquery = f'''
+        SELECT 
+        "ORDEN_VENTA"."OV_CESTADO" as ESTADO,
+        SUM("ORDEN_VENTA"."OV_NID") as SUMA
+        FROM "ORDEN_VENTA"
+        LEFT JOIN "ORDEN_VENTA_DETALLE" ON "ORDEN_VENTA_DETALLE"."OV_NID_id" = "ORDEN_VENTA"."OV_NID"
+        LEFT JOIN "PRODUCTO" ON "PRODUCTO"."PC_NID" = "ORDEN_VENTA_DETALLE"."PC_NID_id"
+        LEFT JOIN "PRODUCTOR" ON "PRODUCTOR"."PR_NID" = "PRODUCTO"."PR_NID_id"
+        LEFT JOIN "CATEGORIA_PRODUCTO" ON "CATEGORIA_PRODUCTO"."CP_NID" = "PRODUCTO"."CP_NID_id"
+        WHERE TO_CHAR("ORDEN_VENTA"."OV_FFECHA_PROCESAMIENTO",'mmyyyy') ='{MESAÑO}' 
+        GROUP BY "ORDEN_VENTA"."OV_CESTADO"
+        ;
+            '''
+        cursor.execute(cquery)
+        resultado = cursor.fetchall()
+        if resultado == None:
+            return None
+        return resultado

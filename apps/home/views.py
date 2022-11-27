@@ -75,7 +75,14 @@ def pages(request):
 
 # CONTRATO
 def dashboard(request):
+    #FECHA CON FORMATO MESAÑO
+    fecha = datetime.now().strftime("%m%Y")
+    ####listas#####
+    #query 9
+    lista_labels_query_9 = []
+    lista_qty_query_9  = []
     #QUERYS
+    
     #################################
     # VENTAS POR PRODUCTO - EXTERNO #
     #################################
@@ -92,13 +99,50 @@ def dashboard(request):
     # GRAFICO COMPARATIVO VENTAS EXTERNAS VS INTERNAS  #
     ####################################################
     query_4 = comparacion_venta_externa_interna()
-
+    ###########################
+    # PRODUCTO MAS VENDIDO    #
+    ###########################
+    query_5 = producto_mas_vendido(fecha)
+    ###########################
+    # CATEGORIA MAS VENDIDA   #
+    ###########################
+    query_6 = categoria_mas_vendida(fecha)
+    ############################
+    # PRODUCTOR CON MAS VENTAS #
+    ############################
+    query_7 = productor_con_mas_ventas(fecha)
+    ##################################
+    # CANTIDAD DE VENTAS COMPLETADAS #
+    #################################
+    query_8 = cantidad_ventas_completadas(fecha)
+    ###############################
+    # COMPARACION ESTADO ORDENES  #
+    ###############################
+    query_9 = comparacion_estado_ordenes(fecha)
+    
+    #############################################
+    #####      REPROCESO DE CONSULTAS     #######
+    #############################################
+    # query 9
+    for dato in query_9:
+        lista_labels_query_9.append(dato[0])
+        lista_qty_query_9.append(int(dato[1]))
+    print(lista_labels_query_9)
     context={
         'query_1':query_1,
         'query_2':query_2,
         'query_3':query_3,
-        'query_4':query_4
-        
+        'query_4':query_4,
+        'query_5':query_5,
+        'query_6':query_6,
+        'query_7':query_7,
+        'query_8':query_8,
+        #######################
+        # listas reprocesadas #
+        #######################
+        #query 9
+        'lista_labels_query_9': lista_labels_query_9,
+        'lista_qty_query_9': lista_qty_query_9
     }
     return render(request,'home/index.html',context)
 

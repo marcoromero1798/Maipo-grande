@@ -75,7 +75,14 @@ def pages(request):
 
 # CONTRATO
 def dashboard(request):
+    #FECHA CON FORMATO MESAÑO
+    fecha = datetime.now().strftime("%m%Y")
+    ####listas#####
+    #query 9
+    lista_labels_query_9 = []
+    lista_qty_query_9  = []
     #QUERYS
+    
     #################################
     # VENTAS POR PRODUCTO - EXTERNO #
     #################################
@@ -92,13 +99,50 @@ def dashboard(request):
     # GRAFICO COMPARATIVO VENTAS EXTERNAS VS INTERNAS  #
     ####################################################
     query_4 = comparacion_venta_externa_interna()
-
+    ###########################
+    # PRODUCTO MAS VENDIDO    #
+    ###########################
+    query_5 = producto_mas_vendido(fecha)
+    ###########################
+    # CATEGORIA MAS VENDIDA   #
+    ###########################
+    query_6 = categoria_mas_vendida(fecha)
+    ############################
+    # PRODUCTOR CON MAS VENTAS #
+    ############################
+    query_7 = productor_con_mas_ventas(fecha)
+    ##################################
+    # CANTIDAD DE VENTAS COMPLETADAS #
+    #################################
+    query_8 = cantidad_ventas_completadas(fecha)
+    ###############################
+    # COMPARACION ESTADO ORDENES  #
+    ###############################
+    query_9 = comparacion_estado_ordenes(fecha)
+    
+    #############################################
+    #####      REPROCESO DE CONSULTAS     #######
+    #############################################
+    # query 9
+    for dato in query_9:
+        lista_labels_query_9.append(dato[0])
+        lista_qty_query_9.append(int(dato[1]))
+    print(lista_labels_query_9)
     context={
         'query_1':query_1,
         'query_2':query_2,
         'query_3':query_3,
-        'query_4':query_4
-        
+        'query_4':query_4,
+        'query_5':query_5,
+        'query_6':query_6,
+        'query_7':query_7,
+        'query_8':query_8,
+        #######################
+        # listas reprocesadas #
+        #######################
+        #query 9
+        'lista_labels_query_9': lista_labels_query_9,
+        'lista_qty_query_9': lista_qty_query_9
     }
     return render(request,'home/index.html',context)
 
@@ -1852,7 +1896,7 @@ def obtener_mejor_producto(request,ov_nid):
             listado_productos = []
             #DEFINO LA LINEA INICIAL, UNA OV VACIA INICIA CON LINEA 0 sino inicia con la ultima linea ingresada
             #OBTENGO LOS PRODUCTOS ASOCIADOS A LA CATEGORIA ORDENADOS POR LA CALIDAD
-            productos = PRODUCTO.objects.filter(CP_NID = categoria,PC_NHABILITADO = True).order_by('-PC_NCALIDAD')
+            productos = PRODUCTO.objects.filter(CP_NID_id = categoria.CP_NID,PC_NHABILITADO = True).order_by('-PC_NCALIDAD')
             #RECORRO LA LISTA DE PRODUCTOS ASOCIADOS A LA CATEGORIA
             for valor in productos:
                 lista_aux=[]
@@ -1943,7 +1987,7 @@ def obtener_mejor_producto(request,ov_nid):
             #SE ACTUALIZA EL ESTADO DE CADA LINEA DE LA SOLICITUD PARA NOTIFICAR SI UN PRODUCTO ESTA PENDIENTE EN EL SISTEMA
 
             if stock_necesario >= 0:
-                print("no se pudo cubrir la totalidad de la demanda con productos de buena calidad")
+                print("no se pudo cubrir la totalidad de la demanda con productos de buena calidad:",categoria.CP_CDESCRIPCION)
                 
                 mensaje = mensaje + f'''{categoria.CP_CDESCRIPCION} <br>'''
                 SOLICITUD_COMPRA_DETALLE.objects.filter(CP_NID_id= categoria.CP_NID,SC_NID_id = sc_nid).update(SCD_NESTADO = False)

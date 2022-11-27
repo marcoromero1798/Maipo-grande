@@ -2114,14 +2114,13 @@ def direccion_deshabilitar(request,pk):
     return redirect("sy-dir_list") 
 
 
-<<<<<<< Updated upstream
 
 
 
 
 
-=======
->>>>>>> Stashed changes
+
+
 def mensaje_OV(request,ov):
     instancia_ov = ORDEN_VENTA.objects.get(OV_NID = ov.OV_NID)
     instancia_ovd = ORDEN_VENTA_DETALLE.objects.filter(OV_NID_id = ov.OV_NID)

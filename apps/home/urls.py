@@ -124,11 +124,11 @@ urlpatterns = [
 
 
     #PERFIL
-    path('user-profile.html', login_required(views.info_perfil), name='user-profile'),
+    path('user-profile.html', login_required(views.info_perfil), name='user-profile'), 
 
-    
-    path('pagar/<int:ov_nid>', login_required(views.pagar), name='pagar'),
     #DISTRIBUCION DE PRODUCTOS 
+    path('entregado/<int:ov_nid>', login_required(views.marcar_como_entregado), name='entregado'),
+    path('pagar/<int:ov_nid>', login_required(views.pagar), name='pagar'),
     path('distribuir/<int:ov_nid>', login_required(views.distribuir_pago), name='distribuir'),
 
 

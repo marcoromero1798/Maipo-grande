@@ -55,7 +55,16 @@
 							<li>
 								<a class="nav-link text-info" href="{% url 'tr-orden_venta_subasta' object.OV_NID %}">Subastar Transporte</a>
 							</li>
+							{% elif object.OV_CESTADO == 'ENVIADO' %}
+							<li>
+								<a class="nav-link text-info" href="{% url 'entregado' object.OV_NID %}">Marcar como ENTREGADO</a>
+							</li>
+							{% elif object.OV_CESTADO == 'ENTREGADO' %}
+							<li>
+								<a class="nav-link text-info" href="{% url 'pagar' object.OV_NID %}">Verificar Documento</a>
+							</li>
 							{% endif %}
+							
 						{% endif %}
 					{% elif request.user.USER.UX_IS_PRODUCTOR == 1 %}
 					<li>

@@ -1791,7 +1791,7 @@ def terminar_subasta(request,su_nid):
             #####################################
             SUBASTA_DETALLE.objects.filter(id = ID_DETALLE_SUBASTA_SELECCIONADO).update(SUD_NSELECCION = True)
             SUBASTA.objects.filter(SU_NID = su_nid).update(SU_NTRANSPORTE_SELECCIONADO = ID_TRANSPORTE_SELECCIONADO,SU_NESTADO = True)
-            ORDEN_VENTA.objects.filter(OV_NID = ORDEN_VENTA_id).update(OV_CESTADO = 'ENTREGA')
+            ORDEN_VENTA.objects.filter(OV_NID = ORDEN_VENTA_id).update(OV_CESTADO = 'ENVIADO')
             #################
             # notificacion ##
             #################
@@ -1823,9 +1823,10 @@ def obtener_mejor_producto(request,ov_nid):
     fecha_minima_formato = fecha_minima.strftime("%Y-%m-%d")
     #variables
     categoria = ''
+    mensaje = ''
     qty = 0
     #listas
-    listado_productos = []
+
     lista_categorias = []
     lista_bulk = []
     cant_lineas = ORDEN_VENTA_DETALLE.objects.filter(OV_NID_id = ov_nid).count()
@@ -1842,14 +1843,14 @@ def obtener_mejor_producto(request,ov_nid):
             #  CATEGORIA ES LA CATEGORIA DE PRODUCTO SOLICITADA
             #  CANTIDAD ES LA CANTIDAD TOTAL SOLICITADA PARA ESA CATEGORIA
             lista_categorias.append(lista_aux)
-        #RECORRO LA LISTA DE CATEGORIAS ASIGNANDO DOS VARIABLES A CADA POSICION
-        for categoria,cantidad in lista_categorias:
-
-            #DEFINO LA LINEA INICIAL, UNA OV VACIA INICIA CON LINEA 0 sino inicia con la ultima linea ingresada
             if cant_lineas > 1:
                 linea_ovd = nextLine_OV(ov_nid)
             else:
                 linea_ovd = 1
+        #RECORRO LA LISTA DE CATEGORIAS ASIGNANDO DOS VARIABLES A CADA POSICION
+        for categoria,cantidad in lista_categorias:
+            listado_productos = []
+            #DEFINO LA LINEA INICIAL, UNA OV VACIA INICIA CON LINEA 0 sino inicia con la ultima linea ingresada
             #OBTENGO LOS PRODUCTOS ASOCIADOS A LA CATEGORIA ORDENADOS POR LA CALIDAD
             productos = PRODUCTO.objects.filter(CP_NID = categoria,PC_NHABILITADO = True).order_by('-PC_NCALIDAD')
             #RECORRO LA LISTA DE PRODUCTOS ASOCIADOS A LA CATEGORIA
@@ -1883,7 +1884,6 @@ def obtener_mejor_producto(request,ov_nid):
             suma_cantidad = 0
             diferencia = 0
             lista_updates = []
-            mensaje = 'correcto'
             stock_necesario = cantidad #cantidad es lo que se solicito de la categoria
             #REALIZO EL CALCULO AL DATAFRAME DETERMINANDO CUANTO STOCK DE CADA PRODUCTO SE LE ASIGNARA EN LA ORDEN DE VENTA
             for index,row in dataframe_ordenado.iterrows():
@@ -1944,7 +1944,7 @@ def obtener_mejor_producto(request,ov_nid):
 
             if stock_necesario >= 0:
                 print("no se pudo cubrir la totalidad de la demanda con productos de buena calidad")
-                mensaje = ''
+                
                 mensaje = mensaje + f'''{categoria.CP_CDESCRIPCION} <br>'''
                 SOLICITUD_COMPRA_DETALLE.objects.filter(CP_NID_id= categoria.CP_NID,SC_NID_id = sc_nid).update(SCD_NESTADO = False)
             else:
@@ -2118,7 +2118,6 @@ def direccion_deshabilitar(request,pk):
 
 
 
-=======
 def mensaje_OV(request,ov):
     instancia_ov = ORDEN_VENTA.objects.get(OV_NID = ov.OV_NID)
     instancia_ovd = ORDEN_VENTA_DETALLE.objects.filter(OV_NID_id = ov.OV_NID)
@@ -2808,7 +2807,7 @@ def pagar(request,ov_nid):
    
     # preference_json = json.dumps(preference_data)
     preference_response = sdk.preference().create(preference_data)
-    preference = preference_response["response"]
+    preference = preference_response["response"]['id']
     
 
     context = {
@@ -2818,8 +2817,15 @@ def pagar(request,ov_nid):
         'total_iva':total_iva,
         'sub_total':sub_total,
         'iva':iva,
-        
+        'preference':preference
     }
     return render(request, 'home/tr-ov_listone_pagar.html', context)
 
 
+def marcar_como_entregado(request,ov_nid):
+    try:
+        ORDEN_VENTA.objects.filter(OV_NID = ov_nid).update(OV_CESTADO = 'ENTREGADO')
+        messages.success(request,"Orden de venta marcada como entregada correctamente")
+    except Exception as e:
+        print("Error al editar orden de venta ",e)
+    redirect('tr-list')

@@ -35,7 +35,12 @@
 					<li class="nav-item f-text active">
 						<a class="nav-link text-secondary" >Opciones documento:</a>
 					</li>
-					{% if object.OV_CESTADO != 'PAGADO' %}
+					{% if object.OV_CESTADO == 'ENTREGADO' %}
+						<li>
+							<div  class="cho-container"></div>
+						</li>
+					{% endif %}
+					{% if object.OV_CESTADO == 'ENVIADO' %}
 						<li>
 							<div  class="cho-container"></div>
 						</li>

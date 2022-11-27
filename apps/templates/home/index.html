@@ -6,7 +6,7 @@
 {% block stylesheets %}{% endblock stylesheets %}
 
 {% block content %}		
-	
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.1.2/dist/echarts.min.js"></script>
 
 
     <!-- [ Main Content ] start -->
@@ -31,8 +31,57 @@
             <!-- [ breadcrumb ] end -->
             <!-- [ Main Content ] start -->
             <div class="row">
-                <div class="col-lg-6">
+                {% comment %} cards iniciales {% endcomment %}
+                <div class="col-md-6 col-xl-3">
+                    <div class="card bg-c-blue order-card">
+                        <div class="card-body">
+                            <h6 class="text-white">Producto mas vendido</h6>
+                            <h2 class="text-right text-white"><i class="feather icon-shopping-cart float-left"></i><span>{{query_5}}</span></h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <div class="card bg-c-blue order-card">
+                        <div class="card-body">
+                            <h6 class="text-white">Categoria mas vendida</h6>
+                            <h2 class="text-right text-white"><i class="feather icon-shopping-cart float-left"></i><span>{{query_6}}</span></h2>
 
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <div class="card bg-c-blue order-card">
+                        <div class="card-body">
+                            <h6 class="text-white">Productor con mas ventas</h6>
+                            <h2 class="text-right text-white"><i class="feather icon-shopping-cart float-left"></i><span>{{query_7}}</span></h2>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <div class="card bg-c-blue order-card">
+                        <div class="card-body">
+                            <h6 class="text-white">Ventas completadas</h6>
+                            <h2 class="text-right text-white"><i class="feather icon-shopping-cart float-left"></i><span>{{query_8}}</span></h2>
+
+                        </div>
+                    </div>
+                </div>
+                {% comment %} fin cards iniciales {% endcomment %}
+                <div class="col-md-6 col-xl-12">
+                    <div class="card order-card">
+                        
+                        <div class="card-header">
+                            <h3 style = 'text-align: center;'>Grafico cantidad de estados de ordenes</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="piechart-comparacion-estados" style="width: 100%; height:600%; text-align: center; "></div>
+                        </div>
+                    </div>
+                </div>
+            
+                {% comment %} tablas fila {% endcomment %}
+                <div class="col-lg-6">
                     <div class="card card-body border-0 shadow table-wrapper table-responsive">
                         <div class="card-header style:text-align-left">
                             <h6>Cantidad de ventas por producto para el proceso EXTERNO</h4>
@@ -80,11 +129,39 @@
                         </table>
                     </div>
                 </div>
+                {% comment %} fin tablas fila {% endcomment %}
+                <div>
+
+                </div>
             </div>
         </div>
     </div>
     <!-- [ Main Content ] end -->
+    {% comment %} piechart comparativo de estados {% endcomment %}
+    <script>
+    
+    var chartDom = document.getElementById('piechart-comparacion-estados');
+    var myChart = echarts.init(chartDom);
+    var option;
+    console.log({{lista_labels_query_9|safe}})
+    option = {
+    xAxis: {
+        type: 'category',
+        data: {{lista_labels_query_9|safe}}
+    },
+    yAxis: {
+        type: 'value'
+    },
+    series: [
+        {
+        data: {{lista_qty_query_9|safe}},
+        type: 'bar'
+        }
+    ]
+    };
 
+    option && myChart.setOption(option);
+    </script>
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
@@ -104,5 +181,8 @@
 <script src="/static/assets/js/plugins/jquery.dataTables.min.js"></script>
 <script src="/static/assets/js/plugins/dataTables.bootstrap4.min.js"></script>
 <script src="/static/assets/js/pages/data-basic-custom.js"></script>
+
+
+
 {% endblock javascripts %}
 

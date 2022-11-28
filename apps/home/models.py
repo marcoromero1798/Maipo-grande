@@ -75,6 +75,7 @@ class USERS_EXTENSION(models.Model):
     UX_CTELEGRAM_ID = models.CharField(("ID Telegram"),max_length=128,null=True,blank=True)
     UX_CTELEGRAM_USER = models.CharField(("Usuario Telegram"),max_length=128,null=True,blank=True)
     UX_CRUT = models.CharField(("Rut"),max_length=16)
+    UX_CCORREO = models.CharField(("Correo"),max_length=128, null=True)
     UX_NHABILITADO = models.BooleanField(("Habilitado"))
     UX_IS_ADMINISTRADOR = models.BooleanField(default=False)
     UX_IS_TRANSPORTISTA = models.BooleanField(default=False)

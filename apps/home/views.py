@@ -75,7 +75,14 @@ def pages(request):
 
 # CONTRATO
 def dashboard(request):
+    #FECHA CON FORMATO MESAÑO
+    fecha = datetime.now().strftime("%m%Y")
+    ####listas#####
+    #query 9
+    lista_labels_query_9 = []
+    lista_qty_query_9  = []
     #QUERYS
+    
     #################################
     # VENTAS POR PRODUCTO - EXTERNO #
     #################################
@@ -92,13 +99,50 @@ def dashboard(request):
     # GRAFICO COMPARATIVO VENTAS EXTERNAS VS INTERNAS  #
     ####################################################
     query_4 = comparacion_venta_externa_interna()
-
+    ###########################
+    # PRODUCTO MAS VENDIDO    #
+    ###########################
+    query_5 = producto_mas_vendido(fecha)
+    ###########################
+    # CATEGORIA MAS VENDIDA   #
+    ###########################
+    query_6 = categoria_mas_vendida(fecha)
+    ############################
+    # PRODUCTOR CON MAS VENTAS #
+    ############################
+    query_7 = productor_con_mas_ventas(fecha)
+    ##################################
+    # CANTIDAD DE VENTAS COMPLETADAS #
+    #################################
+    query_8 = cantidad_ventas_completadas(fecha)
+    ###############################
+    # COMPARACION ESTADO ORDENES  #
+    ###############################
+    query_9 = comparacion_estado_ordenes(fecha)
+    
+    #############################################
+    #####      REPROCESO DE CONSULTAS     #######
+    #############################################
+    # query 9
+    for dato in query_9:
+        lista_labels_query_9.append(dato[0])
+        lista_qty_query_9.append(int(dato[1]))
+    print(lista_labels_query_9)
     context={
         'query_1':query_1,
         'query_2':query_2,
         'query_3':query_3,
-        'query_4':query_4
-        
+        'query_4':query_4,
+        'query_5':query_5,
+        'query_6':query_6,
+        'query_7':query_7,
+        'query_8':query_8,
+        #######################
+        # listas reprocesadas #
+        #######################
+        #query 9
+        'lista_labels_query_9': lista_labels_query_9,
+        'lista_qty_query_9': lista_qty_query_9
     }
     return render(request,'home/index.html',context)
 
@@ -1264,6 +1308,20 @@ def solicitud_compra_listone(request, sc_nid):
         'object_lines': instancia_detalle
     }
     return render(request, 'home/tr-sc_listone.html', context)
+def info_perfil(request):
+    context={}
+    user=[]
+    perfil=[]
+    user = USERS_EXTENSION.objects.get(US_NID = request.user.id)
+    if user.UX_NHABILITADO == 0:
+            messages.info(request,'Usuario no habiltado, contactese con un administrador')
+            return render (request, 'home/user-profile.html', context)
+    else:
+        perfil = USERS_EXTENSION.objects.filter(US_NID = request.user.id)
+        context ={
+         'object_list':perfil,
+    }
+    return render (request, 'home/user-profile.html', context)
 
 
 # ORDEN DE VENTA
@@ -1778,7 +1836,7 @@ def terminar_subasta(request,su_nid):
             #####################################
             SUBASTA_DETALLE.objects.filter(id = ID_DETALLE_SUBASTA_SELECCIONADO).update(SUD_NSELECCION = True)
             SUBASTA.objects.filter(SU_NID = su_nid).update(SU_NTRANSPORTE_SELECCIONADO = ID_TRANSPORTE_SELECCIONADO,SU_NESTADO = True)
-            ORDEN_VENTA.objects.filter(OV_NID = ORDEN_VENTA_id).update(OV_CESTADO = 'ENTREGA')
+            ORDEN_VENTA.objects.filter(OV_NID = ORDEN_VENTA_id).update(OV_CESTADO = 'ENVIADO')
             #################
             # notificacion ##
             #################
@@ -1810,9 +1868,10 @@ def obtener_mejor_producto(request,ov_nid):
     fecha_minima_formato = fecha_minima.strftime("%Y-%m-%d")
     #variables
     categoria = ''
+    mensaje = ''
     qty = 0
     #listas
-    listado_productos = []
+
     lista_categorias = []
     lista_bulk = []
     cant_lineas = ORDEN_VENTA_DETALLE.objects.filter(OV_NID_id = ov_nid).count()
@@ -1829,16 +1888,16 @@ def obtener_mejor_producto(request,ov_nid):
             #  CATEGORIA ES LA CATEGORIA DE PRODUCTO SOLICITADA
             #  CANTIDAD ES LA CANTIDAD TOTAL SOLICITADA PARA ESA CATEGORIA
             lista_categorias.append(lista_aux)
-        #RECORRO LA LISTA DE CATEGORIAS ASIGNANDO DOS VARIABLES A CADA POSICION
-        for categoria,cantidad in lista_categorias:
-
-            #DEFINO LA LINEA INICIAL, UNA OV VACIA INICIA CON LINEA 0 sino inicia con la ultima linea ingresada
             if cant_lineas > 1:
                 linea_ovd = nextLine_OV(ov_nid)
             else:
                 linea_ovd = 1
+        #RECORRO LA LISTA DE CATEGORIAS ASIGNANDO DOS VARIABLES A CADA POSICION
+        for categoria,cantidad in lista_categorias:
+            listado_productos = []
+            #DEFINO LA LINEA INICIAL, UNA OV VACIA INICIA CON LINEA 0 sino inicia con la ultima linea ingresada
             #OBTENGO LOS PRODUCTOS ASOCIADOS A LA CATEGORIA ORDENADOS POR LA CALIDAD
-            productos = PRODUCTO.objects.filter(CP_NID = categoria,PC_NHABILITADO = True).order_by('-PC_NCALIDAD')
+            productos = PRODUCTO.objects.filter(CP_NID_id = categoria.CP_NID,PC_NHABILITADO = True).order_by('-PC_NCALIDAD')
             #RECORRO LA LISTA DE PRODUCTOS ASOCIADOS A LA CATEGORIA
             for valor in productos:
                 lista_aux=[]
@@ -1870,7 +1929,6 @@ def obtener_mejor_producto(request,ov_nid):
             suma_cantidad = 0
             diferencia = 0
             lista_updates = []
-            mensaje = 'correcto'
             stock_necesario = cantidad #cantidad es lo que se solicito de la categoria
             #REALIZO EL CALCULO AL DATAFRAME DETERMINANDO CUANTO STOCK DE CADA PRODUCTO SE LE ASIGNARA EN LA ORDEN DE VENTA
             for index,row in dataframe_ordenado.iterrows():
@@ -1930,8 +1988,8 @@ def obtener_mejor_producto(request,ov_nid):
             #SE ACTUALIZA EL ESTADO DE CADA LINEA DE LA SOLICITUD PARA NOTIFICAR SI UN PRODUCTO ESTA PENDIENTE EN EL SISTEMA
 
             if stock_necesario >= 0:
-                print("no se pudo cubrir la totalidad de la demanda con productos de buena calidad")
-                mensaje = ''
+                print("no se pudo cubrir la totalidad de la demanda con productos de buena calidad:",categoria.CP_CDESCRIPCION)
+                
                 mensaje = mensaje + f'''{categoria.CP_CDESCRIPCION} <br>'''
                 SOLICITUD_COMPRA_DETALLE.objects.filter(CP_NID_id= categoria.CP_NID,SC_NID_id = sc_nid).update(SCD_NESTADO = False)
             else:
@@ -2009,6 +2067,102 @@ def traspasar_stock(request):
     else:
         messages.warning(request,'No se encontraron productos con stock EXTERNO')
         return redirect('sy-stk_list')
+
+
+#DIRECCION
+class direccion_create(CreateView):
+    model = DIRECCION      # Modelo a utilizar
+    form_class = formDIRECCION  # Formulario definido en forms.py
+    template_name = 'home/sy-dir_create.html'  # html template en core
+    success_url = reverse_lazy("sy-dir_list") 
+    def form_valid(self, form, **kwargs):
+        # INDICA EL USUARIO ACTUAL
+
+        form.instance.DR_NHABILITADO = True
+        retorno = super(CreateView, self).form_valid(form)
+        return retorno
+    def get_success_url(self, **kwargs):
+        # if you are passing 'pk' from 'urls' to 'DeleteView' for company
+        # capture that 'pk' as companyid and pass it to 'reverse_lazy()' function
+        context = super(CreateView, self).get_context_data(**kwargs)
+        historial_acciones = []        
+        historial_acciones = LOG_ACCIONES(
+                US_NID_id = self.request.user.id,
+                LG_FFECHA_ACCION = datetime.now(), 
+                LG_CSECCION = 'SISTEMA' ,
+                LG_CMODULO='DIRECCION',
+                LG_CACCION ='CREACION'
+                )   
+        historial_acciones.save() 
+        return reverse_lazy('sy-dir_list')
+
+
+class direccion_update(UpdateView):
+    model = DIRECCION      # Modelo a utilizar
+    form_class = formDIRECCION  # Formulario definido en forms.py
+    template_name = 'home/sy-dir_create.html'  # html template en core
+    success_url = reverse_lazy("home/sy-dir_list") 
+    def get_success_url(self, **kwargs):
+        # if you are passing 'pk' from 'urls' to 'DeleteView' for company
+        # capture that 'pk' as companyid and pass it to 'reverse_lazy()' function
+        context = super(UpdateView, self).get_context_data(**kwargs)
+        historial_acciones = []        
+        historial_acciones = LOG_ACCIONES(
+                US_NID_id = self.request.user.id,
+                LG_FFECHA_ACCION = datetime.now(), 
+                LG_CSECCION = 'SISTEMA' ,
+                LG_CMODULO='DIRECCION',
+                LG_CACCION ='MODIFICACION'
+                )   
+        historial_acciones.save() 
+        return reverse_lazy('sy-dir_list')
+
+
+def direccion_list(request):
+    try:
+        context={}
+        user=[]
+        direccion=[]
+        user = USERS_EXTENSION.objects.get(US_NID = request.user.id)
+        if user.UX_NHABILITADO == 0:
+            messages.info(request,'Usuario no habiltado, contactese con un administrador')
+            return render(request,'home/sy-dir_list.html',context)
+        else:
+            direccion = DIRECCION.objects.all()
+        context ={
+            'object_list':direccion
+        }
+        return render(request,'home/sy-dir_list.html',context)
+
+    except Exception as e:
+        print("Error listar direccion: ",e)
+        return render(request,'home/sy-dir_list.html',context)
+
+
+def direccion_deshabilitar(request,pk):
+    instancia = []
+    try:
+        instancia = DIRECCION.objects.filter(DR_NID = pk).update(DR_NHABILITADO = False)
+    except  Exception as e:
+        print("error al deshabilitar :",e)
+        messages.warning(request,"Hubo un error al deshabilitar,contactese con un administrador")
+        return redirect("sy-dir_list")  
+    messages.success(request,"DIRECCION Deshabilitada correctamente")
+    historial_acciones = []        
+    historial_acciones = LOG_ACCIONES(
+                US_NID_id = request.user.id,
+                LG_FFECHA_ACCION = datetime.now(), 
+                LG_CSECCION = 'SISTEMA' ,
+                LG_CMODULO='DIRECCION',
+                LG_CACCION ='DESHABILITADO'
+                )   
+    historial_acciones.save() 
+    return redirect("sy-dir_list") 
+
+
+
+
+
 def mensaje_OV(request,ov):
     instancia_ov = ORDEN_VENTA.objects.get(OV_NID = ov.OV_NID)
     instancia_ovd = ORDEN_VENTA_DETALLE.objects.filter(OV_NID_id = ov.OV_NID)
@@ -2687,16 +2841,18 @@ def pagar(request,ov_nid):
     #     preference_data['payer']["name"] = data_cliente[0]
     #     preference_data['payer']["surname"]= data_cliente[1]
     #     preference_data['payer']["email"]= data_cliente[2]
-    url_notifaction = PARAMETRO.objects.get(PM_CGRUPO = 'URL',PM_CCODIGO = 'API-PAGO').PM_CVALOR1
-
-    preference_data['notification_url']= url_notifaction
+    try:
+        url_notifaction = PARAMETRO.objects.get(PM_CGRUPO = 'URL',PM_CCODIGO = 'PAGO').PM_CVALOR1
+    except Exception as e:
+        print("error queryset url api pago: ",e)
+    preference_data['notification_url']= url_notifaction +'/pago/'
     preference_data['external_reference']= ov_nid
     
 
    
     # preference_json = json.dumps(preference_data)
     preference_response = sdk.preference().create(preference_data)
-    preference = preference_response["response"]
+    preference = preference_response["response"]['id']
     
 
     context = {
@@ -2706,7 +2862,15 @@ def pagar(request,ov_nid):
         'total_iva':total_iva,
         'sub_total':sub_total,
         'iva':iva,
-        
+        'preference':preference
     }
     return render(request, 'home/tr-ov_listone_pagar.html', context)
 
+
+def marcar_como_entregado(request,ov_nid):
+    try:
+        ORDEN_VENTA.objects.filter(OV_NID = ov_nid).update(OV_CESTADO = 'ENTREGADO')
+        messages.success(request,"Orden de venta marcada como entregada correctamente")
+    except Exception as e:
+        print("Error al editar orden de venta ",e)
+    redirect('tr-list')

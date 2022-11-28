@@ -17,8 +17,7 @@ urlpatterns = [
     # MANTENEDORES #
     ################
     #
-    path('perfil', login_required(views.contrato_create.as_view()), name='sy-ct_create'),
-
+    
     #CONTRATO
     path('sy-ct_create', login_required(views.contrato_create.as_view()), name='sy-ct_create'),
     path('sy-ct_list', login_required(views.contrato_list), name='sy-ct_list'),
@@ -116,9 +115,22 @@ urlpatterns = [
     path('tr-orden_venta_subasta/<int:ov_nid>', login_required(views.generar_subasta), name='tr-orden_venta_subasta'),
     #SELECCION DE PRODUCTOS
     path('buscar_productos/<int:ov_nid>', login_required(views.obtener_mejor_producto), name='buscar_productos'),
-    path('pagar/<int:ov_nid>', login_required(views.pagar), name='pagar'),
+
+    #DIRECCION
+    path('sy-dir_create', login_required(views.direccion_create.as_view()), name='sy-dir_create'),
+    path('sy-dir_list', login_required(views.direccion_list), name='sy-dir_list'),
+    path('sy-dir_update/<int:pk>', login_required(views.direccion_update.as_view()), name='sy-dir_update'),
+    path('sy-dir_deshabilitar/<int:pk>', login_required(views.direccion_deshabilitar), name='sy-dir_deshabilitar'),
+
+
+    #PERFIL
+    path('user-profile.html', login_required(views.info_perfil), name='user-profile'), 
+
     #DISTRIBUCION DE PRODUCTOS 
+    path('entregado/<int:ov_nid>', login_required(views.marcar_como_entregado), name='entregado'),
+    path('pagar/<int:ov_nid>', login_required(views.pagar), name='pagar'),
     path('distribuir/<int:ov_nid>', login_required(views.distribuir_pago), name='distribuir'),
+
 
     # Matches any html file
     re_path(r'^.*\.*', views.pages, name='pages'),
